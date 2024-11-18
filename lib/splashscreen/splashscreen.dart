@@ -1,4 +1,5 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:bloodlife/DonorsSectionPages/dashboard.dart';
 import 'package:bloodlife/SignupandSignPages/loginpage.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -40,7 +41,7 @@ class _SplashscreenState extends State<Splashscreen> {
           )
         ],
       ),
-      nextScreen: const Loginpage(),
+      nextScreen: const Dashboard(),
       splashIconSize: double.infinity,
       backgroundColor: Colors.white,
     );
