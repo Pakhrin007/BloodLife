@@ -41,7 +41,7 @@ class _SplashscreenState extends State<Splashscreen> {
           )
         ],
       ),
-      nextScreen: const Dashboard(),
+      nextScreen: const Loginpage(),
       splashIconSize: double.infinity,
       backgroundColor: Colors.white,
     );

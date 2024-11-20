@@ -1,3 +1,4 @@
+import 'package:bloodlife/SignupandSignPages/signuppages.dart';
 import 'package:flutter/material.dart';
 
 class Loginpage extends StatefulWidget {
@@ -26,8 +27,6 @@ class _LoginpageState extends State<Loginpage> {
           Padding(
             padding: const EdgeInsets.only(left: 20, top: 40),
             child: Container(
-              // height: 100,
-              // width: 600,
               child: Stack(
                 children: [
                   Container(
@@ -115,26 +114,36 @@ class _LoginpageState extends State<Loginpage> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 10, top: 10),
-                      child: Container(
-                        height: 50,
-                        width: 200,
-                        decoration: BoxDecoration(
-                          color: Color.fromRGBO(
-                            239,
-                            42,
-                            57,
-                            0.9,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Signuppages(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          height: 50,
+                          width: 200,
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(
+                              239,
+                              42,
+                              57,
+                              0.9,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "Login",
-                            style: TextStyle(
-                                letterSpacing: 1.5,
-                                fontSize: 20,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500),
+                          child: Center(
+                            child: Text(
+                              "Login",
+                              style: TextStyle(
+                                  letterSpacing: 1.5,
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500),
+                            ),
                           ),
                         ),
                       ),
