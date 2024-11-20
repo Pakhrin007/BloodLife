@@ -1,4 +1,5 @@
 import 'package:bloodlife/SignupandSignPages/loginpage.dart';
+import 'package:bloodlife/SignupandSignPages/signuppages.dart';
 import 'package:bloodlife/splashscreen/splashscreen.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +10,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

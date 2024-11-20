@@ -14,44 +14,27 @@ class _LoginpageState extends State<Loginpage> {
     return Material(
       child: Stack(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Color.fromRGBO(
-                239,
-                42,
-                57,
-                0.9,
-              ),
-            ),
-          ),
           Padding(
-            padding: const EdgeInsets.only(left: 20, top: 40),
+            padding: const EdgeInsets.only(
+              left: 20,
+            ),
             child: Container(
-              child: Stack(
-                children: [
-                  Container(
-                    height: 30,
-                    width: 40,
-                    child: Image.asset('assets/Images/Logo/Logo.png'),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 138, left: 38),
+                child: Container(
+                  child: Text(
+                    "SignIp to Your Account",
+                    style: TextStyle(
+                        letterSpacing: 1.6,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 66, left: 10),
-                    child: Container(
-                      child: Text(
-                        "Login to Your Account",
-                        style: TextStyle(
-                            letterSpacing: 1.6,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                  )
-                ],
+                ),
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 160),
+            padding: const EdgeInsets.only(top: 170),
             child: Container(
               height: 660,
               width: double.infinity,
@@ -207,15 +190,25 @@ class _LoginpageState extends State<Loginpage> {
                           SizedBox(
                             width: 10,
                           ),
-                          Container(
-                            child: Text(
-                              "SignUp",
-                              style: TextStyle(
-                                  decoration: TextDecoration.underline,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.9,
-                                  fontSize: 16,
-                                  color: Colors.red.shade400),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Signuppages(),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              child: Text(
+                                "SignUp",
+                                style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.9,
+                                    fontSize: 16,
+                                    color: Colors.red.shade400),
+                              ),
                             ),
                           ),
                         ],
@@ -223,6 +216,17 @@ class _LoginpageState extends State<Loginpage> {
                     ),
                   ],
                 ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: Container(
+              height: 225,
+              width: 400,
+              child: Image.asset(
+                fit: BoxFit.cover,
+                'assets/Images/Logo/Logo.png',
               ),
             ),
           ),
