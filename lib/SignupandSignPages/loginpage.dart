@@ -57,7 +57,7 @@ class _LoginpageState extends State<Loginpage> {
                           fillColor: Colors.white,
                           filled: true,
                           label: Text("E-mail"),
-                          hintText: 'Enter Your Email',
+                          hintText: 'Enter Your E-mail',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(15),
                           ),
