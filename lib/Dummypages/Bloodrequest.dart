@@ -54,7 +54,7 @@ class _BloodrequestState extends State<Bloodrequest> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 20, left: 10),
+              padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
               child: SizedBox(
                 height: 60,
                 width: 368,
@@ -75,7 +75,7 @@ class _BloodrequestState extends State<Bloodrequest> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 20, left: 10),
+              padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
               child: SizedBox(
                 height: 60,
                 width: 368,
@@ -96,7 +96,7 @@ class _BloodrequestState extends State<Bloodrequest> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 20, left: 10),
+              padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
               child: SizedBox(
                 height: 60,
                 width: 368,
@@ -117,7 +117,7 @@ class _BloodrequestState extends State<Bloodrequest> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 20, left: 10),
+              padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
               child: SizedBox(
                 height: 60,
                 width: 368,
@@ -139,20 +139,18 @@ class _BloodrequestState extends State<Bloodrequest> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 20, left: 10),
+              padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
               child: SizedBox(
                 height: 150,
                 width: 368,
                 child: TextField(
                   maxLines: null,
                   expands: true,
-                  textAlignVertical:
-                      TextAlignVertical.top, // This makes text start from top
+                  textAlignVertical: TextAlignVertical.top,
                   decoration: InputDecoration(
                     fillColor: Colors.white,
                     filled: true,
-                    alignLabelWithHint:
-                        false, // Ensures label doesn't follow hint text position
+                    alignLabelWithHint: true,
                     label: const Text("Additional Info (Optional)"),
                     hintText: 'Enter Additional Info',
                     hintStyle: TextStyle(
@@ -166,7 +164,7 @@ class _BloodrequestState extends State<Bloodrequest> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 20, left: 10),
+              padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
               child: SizedBox(
                 height: 60,
                 width: 368,
@@ -187,52 +185,62 @@ class _BloodrequestState extends State<Bloodrequest> {
                 ),
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment
-                  .spaceBetween, // This will push checkbox to the right
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 25, top: 5),
-                  child: const Text(
-                    "Urgent Need",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+            Padding(
+              padding: const EdgeInsets.only(top: 20, bottom: 5),
+              child: Container(
+                // padding: EdgeInsets.all(10),
+                height: 50,
+                width: 400,
+                decoration: BoxDecoration(color: Colors.red.withOpacity(0.1)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment
+                      .spaceBetween, // This will push checkbox to the right
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 25, top: 5),
+                      child: const Text(
+                        "Urgent Need",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 20, top: 5),
-                  child: Checkbox(
-                    value: isChecked,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        isChecked = value ?? false;
-                      });
-                    },
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 20, top: 5),
+                      child: Checkbox(
+                        value: isChecked,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            isChecked = value ?? false;
+                          });
+                        },
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        activeColor: Colors.blue,
+                      ),
                     ),
-                    activeColor: Colors.blue,
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
             Container(
               margin: EdgeInsets.only(bottom: 30, top: 20),
               height: 50,
-              width: 200,
+              width: 250,
               decoration: BoxDecoration(
                   color: Colors.red.shade700,
-                  borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(30)),
               child: Center(
-                  child: Text(
-                "Submit Request",
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
+                child: Text(
+                  "Submit Request",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
                 ),
-              )),
+              ),
             )
           ],
         ),
