@@ -16,26 +16,32 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   int index = 2;
 
-  final screen = [Home(), Search(), Fav(), Setting(), Profile()];
+  final screen = [
+    const Home(),
+    const Search(),
+    const Fav(),
+    const Setting(),
+    const Profile()
+  ];
 
   final items = <Widget>[
-    Icon(
+    const Icon(
       Icons.home,
       size: 35,
     ),
-    Icon(
+    const Icon(
       Icons.search,
       size: 35,
     ),
-    Icon(
+    const Icon(
       Icons.favorite,
       size: 35,
     ),
-    Icon(
+    const Icon(
       Icons.settings,
       size: 35,
     ),
-    Icon(
+    const Icon(
       Icons.person,
       size: 35,
     ),
@@ -46,13 +52,13 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
       backgroundColor: Colors.blue.shade200,
       appBar: AppBar(
-        title: Text("Curved Navigation Bar"),
+        title: const Text("Curved Navigation Bar"),
         centerTitle: true,
       ),
       body: screen[index],
       bottomNavigationBar: Theme(
         data: Theme.of(context)
-            .copyWith(iconTheme: IconThemeData(color: Colors.black)),
+            .copyWith(iconTheme: const IconThemeData(color: Colors.black)),
         child: CurvedNavigationBar(
           color: Colors.red.shade400,
           buttonBackgroundColor: Colors.white,
@@ -61,7 +67,7 @@ class _DashboardState extends State<Dashboard> {
           items: items,
           backgroundColor: Colors.transparent,
           animationCurve: Curves.easeIn,
-          animationDuration: Duration(milliseconds: 300),
+          animationDuration: const Duration(milliseconds: 300),
           onTap: (selectedIndex) {
             setState(() {
               index = selectedIndex;

@@ -11,7 +11,7 @@ class _FavState extends State<Fav> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Text("favourite"),
+      child: const Text("favourite"),
     );
   }
 }

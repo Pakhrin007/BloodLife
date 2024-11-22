@@ -15,7 +15,7 @@ class _SignuppagesState extends State<Signuppages> {
       child: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(),
+            decoration: const BoxDecoration(),
           ),
           Padding(
             padding: const EdgeInsets.only(
@@ -27,8 +27,8 @@ class _SignuppagesState extends State<Signuppages> {
                   Padding(
                     padding: const EdgeInsets.only(top: 138, left: 33),
                     child: Container(
-                      child: Text(
-                        "SignUp to Your Account",
+                      child: const Text(
+                        "SignUp",
                         style: TextStyle(
                             letterSpacing: 1.6,
                             fontSize: 22,
@@ -45,7 +45,7 @@ class _SignuppagesState extends State<Signuppages> {
             child: Container(
               height: 680,
               width: double.infinity,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(45),
@@ -57,14 +57,14 @@ class _SignuppagesState extends State<Signuppages> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      Container(
+                      SizedBox(
                         height: 60,
                         width: 368,
                         child: TextField(
                           decoration: InputDecoration(
                             fillColor: Colors.white,
                             filled: true,
-                            label: Text("Full Name"),
+                            label: const Text("Full Name"),
                             hintText: 'Enter Your Full Name',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
@@ -72,54 +72,36 @@ class _SignuppagesState extends State<Signuppages> {
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 15,
                       ),
-                      Container(
+                      SizedBox(
                         height: 60,
                         width: 368,
                         child: TextField(
                           decoration: InputDecoration(
                             fillColor: Colors.white,
                             filled: true,
-                            label: Text("Blood Type"),
-                            hintText: 'Enter Your Blood Type',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      Container(
-                        height: 60,
-                        width: 368,
-                        child: TextField(
-                          decoration: InputDecoration(
-                            fillColor: Colors.white,
-                            filled: true,
-                            label: Text("DOB"),
+                            label: const Text("DOB"),
                             hintText: 'Enter Your DOB',
-                            suffixIcon: Icon(Icons.calendar_month),
+                            suffixIcon: const Icon(Icons.calendar_month),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 15,
                       ),
-                      Container(
+                      SizedBox(
                         height: 60,
                         width: 368,
                         child: TextField(
                           decoration: InputDecoration(
                             fillColor: Colors.white,
                             filled: true,
-                            label: Text("Phone Number"),
+                            label: const Text("Phone Number"),
                             hintText: 'Enter Your Phone Number',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
@@ -127,17 +109,17 @@ class _SignuppagesState extends State<Signuppages> {
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 15,
                       ),
-                      Container(
+                      SizedBox(
                         height: 60,
                         width: 368,
                         child: TextField(
                           decoration: InputDecoration(
                             fillColor: Colors.white,
                             filled: true,
-                            label: Text("E-mail"),
+                            label: const Text("E-mail"),
                             hintText: 'Enter Your Email',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
@@ -145,45 +127,45 @@ class _SignuppagesState extends State<Signuppages> {
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 15,
                       ),
-                      Container(
+                      SizedBox(
                         height: 60,
                         width: 368,
                         child: TextField(
                           decoration: InputDecoration(
                             fillColor: Colors.white,
                             filled: true,
-                            label: Text("Password"),
+                            label: const Text("Password"),
                             hintText: 'Enter Your Password',
-                            suffixIcon: Icon(Icons.remove_red_eye),
+                            suffixIcon: const Icon(Icons.remove_red_eye),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 15,
                       ),
-                      Container(
+                      SizedBox(
                         height: 60,
                         width: 368,
                         child: TextField(
                           decoration: InputDecoration(
                             fillColor: Colors.white,
                             filled: true,
-                            label: Text("Confirm Password"),
+                            label: const Text("Confirm Password"),
                             hintText: 'Enter Your Password',
-                            suffixIcon: Icon(Icons.remove_red_eye),
+                            suffixIcon: const Icon(Icons.remove_red_eye),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 25,
                       ),
                       Padding(
@@ -192,7 +174,7 @@ class _SignuppagesState extends State<Signuppages> {
                           height: 50,
                           width: 200,
                           decoration: BoxDecoration(
-                            color: Color.fromRGBO(
+                            color: const Color.fromRGBO(
                               239,
                               42,
                               57,
@@ -200,7 +182,7 @@ class _SignuppagesState extends State<Signuppages> {
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Center(
+                          child: const Center(
                             child: Text(
                               "SignUp",
                               style: TextStyle(
@@ -212,11 +194,11 @@ class _SignuppagesState extends State<Signuppages> {
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 23,
                       ),
                       Container(
-                        child: Text(
+                        child: const Text(
                           "Or SignUp With",
                           style: TextStyle(
                               letterSpacing: 1.4,
@@ -228,25 +210,25 @@ class _SignuppagesState extends State<Signuppages> {
                         padding: const EdgeInsets.only(left: 110, top: 10),
                         child: Row(
                           children: [
-                            Container(
+                            SizedBox(
                               height: 55,
                               width: 55,
                               child: Image.asset(
                                   'assets/Images/Icons/facebook.png'),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
-                            Container(
+                            SizedBox(
                               height: 55,
                               width: 55,
                               child:
                                   Image.asset('assets/Images/Icons/Google.png'),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 15,
                             ),
-                            Container(
+                            SizedBox(
                               height: 40,
                               width: 40,
                               child: Image.asset('assets/Images/Icons/x.png'),
@@ -254,7 +236,7 @@ class _SignuppagesState extends State<Signuppages> {
                           ],
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Padding(
@@ -262,13 +244,13 @@ class _SignuppagesState extends State<Signuppages> {
                         child: Row(
                           children: [
                             Container(
-                              child: Text(
+                              child: const Text(
                                 "Already Have Account?",
                                 style: TextStyle(
                                     fontSize: 15, fontWeight: FontWeight.w700),
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
                             GestureDetector(
@@ -276,7 +258,7 @@ class _SignuppagesState extends State<Signuppages> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => Loginpage(),
+                                    builder: (context) => const Loginpage(),
                                   ),
                                 );
                               },
@@ -303,7 +285,7 @@ class _SignuppagesState extends State<Signuppages> {
           ),
           Padding(
             padding: const EdgeInsets.only(left: 10),
-            child: Container(
+            child: SizedBox(
               height: 220,
               width: 400,
               child: Image.asset(

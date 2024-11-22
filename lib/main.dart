@@ -1,5 +1,4 @@
-import 'package:bloodlife/SignupandSignPages/loginpage.dart';
-import 'package:bloodlife/SignupandSignPages/signuppages.dart';
+import 'package:bloodlife/Dummypages/Bloodrequest.dart';
 import 'package:bloodlife/splashscreen/splashscreen.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +18,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const Splashscreen(),
+      home: const Bloodrequest(),
     );
   }
 }

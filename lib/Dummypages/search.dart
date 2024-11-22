@@ -11,7 +11,7 @@ class _SearchState extends State<Search> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Text("search"),
+      child: const Text("search"),
     );
   }
 }

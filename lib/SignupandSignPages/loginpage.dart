@@ -23,7 +23,7 @@ class _LoginpageState extends State<Loginpage> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 138, left: 38),
                 child: Container(
-                  child: Text(
+                  child: const Text(
                     "SignIp to Your Account",
                     style: TextStyle(
                         letterSpacing: 1.6,
@@ -39,7 +39,7 @@ class _LoginpageState extends State<Loginpage> {
             child: Container(
               height: 660,
               width: double.infinity,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(45),
@@ -50,14 +50,14 @@ class _LoginpageState extends State<Loginpage> {
                 padding: const EdgeInsets.only(top: 70),
                 child: Column(
                   children: [
-                    Container(
+                    SizedBox(
                       height: 60,
                       width: 368,
                       child: TextField(
                         decoration: InputDecoration(
                           fillColor: Colors.white,
                           filled: true,
-                          label: Text("E-mail"),
+                          label: const Text("E-mail"),
                           hintText: 'Enter Your E-mail',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(15),
@@ -65,35 +65,35 @@ class _LoginpageState extends State<Loginpage> {
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
-                    Container(
+                    SizedBox(
                       height: 60,
                       width: 368,
                       child: TextField(
                         decoration: InputDecoration(
                           fillColor: Colors.white,
                           filled: true,
-                          label: Text("Password"),
+                          label: const Text("Password"),
                           hintText: 'Enter Your Password',
-                          suffixIcon: Icon(Icons.remove_red_eye),
+                          suffixIcon: const Icon(Icons.remove_red_eye),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 190),
                       child: Container(
-                        child: Text("Forgot Password ?"),
+                        child: const Text("Forgot Password ?"),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
                     Padding(
@@ -103,7 +103,7 @@ class _LoginpageState extends State<Loginpage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => Signuppages(),
+                              builder: (context) => const Signuppages(),
                             ),
                           );
                         },
@@ -112,7 +112,7 @@ class _LoginpageState extends State<Loginpage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Dashboard(),
+                                builder: (context) => const Dashboard(),
                               ),
                             );
                           },
@@ -120,7 +120,7 @@ class _LoginpageState extends State<Loginpage> {
                             height: 50,
                             width: 200,
                             decoration: BoxDecoration(
-                              color: Color.fromRGBO(
+                              color: const Color.fromRGBO(
                                 239,
                                 42,
                                 57,
@@ -128,7 +128,7 @@ class _LoginpageState extends State<Loginpage> {
                               ),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Center(
+                            child: const Center(
                               child: Text(
                                 "Login",
                                 style: TextStyle(
@@ -142,11 +142,11 @@ class _LoginpageState extends State<Loginpage> {
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 23,
                     ),
                     Container(
-                      child: Text(
+                      child: const Text(
                         "Or Signin With",
                         style: TextStyle(
                             letterSpacing: 1.4,
@@ -158,25 +158,25 @@ class _LoginpageState extends State<Loginpage> {
                       padding: const EdgeInsets.only(left: 110, top: 10),
                       child: Row(
                         children: [
-                          Container(
+                          SizedBox(
                             height: 55,
                             width: 55,
                             child:
                                 Image.asset('assets/Images/Icons/facebook.png'),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 10,
                           ),
-                          Container(
+                          SizedBox(
                             height: 55,
                             width: 55,
                             child:
                                 Image.asset('assets/Images/Icons/Google.png'),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 15,
                           ),
-                          Container(
+                          SizedBox(
                             height: 40,
                             width: 40,
                             child: Image.asset('assets/Images/Icons/x.png'),
@@ -184,7 +184,7 @@ class _LoginpageState extends State<Loginpage> {
                         ],
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     Padding(
@@ -192,13 +192,13 @@ class _LoginpageState extends State<Loginpage> {
                       child: Row(
                         children: [
                           Container(
-                            child: Text(
+                            child: const Text(
                               "Don't Have Account?",
                               style: TextStyle(
                                   fontSize: 15, fontWeight: FontWeight.w700),
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 10,
                           ),
                           GestureDetector(
@@ -206,7 +206,7 @@ class _LoginpageState extends State<Loginpage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Signuppages(),
+                                  builder: (context) => const Signuppages(),
                                 ),
                               );
                             },
@@ -232,7 +232,7 @@ class _LoginpageState extends State<Loginpage> {
           ),
           Padding(
             padding: const EdgeInsets.only(left: 10),
-            child: Container(
+            child: SizedBox(
               height: 225,
               width: 400,
               child: Image.asset(
