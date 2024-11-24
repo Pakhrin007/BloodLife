@@ -1,10 +1,7 @@
-import 'package:bloodlife/models/healthchannelheadlinesmodel.dart';
 import 'package:bloodlife/view_models/news_view_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:intl/intl.dart';
 
 class Api extends StatefulWidget {
   const Api({super.key});
@@ -21,11 +18,11 @@ class _ApiState extends State<Api> {
     final width = MediaQuery.sizeOf(context).width * 1;
     return Scaffold(
       appBar: AppBar(
-        leading: const Icon(Icons.square),
+        // leading: const Icon(Icons.square),
         title: const Padding(
-          padding: EdgeInsets.only(left: 100),
+          padding: EdgeInsets.only(left: 120),
           child: Text(
-            "News",
+            "Health News",
             style: TextStyle(fontSize: 20),
           ),
         ),
