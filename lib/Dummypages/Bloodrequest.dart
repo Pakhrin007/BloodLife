@@ -15,11 +15,11 @@ class _BloodrequestState extends State<Bloodrequest> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.close),
             Padding(
-              padding: const EdgeInsets.only(left: 89),
+              padding: EdgeInsets.only(left: 89),
               child: Text("Blood Request"),
             )
           ],
@@ -127,7 +127,7 @@ class _BloodrequestState extends State<Bloodrequest> {
                     filled: true,
                     label: const Text("Needed date"),
                     // hintText: 'Enter Patient Name',
-                    suffixIcon: Icon(Icons.calendar_month),
+                    suffixIcon: const Icon(Icons.calendar_month),
                     hintStyle: TextStyle(
                         color: Colors.grey.withOpacity(0.8),
                         fontWeight: FontWeight.normal),
@@ -174,7 +174,7 @@ class _BloodrequestState extends State<Bloodrequest> {
                     filled: true,
                     label: const Text("Upload mediacal documnets"),
                     // hintText: 'Enter Patient Name',
-                    suffixIcon: Icon(Icons.file_copy),
+                    suffixIcon: const Icon(Icons.file_copy),
                     hintStyle: TextStyle(
                         color: Colors.grey.withOpacity(0.8),
                         fontWeight: FontWeight.normal),
@@ -196,9 +196,9 @@ class _BloodrequestState extends State<Bloodrequest> {
                   mainAxisAlignment: MainAxisAlignment
                       .spaceBetween, // This will push checkbox to the right
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 25, top: 5),
-                      child: const Text(
+                    const Padding(
+                      padding: EdgeInsets.only(left: 25, top: 5),
+                      child: Text(
                         "Urgent Need",
                         style: TextStyle(
                           fontSize: 16,
@@ -226,13 +226,13 @@ class _BloodrequestState extends State<Bloodrequest> {
               ),
             ),
             Container(
-              margin: EdgeInsets.only(bottom: 30, top: 20),
+              margin: const EdgeInsets.only(bottom: 30, top: 20),
               height: 50,
               width: 250,
               decoration: BoxDecoration(
                   color: Colors.red.shade700,
                   borderRadius: BorderRadius.circular(30)),
-              child: Center(
+              child: const Center(
                 child: Text(
                   "Submit Request",
                   style: TextStyle(
