@@ -1,3 +1,4 @@
+import 'package:bloodlife/api/api_details.dart';
 import 'package:bloodlife/view_models/news_view_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -36,14 +37,13 @@ class _ApiState extends State<Api> {
               future: newsViewModel.fetchnewschannelheadlinesapi(),
               builder: (BuildContext context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
+                  return const Center(
                     child: SpinKitCircle(
                       size: 30,
                       color: Colors.blue,
                     ),
                   );
                 } else if (snapshot.hasData) {
-                  // Filter articles to exclude null or empty `urlToImage`
                   final filteredArticles = snapshot.data!.articles!
                       .where((article) =>
                           article.urlToImage != null &&
@@ -60,22 +60,73 @@ class _ApiState extends State<Api> {
                     itemCount: filteredArticles.length,
                     itemBuilder: (context, index) {
                       final article = filteredArticles[index];
-                      return Container(
-                        child: Stack(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                child: CachedNetworkImage(
-                                  imageUrl: article.urlToImage.toString(),
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => Container(
-                                    child: spinkit2,
+                      return Padding(
+                        padding: const EdgeInsets.all(6.0),
+                        child: Container(
+                          color: Colors.grey.shade300,
+                          height: height * .3,
+                          child: Stack(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ApiDetails(
+                                          newsImage: snapshot
+                                              .data!.articles![index].urlToImage
+                                              .toString(),
+                                          newsTitle: snapshot
+                                              .data!.articles![index].title
+                                              .toString(),
+                                          newsDate: snapshot.data!
+                                              .articles![index].publishedAt
+                                              .toString(),
+                                          author: snapshot
+                                              .data!.articles![index].author
+                                              .toString(),
+                                          description: snapshot.data!
+                                              .articles![index].description
+                                              .toString(),
+                                          content: snapshot
+                                              .data!.articles![index].content
+                                              .toString(),
+                                          source: snapshot
+                                              .data!.articles![index].source
+                                              .toString(),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    child: CachedNetworkImage(
+                                      imageUrl: article.urlToImage.toString(),
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) => Container(
+                                        child: spinkit2,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                              Positioned(
+                                top: 200,
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(left: 14, top: 12),
+                                  child: Container(
+                                    child: Text(
+                                      'Author: ${snapshot.data!.articles![index].author.toString()}',
+                                      style: const TextStyle(
+                                          fontSize: 14, color: Colors.black),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                       );
                     },
