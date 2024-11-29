@@ -124,6 +124,21 @@ class _ApiState extends State<Api> {
                                     ),
                                   ),
                                 ),
+                              ),
+                              Positioned(
+                                top: 200,
+                                right: 50,
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(left: 14, top: 12),
+                                  child: Container(
+                                    child: Text(
+                                      'Author: ${snapshot.data!.articles![index].publishedAt.toString()}',
+                                      style: const TextStyle(
+                                          fontSize: 14, color: Colors.black),
+                                    ),
+                                  ),
+                                ),
                               )
                             ],
                           ),
