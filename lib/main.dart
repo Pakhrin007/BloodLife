@@ -1,8 +1,9 @@
 import 'package:bloodlife/Dummypages/Bloodrequest.dart';
 import 'package:bloodlife/api/api.dart';
+import 'package:bloodlife/mappages/appointment.dart';
 import 'package:bloodlife/splashscreen/splashscreen.dart';
 import 'package:flutter/material.dart';
-import 'package:bloodlife/pages/maps.dart';
+import 'package:bloodlife/mappages/maps.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: MapPage(),
+      home: BloodDonationForm(),
     );
   }
 }
