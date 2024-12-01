@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show rootBundle;
 
 class MapPage extends StatefulWidget {
@@ -16,10 +15,8 @@ class _MapPageState extends State<MapPage> {
   late GoogleMapController _mapController;
   LatLng? _currentPosition;
   String? _mapStyle;
-  final Set<Polyline> _polylines = {};
-  final List<LatLng> polylineCoordinates = [];
   final TextEditingController _searchController = TextEditingController();
-  Set<Marker> _markers = {}; // Store markers
+  Set<Marker> _markers = {};
 
   final List<Map<String, dynamic>> _hospitals = [
     {
@@ -27,51 +24,60 @@ class _MapPageState extends State<MapPage> {
       "location": LatLng(27.668435004131467, 85.32061121169149),
       "distance": null,
       "address": "Lagankhel, Lalitpur",
-      "contact": "01-5522278, 5522266, 5522295"
+      "contact": "01-5522278, 5522266, 5522295",
+      "isExpanded": false,
     },
     {
       "name": "Bir Hospital",
       "location": LatLng(27.704957859623132, 85.31369431169267),
       "distance": null,
       "address": "Mahabouddha, Kathmandu",
-      "contact": "01-4221119"
+      "contact": "01-4221119",
+      "isExpanded": false,
     },
     {
       "name": "Nepal Mediciti Hospital",
       "location": LatLng(27.662043306804264, 85.30260735216893),
       "distance": null,
       "address": "Lalitpur, Bhaisepati",
-      "contact": "+977-1-4217766"
+      "contact": "+977-1-4217766",
+      "isExpanded": false,
     },
     {
       "name": "Norvic International Hospital",
       "location": LatLng(27.690053977553674, 85.31888185216984),
       "distance": null,
       "address": "Kathmandu",
-      "contact": "01-5970032"
+      "contact": "01-5970032",
+      "isExpanded": false,
     },
     {
       "name": "Grande City Hospital",
       "location": LatLng(27.711186560634836, 85.31484911169291),
       "distance": null,
       "address": "Kanti Path, Kathmandu",
-      "contact": "01-4163500"
+      "contact": "01-4163500",
+      "isExpanded": false,
     },
     {
       "name": "Kathmandu Medical College and Teaching Hospital",
       "location": LatLng(27.696020769325337, 85.35328749449842),
       "distance": null,
       "address": "Sinamangal, Kathmandu",
-      "contact": "01-4277033"
+      "contact": "01-4277033",
+      "isExpanded": false,
     },
     {
       "name": "Teaching Hospital (IOM)",
       "location": LatLng(27.736210086435115, 85.33021658100719),
       "distance": null,
       "address": "Maharajgunj, Kathmandu",
-      "contact": "01-4412303"
+      "contact": "01-4412303",
+      "isExpanded": false,
     }
   ];
+
+
 
   List<Map<String, dynamic>> _filteredHospitals = [];
 
@@ -126,69 +132,6 @@ class _MapPageState extends State<MapPage> {
     _filteredHospitals = List.from(_hospitals);
   }
 
-  Future<void> _getDirections(LatLng destination) async {
-    final String apiKey = "AIzaSyDSaH5APCpRVR7bKzv_q4wVyQy7KQ8F";
-    final String url =
-        "https://maps.googleapis.com/maps/api/directions/json?origin=${_currentPosition!.latitude},${_currentPosition!.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apiKey";
-
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data["status"] == "OK") {
-        final points = data["routes"][0]["overview_polyline"]["points"];
-        _decodePoly(points);
-        setState(() {
-          _polylines.clear();
-          _polylines.add(Polyline(
-            polylineId: const PolylineId("route"),
-            points: polylineCoordinates,
-            color: Colors.blue,
-            width: 5,
-          ));
-        });
-      } else {
-        print("Directions API Error: ${data["error_message"]}");
-      }
-    } else {
-      print("HTTP Error: ${response.statusCode}");
-    }
-  }
-
-  void _decodePoly(String encoded) {
-    polylineCoordinates.clear();
-    List<int> bytes = encoded.codeUnits;
-    int index = 0;
-    int len = encoded.length;
-    int lat = 0;
-    int lng = 0;
-
-    while (index < len) {
-      int shift = 0;
-      int result = 0;
-      int byte;
-      do {
-        byte = bytes[index++] - 63;
-        result |= (byte & 0x1F) << shift;
-        shift += 5;
-      } while (byte >= 0x20);
-      int dlat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-      lat += dlat;
-
-      shift = 0;
-      result = 0;
-      do {
-        byte = bytes[index++] - 63;
-        result |= (byte & 0x1F) << shift;
-        shift += 5;
-      } while (byte >= 0x20);
-      int dlng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-      lng += dlng;
-
-      polylineCoordinates.add(LatLng(lat / 1E5, lng / 1E5));
-    }
-  }
-
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
     if (_mapStyle != null) {
@@ -223,7 +166,7 @@ class _MapPageState extends State<MapPage> {
         position: location,
         infoWindow: InfoWindow(
           title: name,
-          snippet: "Tap for directions",
+          snippet: "Hospital location",
         ),
       ));
     });
@@ -274,7 +217,6 @@ class _MapPageState extends State<MapPage> {
               myLocationEnabled: true,
               myLocationButtonEnabled: true,
               markers: _markers,
-              polylines: _polylines,
             ),
           ),
 
@@ -286,76 +228,117 @@ class _MapPageState extends State<MapPage> {
                 final hospital = _filteredHospitals[index];
                 return GestureDetector(
                   onTap: () {
-                    _showHospitalMarker(hospital["location"], hospital["name"]);
-                    _getDirections(hospital["location"]);
+                    // Toggle expansion of the card and show marker if expanded
+                    setState(() {
+                      hospital["isExpanded"] = !hospital["isExpanded"];
+                    });
+
+                    // Only mark the map if the hospital card is expanded
+                    if (hospital["isExpanded"]) {
+                      _showHospitalMarker(
+                          hospital["location"],
+                          hospital["name"]
+                      );
+                    } else {
+                      // Clear markers when card is collapsed
+                      setState(() {
+                        _markers.clear();
+                      });
+                    }
                   },
                   child: Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 10.0, vertical: 8.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
-                      side: const BorderSide(color: Color(0xFFF1C0C0), width: 1),
+                      side: const BorderSide(
+                          color: Color(0xFFF1C0C0), width: 1),
                     ),
-                    elevation: 3, // Adds shadow for depth
+                    elevation: 3,
                     color: const Color(0xFFFAF0F0),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            hospital["name"],
-                            style: const TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 8.0),
-                          Text(
-                            "Distance: ${hospital["distance"]} km",
-                            style: const TextStyle(
-                              fontSize: 14.0,
-                              color: Colors.blueAccent,
-                            ),
-                          ),
-                          const SizedBox(height: 8.0),
-                          Row(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(
-                                Icons.location_on,
-                                color: Colors.red,
-                                size: 18.0,
-                              ),
-                              const SizedBox(width: 5.0),
                               Text(
-                                hospital["address"],
+                                hospital["name"],
                                 style: const TextStyle(
-                                  fontSize: 13.0,
-                                  color: Colors.black54,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
                                 ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              Text(
+                                "Distance: ${hospital["distance"]} km",
+                                style: const TextStyle(
+                                  fontSize: 14.0,
+                                  color: Colors.blueAccent,
+                                ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.location_on,
+                                    color: Colors.red,
+                                    size: 18.0,
+                                  ),
+                                  const SizedBox(width: 5.0),
+                                  Text(
+                                    hospital["address"],
+                                    style: const TextStyle(
+                                      fontSize: 13.0,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8.0),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.phone,
+                                    color: Colors.green,
+                                    size: 18.0,
+                                  ),
+                                  const SizedBox(width: 5.0),
+                                  Text(
+                                    "Contact: ${hospital["contact"]}",
+                                    style: const TextStyle(
+                                      fontSize: 13.0,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8.0),
+                        ),
+                        if (hospital["isExpanded"])
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              const Icon(
-                                Icons.phone,
-                                color: Colors.green,
-                                size: 18.0,
-                              ),
-                              const SizedBox(width: 5.0),
-                              Text(
-                                "Contact: ${hospital["contact"]}",
-                                style: const TextStyle(
-                                  fontSize: 13.0,
-                                  color: Colors.black54,
+                              ElevatedButton(
+                                onPressed: () {},
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.black, backgroundColor: Colors.white,
                                 ),
+                                child: const Text("Show Path"),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {},
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.white, backgroundColor: Colors.red,
+                                ),
+                                child: const Text("Appoint a Date"),
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                      ],
                     ),
                   ),
                 );
