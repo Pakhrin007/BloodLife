@@ -1,3 +1,4 @@
+import 'package:bloodlife/DonorsSectionPages/dashboard.dart';
 import 'package:bloodlife/Dummypages/Bloodrequest.dart';
 import 'package:bloodlife/api/api.dart';
 import 'package:bloodlife/mappages/appointment.dart';
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: MapPage(),
+      home: Dashboard(),
     );
   }
 }

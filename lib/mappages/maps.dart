@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:bloodlife/mappages/appointment.dart';  // Import the BloodDonationForm
+import 'package:bloodlife/mappages/appointment.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
@@ -22,7 +23,7 @@ class _MapPageState extends State<MapPage> {
   final List<Map<String, dynamic>> _hospitals = [
     {
       "name": "Patan Hospital",
-      "location": LatLng(27.668435004131467, 85.32061121169149),
+      "location": const LatLng(27.668435004131467, 85.32061121169149),
       "distance": null,
       "address": "Lagankhel, Lalitpur",
       "contact": "01-5522278, 5522266, 5522295",
@@ -30,7 +31,7 @@ class _MapPageState extends State<MapPage> {
     },
     {
       "name": "Bir Hospital",
-      "location": LatLng(27.704957859623132, 85.31369431169267),
+      "location": const LatLng(27.704957859623132, 85.31369431169267),
       "distance": null,
       "address": "Mahabouddha, Kathmandu",
       "contact": "01-4221119",
@@ -38,23 +39,23 @@ class _MapPageState extends State<MapPage> {
     },
     {
       "name": "Nepal Mediciti Hospital",
-      "location": LatLng(27.662043306804264, 85.30260735216893),
+      "location": const LatLng(27.662043306804264, 85.30260735216893),
       "distance": null,
-      "address": "Lalitpur, Bhaisepati",
+      "address": "Bhaisepati, Lalitpur",
       "contact": "+977-1-4217766",
       "isExpanded": false,
     },
     {
       "name": "Norvic International Hospital",
-      "location": LatLng(27.690053977553674, 85.31888185216984),
+      "location": const LatLng(27.690053977553674, 85.31888185216984),
       "distance": null,
-      "address": "Kathmandu",
+      "address": "Thapathali, Kathmandu",
       "contact": "01-5970032",
       "isExpanded": false,
     },
     {
       "name": "Grande City Hospital",
-      "location": LatLng(27.711186560634836, 85.31484911169291),
+      "location": const LatLng(27.711186560634836, 85.31484911169291),
       "distance": null,
       "address": "Kanti Path, Kathmandu",
       "contact": "01-4163500",
@@ -62,7 +63,7 @@ class _MapPageState extends State<MapPage> {
     },
     {
       "name": "Kathmandu Medical College and Teaching Hospital",
-      "location": LatLng(27.696020769325337, 85.35328749449842),
+      "location": const LatLng(27.696020769325337, 85.35328749449842),
       "distance": null,
       "address": "Sinamangal, Kathmandu",
       "contact": "01-4277033",
@@ -70,7 +71,7 @@ class _MapPageState extends State<MapPage> {
     },
     {
       "name": "Teaching Hospital (IOM)",
-      "location": LatLng(27.736210086435115, 85.33021658100719),
+      "location": const LatLng(27.736210086435115, 85.33021658100719),
       "distance": null,
       "address": "Maharajgunj, Kathmandu",
       "contact": "01-4412303",
@@ -251,7 +252,7 @@ class _MapPageState extends State<MapPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                       side: const BorderSide(
-                          color: Color(0xFFF1C0C0), width: 1),
+                          color: Color(0xFFF1C0C0), width: 2),
                     ),
                     elevation: 3,
                     color: const Color(0xFFFAF0F0),
@@ -322,12 +323,27 @@ class _MapPageState extends State<MapPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () async {
+                                  final String googleMapsUrl =
+                                      "https://www.google.com/maps/dir/?api=1&destination=${hospital["location"].latitude},${hospital["location"].longitude}&travelmode=driving";
+
+                                  if (await canLaunchUrl(Uri.parse(googleMapsUrl))) {
+                                    await launchUrl(Uri.parse(googleMapsUrl));
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Could not open Google Maps."),
+                                      ),
+                                    );
+                                  }
+                                },
                                 style: ElevatedButton.styleFrom(
-                                  foregroundColor: Colors.black, backgroundColor: Colors.white,
+                                  foregroundColor: Colors.black,
+                                  backgroundColor: Colors.white,
                                 ),
                                 child: const Text("Show Path"),
                               ),
+
                               ElevatedButton(
                                 onPressed: () {
                                   Navigator.push(
