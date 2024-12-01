@@ -21,9 +21,9 @@ class _ApiState extends State<Api> {
       appBar: AppBar(
         // leading: const Icon(Icons.square),
         title: const Padding(
-          padding: EdgeInsets.only(left: 120),
+          padding: EdgeInsets.only(left: 100),
           child: Text(
-            "Health News",
+            "Blogs",
             style: TextStyle(fontSize: 20),
           ),
         ),
