@@ -1,4 +1,5 @@
 import 'package:bloodlife/DonorsSectionPages/dashboard.dart';
+import 'package:bloodlife/SignupandSignPages/forgotpassword.dart';
 import 'package:bloodlife/SignupandSignPages/signuppages.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +25,7 @@ class _LoginpageState extends State<Loginpage> {
                 padding: const EdgeInsets.only(top: 138, left: 38),
                 child: Container(
                   child: const Text(
-                    "SignIp to Your Account",
+                    "SignIn to Your Account",
                     style: TextStyle(
                         letterSpacing: 1.6,
                         fontSize: 22,
@@ -89,8 +90,16 @@ class _LoginpageState extends State<Loginpage> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 190),
-                      child: Container(
-                        child: const Text("Forgot Password ?"),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Forgotpassword()));
+                        },
+                        child: Container(
+                          child: const Text("Forgot Password ?"),
+                        ),
                       ),
                     ),
                     const SizedBox(
