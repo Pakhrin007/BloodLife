@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
 class BloodDonationForm extends StatefulWidget {
-  const BloodDonationForm({super.key});
+  final String hospitalName; // Name of the selected hospital
+  final String hospitalAddress; // Address of the selected hospital
+
+  const BloodDonationForm({
+    super.key,
+    required this.hospitalName,
+    required this.hospitalAddress,
+  });
 
   @override
   _BloodDonationFormState createState() => _BloodDonationFormState();
@@ -35,6 +42,19 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
           key: _formKey,
           child: ListView(
             children: <Widget>[
+              // Hospital Name and Address Section
+              TextFormField(
+                initialValue: widget.hospitalName, // Display the selected hospital's name
+                decoration: const InputDecoration(labelText: "Hospital Name"),
+                readOnly: true,
+              ),
+              TextFormField(
+                initialValue: widget.hospitalAddress, // Display the selected hospital's address
+                decoration: const InputDecoration(labelText: "Hospital Address"),
+                readOnly: true,
+              ),
+
+              // Existing form fields for donor info, contact, blood type, etc.
               TextFormField(
                 decoration: const InputDecoration(labelText: "Donor's Name"),
                 onSaved: (value) {

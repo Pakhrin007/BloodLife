@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:bloodlife/mappages/appointment.dart';  // Import the BloodDonationForm
 
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
@@ -76,8 +77,6 @@ class _MapPageState extends State<MapPage> {
       "isExpanded": false,
     }
   ];
-
-
 
   List<Map<String, dynamic>> _filteredHospitals = [];
 
@@ -330,7 +329,17 @@ class _MapPageState extends State<MapPage> {
                                 child: const Text("Show Path"),
                               ),
                               ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => BloodDonationForm(
+                                        hospitalName: hospital["name"],
+                                        hospitalAddress: hospital["address"],
+                                      ),
+                                    ),
+                                  );
+                                },
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.white, backgroundColor: Colors.red,
                                 ),
