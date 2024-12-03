@@ -12,117 +12,102 @@ class _MoreState extends State<More> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("More"),
-        centerTitle: true,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.settings,
-              color: Colors.black,
-            ),
-            onPressed: () {
-              // do something
-            },
-          )
-        ],
-      ),
       body: Column(
         children: [
-          Container(
-            child: Text("Personal Details"),
-          ),
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text("Name"),
+          Padding(
+            padding: const EdgeInsets.only(top: 40),
+            child: Container(
+              child: Text(
+                "Personal Details",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text("Aryan"),
-              ),
-            ],
+            ),
           ),
-          Row(
-            children: [
-              Text("E-Mail"),
-            ],
-          ),
-          Row(
-            children: [
-              Text("Date of Birth"),
-            ],
-          ),
-          Row(
-            children: [
-              Text("Phone Number"),
-            ],
-          ),
-          Row(
-            children: [
-              Text("Gender"),
-            ],
-          ),
-          Divider(
-            color: Colors.grey,
-            thickness: 1,
-            indent: 10,
-            endIndent: 10,
-          ),
-          Row(
-            children: [
-              Container(
-                child: Text(
-                  "Donation History",
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.black,
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 20, top: 20),
+                  child: Text(
+                    "Name",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 20, top: 20),
+                  child: Text(
+                    "Aryan",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 20, top: 13),
+                child: Text(
+                  "E-Mail",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ),
-              Icon(
-                Icons.arrow_circle_right,
-                color: Colors.black,
-                size: 24.0,
+              Padding(
+                padding: const EdgeInsets.only(left: 20, top: 13),
+                child: Text(
+                  "Aryan",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                ),
               ),
-              SizedBox(width: 8),
             ],
           ),
           Row(
-            children: [Text("Last Donation")],
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 20, top: 13),
+                child: Text(
+                  "Phone Number",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20, top: 13),
+                child: Text(
+                  "Aryan",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                ),
+              ),
+            ],
           ),
           Row(
-            children: [Text("Phone Number"), Text("2004-08-200")],
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 20, top: 13),
+                child: Text(
+                  "Gender",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20, top: 13),
+                child: Text(
+                  "Aryan",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                ),
+              ),
+            ],
           ),
-          Row(
-            children: [Text("Phone Number"), Text("9810191682")],
-          ),
-          Divider(
-            color: Colors.grey,
-            thickness: 1,
-            indent: 10,
-            endIndent: 10,
+          Padding(
+            padding: const EdgeInsets.only(top: 15),
+            child: Divider(
+              color: Colors.grey,
+              thickness: 1,
+              indent: 10,
+            ),
           ),
           Column(
             children: [
-              Text("Time Left for Notification"),
-              Container(
-                decoration: BoxDecoration(color: Color(0xFFEF2A39)),
-                child: Text("70 Days"),
-              ),
-              Divider(
-                color: Colors.grey,
-                thickness: 1,
-                indent: 10,
-                endIndent: 10,
-              ),
-              Divider(
-                color: Colors.grey, // Color of the line
-                thickness: 1, // Thickness of the line
-                indent: 10, // Left margin
-                endIndent: 10, // Right margin
-              ),
               GestureDetector(
                 onTap: () {
                   Navigator.push(context,
@@ -130,31 +115,81 @@ class _MoreState extends State<More> {
                 },
                 child: Row(
                   children: [
-                    Padding(padding: EdgeInsets.all(10)),
-                    Container(
-                      child: Text("Blogs"),
+                    Padding(padding: EdgeInsets.only(top: 20, left: 20)),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Container(
+                        child: Text(
+                          "Blogs",
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ),
                     ),
                     SizedBox(width: 10),
-                    Icon(Icons.arrow_circle_right_outlined),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Icon(Icons.arrow_circle_right_outlined),
+                    ),
                   ],
                 ),
               ),
-              Divider(
-                color: Colors.grey,
-                thickness: 1,
-                indent: 10,
-                endIndent: 10,
+              Padding(
+                padding: const EdgeInsets.only(top: 15),
+                child: Divider(
+                  color: Colors.grey,
+                  thickness: 1,
+                  indent: 10,
+                ),
               ),
               Row(
                 children: [
                   Padding(padding: EdgeInsets.all(10)),
-                  Container(
-                    child: Text("Event History"),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Container(
+                      child: Text(
+                        "Event History",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
                   SizedBox(width: 10),
-                  Icon(Icons.arrow_circle_right_outlined),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Icon(Icons.arrow_circle_right_outlined),
+                  ),
                 ],
-              )
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 15),
+                child: Divider(
+                  color: Colors.grey,
+                  thickness: 1,
+                  indent: 10,
+                ),
+              ),
+              Row(
+                children: [
+                  Padding(padding: EdgeInsets.all(10)),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Container(
+                      child: Text(
+                        "Donation History",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Icon(Icons.arrow_circle_right_outlined),
+                  ),
+                ],
+              ),
             ],
           )
         ],
