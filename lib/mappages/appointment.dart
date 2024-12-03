@@ -1,8 +1,9 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 class BloodDonationForm extends StatefulWidget {
-  final String hospitalName; // Name of the selected hospital
-  final String hospitalAddress; // Address of the selected hospital
+  final String hospitalName;
+  final String hospitalAddress;
 
   const BloodDonationForm({
     super.key,
@@ -22,7 +23,17 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   late DateTime _appointmentDate;
   late String _additionalInfo;
 
-  final TextEditingController _dateController = TextEditingController(); // Controller for the date field
+  final TextEditingController _dateController = TextEditingController();
+
+  void pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      setState(() {
+        var fileName = result.files.single.name; // Set the file name
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +43,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // This will pop the current screen and go back
+            Navigator.pop(context);
           },
         ),
       ),
@@ -42,7 +53,6 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
           key: _formKey,
           child: ListView(
             children: <Widget>[
-              // Hospital Name and Address Section
               TextFormField(
                 initialValue: widget.hospitalName, // Display the selected hospital's name
                 decoration: const InputDecoration(labelText: "Hospital Name"),
@@ -54,7 +64,6 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                 readOnly: true,
               ),
 
-              // Existing form fields for donor info, contact, blood type, etc.
               TextFormField(
                 decoration: const InputDecoration(labelText: "Donor's Name"),
                 onSaved: (value) {
@@ -83,7 +92,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                 },
               ),
               TextFormField(
-                controller: _dateController, // Use the controller to update the text field
+                controller: _dateController,
                 decoration: const InputDecoration(
                   labelText: 'Appointment Date',
                   suffixIcon: Icon(Icons.calendar_today),
@@ -99,7 +108,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                   if (pickedDate != null) {
                     setState(() {
                       _appointmentDate = pickedDate;
-                      _dateController.text = "${_appointmentDate.toLocal()}".split(' ')[0]; // Update the controller with the selected date
+                      _dateController.text = "${_appointmentDate.toLocal()}".split(' ')[0];
                     });
                   }
                 },
@@ -114,7 +123,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
               const SizedBox(height: 20),
               ElevatedButton.icon(
                 onPressed: () {
-                  // Implement file upload functionality here
+                  pickFile();
                 },
                 icon: const Icon(Icons.upload_file),
                 label: const Text('Upload Medical Documents'),
@@ -124,7 +133,6 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState?.save();
-                    // Implement form submission functionality here
                   }
                 },
                 style: ElevatedButton.styleFrom(
