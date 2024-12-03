@@ -21,9 +21,9 @@ class _ApiState extends State<Api> {
       appBar: AppBar(
         // leading: const Icon(Icons.square),
         title: const Padding(
-          padding: EdgeInsets.only(left: 120),
+          padding: EdgeInsets.only(left: 100),
           child: Text(
-            "Health News",
+            "Blogs",
             style: TextStyle(fontSize: 20),
           ),
         ),
@@ -119,6 +119,21 @@ class _ApiState extends State<Api> {
                                   child: Container(
                                     child: Text(
                                       'Author: ${snapshot.data!.articles![index].author.toString()}',
+                                      style: const TextStyle(
+                                          fontSize: 14, color: Colors.black),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 200,
+                                right: 50,
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(left: 14, top: 12),
+                                  child: Container(
+                                    child: Text(
+                                      'Author: ${snapshot.data!.articles![index].publishedAt.toString()}',
                                       style: const TextStyle(
                                           fontSize: 14, color: Colors.black),
                                     ),

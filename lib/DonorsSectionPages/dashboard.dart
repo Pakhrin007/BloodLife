@@ -1,6 +1,6 @@
 import 'package:bloodlife/Dummypages/fav.dart';
 import 'package:bloodlife/Dummypages/home.dart';
-import 'package:bloodlife/Dummypages/profile.dart';
+import 'package:bloodlife/Dummypages/more.dart';
 import 'package:bloodlife/Dummypages/search.dart';
 import 'package:bloodlife/Dummypages/setting.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -21,7 +21,7 @@ class _DashboardState extends State<Dashboard> {
     const Search(),
     const Fav(),
     const Setting(),
-    const Profile()
+    const More()
   ];
 
   final items = <Widget>[
@@ -42,7 +42,7 @@ class _DashboardState extends State<Dashboard> {
       size: 35,
     ),
     const Icon(
-      Icons.person,
+      Icons.more_horiz,
       size: 35,
     ),
   ];
@@ -51,10 +51,10 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.blue.shade200,
-      appBar: AppBar(
-        title: const Text("Curved Navigation Bar"),
-        centerTitle: true,
-      ),
+      // appBar: AppBar(
+      //   title: const Text("Curved Navigation Bar"),
+      //   centerTitle: true,
+      // ),
       body: screen[index],
       bottomNavigationBar: Theme(
         data: Theme.of(context)

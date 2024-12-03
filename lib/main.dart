@@ -1,4 +1,7 @@
-import 'package:bloodlife/Dummypages/Bloodrequest.dart';
+import 'package:bloodlife/DonorsSectionPages/dashboard.dart';
+import 'package:bloodlife/Dummypages/more.dart';
+import 'package:bloodlife/SignupandSignPages/forgotpassword.dart';
+import 'package:bloodlife/SignupandSignPages/loginpage.dart';
 import 'package:bloodlife/api/api.dart';
 import 'package:bloodlife/pages/createBloodRequest.dart';
 import 'package:bloodlife/pages/createEvent.dart';
@@ -23,7 +26,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: CreateBloodRequestScreen(),
+      home: const Forgotpassword(),
     );
   }
 }
