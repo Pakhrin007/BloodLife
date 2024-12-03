@@ -1,8 +1,8 @@
 import 'package:bloodlife/Dummypages/fav.dart';
-import 'package:bloodlife/Dummypages/home.dart';
 import 'package:bloodlife/Dummypages/more.dart';
 import 'package:bloodlife/Dummypages/search.dart';
 import 'package:bloodlife/Dummypages/setting.dart';
+import 'package:bloodlife/mappages/maps.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +17,7 @@ class _DashboardState extends State<Dashboard> {
   int index = 2;
 
   final screen = [
-    const Home(),
+    const MapPage(),
     const Search(),
     const Fav(),
     const Setting(),
@@ -26,23 +26,23 @@ class _DashboardState extends State<Dashboard> {
 
   final items = <Widget>[
     const Icon(
+      Icons.map_outlined,
+      size: 35,
+    ),
+    const Icon(
+      Icons.add,
+      size: 35,
+    ),
+    const Icon(
       Icons.home,
       size: 35,
     ),
     const Icon(
-      Icons.search,
+      Icons.bloodtype_outlined,
       size: 35,
     ),
     const Icon(
-      Icons.favorite,
-      size: 35,
-    ),
-    const Icon(
-      Icons.settings,
-      size: 35,
-    ),
-    const Icon(
-      Icons.more_horiz,
+      Icons.more_horiz_rounded,
       size: 35,
     ),
   ];
@@ -50,11 +50,8 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue.shade200,
-      // appBar: AppBar(
-      //   title: const Text("Curved Navigation Bar"),
-      //   centerTitle: true,
-      // ),
+      // backgroundColor: Colors.red,
+
       body: screen[index],
       bottomNavigationBar: Theme(
         data: Theme.of(context)
