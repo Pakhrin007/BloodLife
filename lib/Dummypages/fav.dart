@@ -10,8 +10,10 @@ class Fav extends StatefulWidget {
 class _FavState extends State<Fav> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: const Text("favourite"),
+    return Center(
+      child: Container(
+        child: const Text("favourite"),
+      ),
     );
   }
 }

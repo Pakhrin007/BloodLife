@@ -1,7 +1,7 @@
 import 'package:bloodlife/Dummypages/fav.dart';
 import 'package:bloodlife/Dummypages/more.dart';
-import 'package:bloodlife/Dummypages/search.dart';
-import 'package:bloodlife/Dummypages/setting.dart';
+import 'package:bloodlife/Dummypages/addevent.dart';
+import 'package:bloodlife/Dummypages/request.dart';
 import 'package:bloodlife/mappages/maps.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
@@ -18,9 +18,9 @@ class _DashboardState extends State<Dashboard> {
 
   final screen = [
     const MapPage(),
-    const Search(),
+    const Addevent(),
     const Fav(),
-    const Setting(),
+    const Request(),
     const More()
   ];
 
@@ -57,7 +57,7 @@ class _DashboardState extends State<Dashboard> {
         data: Theme.of(context)
             .copyWith(iconTheme: const IconThemeData(color: Colors.black)),
         child: CurvedNavigationBar(
-          color: Colors.red.shade400,
+          color: Color(0xFFEF2A39),
           buttonBackgroundColor: Colors.white,
           height: 65,
           index: index,
