@@ -1,5 +1,5 @@
 import 'package:bloodlife/Dummypages/fav.dart';
-import 'package:bloodlife/Dummypages/profile.dart';
+import 'package:bloodlife/Dummypages/more.dart';
 import 'package:bloodlife/Dummypages/search.dart';
 import 'package:bloodlife/Dummypages/setting.dart';
 import 'package:bloodlife/mappages/maps.dart';
@@ -21,7 +21,7 @@ class _DashboardState extends State<Dashboard> {
     const Search(),
     const Fav(),
     const Setting(),
-    const Profile()
+    const More()
   ];
 
   final items = <Widget>[
