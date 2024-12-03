@@ -128,7 +128,8 @@ class _MapPageState extends State<MapPage> {
       );
       hospital["distance"] = (distance / 1000).toStringAsFixed(2);
     }
-    _hospitals.sort((a, b) => (a["distance"] ?? 0).compareTo(b["distance"] ?? 0));
+    _hospitals
+        .sort((a, b) => (a["distance"] ?? 0).compareTo(b["distance"] ?? 0));
     _filteredHospitals = List.from(_hospitals);
   }
 
@@ -152,7 +153,7 @@ class _MapPageState extends State<MapPage> {
       } else {
         _filteredHospitals = _hospitals
             .where((hospital) =>
-            hospital["name"].toLowerCase().contains(query.toLowerCase()))
+                hospital["name"].toLowerCase().contains(query.toLowerCase()))
             .toList();
       }
     });
@@ -209,15 +210,15 @@ class _MapPageState extends State<MapPage> {
             child: _currentPosition == null
                 ? const Center(child: CircularProgressIndicator())
                 : GoogleMap(
-              onMapCreated: _onMapCreated,
-              initialCameraPosition: CameraPosition(
-                target: _currentPosition!,
-                zoom: 14,
-              ),
-              myLocationEnabled: true,
-              myLocationButtonEnabled: true,
-              markers: _markers,
-            ),
+                    onMapCreated: _onMapCreated,
+                    initialCameraPosition: CameraPosition(
+                      target: _currentPosition!,
+                      zoom: 14,
+                    ),
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true,
+                    markers: _markers,
+                  ),
           ),
 
           // Hospital List Section
@@ -236,9 +237,7 @@ class _MapPageState extends State<MapPage> {
                     // Only mark the map if the hospital card is expanded
                     if (hospital["isExpanded"]) {
                       _showHospitalMarker(
-                          hospital["location"],
-                          hospital["name"]
-                      );
+                          hospital["location"], hospital["name"]);
                     } else {
                       // Clear markers when card is collapsed
                       setState(() {
@@ -251,8 +250,8 @@ class _MapPageState extends State<MapPage> {
                         horizontal: 10.0, vertical: 8.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
-                      side: const BorderSide(
-                          color: Color(0xFFF1C0C0), width: 2),
+                      side:
+                          const BorderSide(color: Color(0xFFF1C0C0), width: 2),
                     ),
                     elevation: 3,
                     color: const Color(0xFFFAF0F0),
@@ -327,12 +326,14 @@ class _MapPageState extends State<MapPage> {
                                   final String googleMapsUrl =
                                       "https://www.google.com/maps/dir/?api=1&destination=${hospital["location"].latitude},${hospital["location"].longitude}&travelmode=driving";
 
-                                  if (await canLaunchUrl(Uri.parse(googleMapsUrl))) {
+                                  if (await canLaunchUrl(
+                                      Uri.parse(googleMapsUrl))) {
                                     await launchUrl(Uri.parse(googleMapsUrl));
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text("Could not open Google Maps."),
+                                        content:
+                                            Text("Could not open Google Maps."),
                                       ),
                                     );
                                   }
@@ -343,7 +344,6 @@ class _MapPageState extends State<MapPage> {
                                 ),
                                 child: const Text("Show Path"),
                               ),
-
                               ElevatedButton(
                                 onPressed: () {
                                   Navigator.push(
@@ -357,7 +357,8 @@ class _MapPageState extends State<MapPage> {
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  foregroundColor: Colors.white, backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: Colors.red,
                                 ),
                                 child: const Text("Appoint a Date"),
                               ),

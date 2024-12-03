@@ -108,7 +108,7 @@ class _MoreState extends State<More> {
             children: [
               Text("Time Left for Notification"),
               Container(
-                decoration: BoxDecoration(color: Colors.red.shade400),
+                decoration: BoxDecoration(color: Color(0xFFEF2A39)),
                 child: Text("70 Days"),
               ),
               Divider(
@@ -116,16 +116,6 @@ class _MoreState extends State<More> {
                 thickness: 1,
                 indent: 10,
                 endIndent: 10,
-              ),
-              Row(
-                children: [
-                  Padding(padding: EdgeInsets.all(10)),
-                  Container(
-                    child: Text("Medical details"),
-                  ),
-                  SizedBox(width: 10),
-                  Icon(Icons.arrow_circle_right_outlined),
-                ],
               ),
               Divider(
                 color: Colors.grey, // Color of the line
