@@ -1,6 +1,6 @@
 import 'package:bloodlife/Dummypages/fav.dart';
 import 'package:bloodlife/Dummypages/more.dart';
-import 'package:bloodlife/Dummypages/addevent.dart';
+import 'package:bloodlife/Dummypages/events.dart';
 import 'package:bloodlife/Dummypages/request.dart';
 import 'package:bloodlife/mappages/maps.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -18,7 +18,7 @@ class _DashboardState extends State<Dashboard> {
 
   final screen = [
     const MapPage(),
-    const Addevent(),
+    EventsPage(),
     const Fav(),
     const Request(),
     const More()
