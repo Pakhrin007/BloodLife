@@ -19,6 +19,7 @@ class _EventsPageState extends State<EventsPage> {
         title: const Text(
           'Upcoming Events',
           style: TextStyle(
+            fontFamily: "Poppins-Medium",
             fontSize: 18,
             color: Colors.black,
           ),
