@@ -1,4 +1,5 @@
 import 'package:bloodlife/DonorsSectionPages/dashboard.dart';
+import 'package:bloodlife/Dummypages/bloodrequestpage.dart';
 import 'package:bloodlife/Dummypages/events.dart';
 import 'package:bloodlife/splashscreen/splashscreen.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: Dashboard(),
+      home: BloodRequestsPage(),
     );
   }
 }

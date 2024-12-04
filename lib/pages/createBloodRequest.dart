@@ -3,12 +3,23 @@ import 'package:file_picker/file_picker.dart';
 
 class CreateBloodRequestScreen extends StatefulWidget {
   @override
-  _CreateBloodRequestScreenState createState() => _CreateBloodRequestScreenState();
+  _CreateBloodRequestScreenState createState() =>
+      _CreateBloodRequestScreenState();
 }
 
 class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
-  bool isUrgent = false;  // To manage the state of the "Urgent Need" checkbox
-  String? fileName;  // To store the name of the selected file
+  final _formKey = GlobalKey<FormState>(); // Global key for form validation
+  bool isUrgent = false;
+  String? fileName;
+
+  // Controllers to access form field data
+  TextEditingController patientNameController = TextEditingController();
+  TextEditingController locationController = TextEditingController();
+  TextEditingController contactController = TextEditingController();
+  TextEditingController neededDateController = TextEditingController();
+
+  String? selectedBloodType;
+  String _date = ''; // Variable to hold the selected date
 
   // Function to open file picker and get file
   void pickFile() async {
@@ -17,6 +28,38 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
     if (result != null) {
       setState(() {
         fileName = result.files.single.name; // Set the file name
+      });
+    }
+  }
+
+  // Function to handle form submission
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      // If the form is valid, display the data or proceed with submission
+      Navigator.pop(context, {
+        'patientName': patientNameController.text,
+        'location': locationController.text,
+        'contact': contactController.text,
+        'bloodType': selectedBloodType,
+        'neededDate': neededDateController.text,
+        'urgent': isUrgent,
+      });
+    }
+  }
+
+  // Function to pick a date
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        _date = "${pickedDate.toLocal()}".split(' ')[0]; // Format the date to yyyy-mm-dd
+        neededDateController.text = _date; // Set the date to TextField
       });
     }
   }
@@ -46,156 +89,201 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Patient Name
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Patient Name',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 16),
-
-              // Location
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Location',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 16),
-
-              // Contact Number
-              TextField(
-                keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
-                  labelText: 'Contact Number',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 16),
-
-              // Blood Type Dropdown
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  labelText: 'Blood Type',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  DropdownMenuItem(value: 'A+', child: Text('A+')),
-                  DropdownMenuItem(value: 'A-', child: Text('A-')),
-                  DropdownMenuItem(value: 'B+', child: Text('B+')),
-                  DropdownMenuItem(value: 'B-', child: Text('B-')),
-                  DropdownMenuItem(value: 'O+', child: Text('O+')),
-                  DropdownMenuItem(value: 'O-', child: Text('O-')),
-                  DropdownMenuItem(value: 'AB+', child: Text('AB+')),
-                  DropdownMenuItem(value: 'AB-', child: Text('AB-')),
-                ],
-                onChanged: (value) {},
-              ),
-              SizedBox(height: 16),
-
-              // Needed Date
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Needed Date',
-                  border: OutlineInputBorder(),
-                  suffixIcon: Icon(Icons.calendar_today),
-                ),
-              ),
-              SizedBox(height: 16),
-
-              // Additional Information
-              TextField(
-                maxLines: 3,
-                decoration: InputDecoration(
-                  labelText: 'Enter additional information (optional)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 16),
-
-              // Upload Medical Documents (File Picker)
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: pickFile,
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Colors.grey[200],
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.upload_file, color: Colors.black),
-                          SizedBox(width: 8),
-                          Text(
-                            fileName != null ? fileName! : 'Upload Medical Documents',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ],
-                      ),
-                    ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Patient Name
+                TextFormField(
+                  controller: patientNameController,
+                  decoration: InputDecoration(
+                    labelText: 'Patient Name',
+                    border: OutlineInputBorder(),
                   ),
-                ],
-              ),
-              SizedBox(height: 16),
-
-              // Urgent Need Checkbox
-              Row(
-                children: [
-                  Text(
-                    'Urgent Need',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  Spacer(),
-                  Checkbox(
-                    value: isUrgent,
-                    onChanged: (value) {
-                      setState(() {
-                        isUrgent = value!;
-                      });
-                    },
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-
-              // Submit Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Handle submit action
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Patient Name is required';
+                    }
+                    return null;
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFEF2A39), // Red color
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
+                ),
+                SizedBox(height: 16),
+
+                // Location
+                TextFormField(
+                  controller: locationController,
+                  decoration: InputDecoration(
+                    labelText: 'Location',
+                    border: OutlineInputBorder(),
                   ),
-                  child: Text(
-                    'Submit Request',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Location is required';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16),
+
+                // Contact Number
+                TextFormField(
+                  controller: contactController,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    labelText: 'Contact Number',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Contact Number is required';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16),
+
+                // Blood Type Dropdown
+                DropdownButtonFormField<String>(
+                  decoration: InputDecoration(
+                    labelText: 'Blood Type',
+                    border: OutlineInputBorder(),
+                  ),
+                  value: selectedBloodType,
+                  items: [
+                    DropdownMenuItem(value: 'A+', child: Text('A+')),
+                    DropdownMenuItem(value: 'A-', child: Text('A-')),
+                    DropdownMenuItem(value: 'B+', child: Text('B+')),
+                    DropdownMenuItem(value: 'B-', child: Text('B-')),
+                    DropdownMenuItem(value: 'O+', child: Text('O+')),
+                    DropdownMenuItem(value: 'O-', child: Text('O-')),
+                    DropdownMenuItem(value: 'AB+', child: Text('AB+')),
+                    DropdownMenuItem(value: 'AB-', child: Text('AB-')),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      selectedBloodType = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Blood Type is required';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16),
+
+                // Needed Date (GestureDetector)
+                GestureDetector(
+                  onTap: () => _selectDate(context),
+                  child: AbsorbPointer(
+                    child: TextFormField(
+                      controller: neededDateController,
+                      decoration: InputDecoration(
+                        labelText: 'Needed Date',
+                        border: OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.calendar_today),
+                          onPressed: () => _selectDate(context),
+                        ),
+                      ),
+                      onSaved: (value) => _date = value!,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select a date';
+                        }
+                        return null;
+                      },
                     ),
                   ),
                 ),
-              ),
-            ],
+                SizedBox(height: 16),
+
+                // Additional Information
+                TextFormField(
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: 'Enter additional information (optional)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 16),
+
+                // Upload Medical Documents (File Picker)
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: pickFile,
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Colors.grey[200],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.upload_file, color: Colors.black),
+                            SizedBox(width: 8),
+                            Text(
+                              fileName != null ? fileName! : 'Upload Medical Documents',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16),
+
+                // Urgent Need Checkbox
+                Row(
+                  children: [
+                    Text(
+                      'Urgent Need',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    Spacer(),
+                    Checkbox(
+                      value: isUrgent,
+                      onChanged: (value) {
+                        setState(() {
+                          isUrgent = value!;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16),
+
+                // Submit Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _submitForm,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFEF2A39), // Red color
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: Text(
+                      'Submit Request',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
-
-void main() => runApp(MaterialApp(
-  home: CreateBloodRequestScreen(),
-));
