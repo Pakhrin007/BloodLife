@@ -56,8 +56,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         title: const Text(
           'Create an Event',
           style: TextStyle(
+            fontFamily: "Poppins-Medium",
             color: Colors.black,
-            fontWeight: FontWeight.bold,
           ),
         ),
         backgroundColor: Colors.white,
