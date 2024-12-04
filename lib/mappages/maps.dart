@@ -161,7 +161,7 @@ class _MapPageState extends State<MapPage> {
 
   void _showHospitalMarker(LatLng location, String name) {
     setState(() {
-      _markers.clear(); // Clear previous markers
+      _markers.clear();
       _markers.add(Marker(
         markerId: MarkerId(name),
         position: location,
@@ -172,7 +172,6 @@ class _MapPageState extends State<MapPage> {
       ));
     });
 
-    // Move the map to the selected hospital's location
     _mapController.animateCamera(
       CameraUpdate.newLatLng(location),
     );
@@ -266,6 +265,7 @@ class _MapPageState extends State<MapPage> {
                                 hospital["name"],
                                 style: const TextStyle(
                                   fontSize: 18.0,
+                                  fontFamily: "Poppins-Medium",
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black87,
                                 ),
@@ -274,6 +274,7 @@ class _MapPageState extends State<MapPage> {
                               Text(
                                 "Distance: ${hospital["distance"]} km",
                                 style: const TextStyle(
+                                  fontFamily: "Poppins-Light",
                                   fontSize: 14.0,
                                   color: Colors.blueAccent,
                                 ),
@@ -290,6 +291,7 @@ class _MapPageState extends State<MapPage> {
                                   Text(
                                     hospital["address"],
                                     style: const TextStyle(
+                                      fontFamily: "Poppins-Light",
                                       fontSize: 13.0,
                                       color: Colors.black54,
                                     ),
@@ -308,6 +310,7 @@ class _MapPageState extends State<MapPage> {
                                   Text(
                                     "Contact: ${hospital["contact"]}",
                                     style: const TextStyle(
+                                      fontFamily: "Poppins-Light",
                                       fontSize: 13.0,
                                       color: Colors.black54,
                                     ),
