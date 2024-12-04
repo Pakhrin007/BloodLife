@@ -1,3 +1,4 @@
+import 'package:bloodlife/SignupandSignPages/loginpage.dart';
 import 'package:bloodlife/api/api.dart';
 import 'package:flutter/material.dart';
 
@@ -191,7 +192,41 @@ class _MoreState extends State<More> {
                 ],
               ),
             ],
-          )
+          ),
+          Spacer(),
+          Align(
+            alignment: AlignmentDirectional.bottomEnd,
+            child: Padding(
+              padding: const EdgeInsets.all(19.0),
+              child: SizedBox(
+                width: 150, // Set your desired width
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Loginpage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFEF2A39),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Row(
+                    mainAxisAlignment:
+                        MainAxisAlignment.center, // Align text and icon
+                    children: [
+                      Text(
+                        "Logout",
+                        style: TextStyle(fontSize: 18, letterSpacing: 1.2),
+                      ),
+                      SizedBox(width: 9),
+                      Icon(Icons.logout),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

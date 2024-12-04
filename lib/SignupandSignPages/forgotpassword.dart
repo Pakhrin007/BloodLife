@@ -1,4 +1,8 @@
+import 'package:bloodlife/SignupandSignPages/loginpage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 class Forgotpassword extends StatefulWidget {
   const Forgotpassword({super.key});
@@ -8,6 +12,22 @@ class Forgotpassword extends StatefulWidget {
 }
 
 class _ForgotpasswordState extends State<Forgotpassword> {
+  TextEditingController email = TextEditingController();
+  sendlink() async {
+    if (email.text.isEmpty) {
+      Get.snackbar("Error", "Please fill the textfeid");
+      return;
+    }
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email.text);
+      Get.snackbar("Send", "sucessfully sent the link");
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => Loginpage()));
+    } catch (e) {
+      Get.snackbar("Error", "Something wrong $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,6 +44,7 @@ class _ForgotpasswordState extends State<Forgotpassword> {
               height: 60,
               width: 368,
               child: TextField(
+                controller: email,
                 decoration: InputDecoration(
                   fillColor: Colors.white,
                   filled: true,
@@ -38,28 +59,24 @@ class _ForgotpasswordState extends State<Forgotpassword> {
             SizedBox(
               height: 30,
             ),
-            Container(
-              height: 50,
-              width: 130,
-              decoration: BoxDecoration(
-                  color: Colors.red, borderRadius: BorderRadius.circular(30)),
-              child: Center(
-                child: Text(
-                  "send Link",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 17,
+            GestureDetector(
+              onTap: sendlink,
+              child: Container(
+                height: 50,
+                width: 130,
+                decoration: BoxDecoration(
+                    color: Colors.red, borderRadius: BorderRadius.circular(30)),
+                child: Center(
+                  child: Text(
+                    "send Link",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 17,
+                    ),
                   ),
                 ),
               ),
             )
-            // ElevatedButton(
-
-            //     onPressed: (() {}),
-            //     child: Text(
-            //       "send Link",
-            //       style: TextStyle(color: Colors.red),
-            //     ))
           ],
         ),
       ),

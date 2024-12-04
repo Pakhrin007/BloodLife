@@ -1,7 +1,9 @@
 import 'package:bloodlife/DonorsSectionPages/dashboard.dart';
 import 'package:bloodlife/SignupandSignPages/forgotpassword.dart';
 import 'package:bloodlife/SignupandSignPages/signuppages.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class Loginpage extends StatefulWidget {
   const Loginpage({super.key});
@@ -11,25 +13,43 @@ class Loginpage extends StatefulWidget {
 }
 
 class _LoginpageState extends State<Loginpage> {
+  TextEditingController email = TextEditingController();
+  TextEditingController password = TextEditingController();
+
+  SignIn() async {
+    if (email.text.isEmpty || password.text.isEmpty) {
+      Get.snackbar("Error", "Please fill all the Text fields");
+      return;
+    }
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email.text, password: password.text);
+      Get.snackbar("Login", "Login Successful", backgroundColor: Colors.green);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Dashboard()),
+      );
+    } catch (e) {
+      Get.snackbar("Error", "Something went wrong: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.only(
-              left: 20,
-            ),
+            padding: const EdgeInsets.only(left: 20),
             child: Container(
               child: Padding(
                 padding: const EdgeInsets.only(top: 138, left: 38),
-                child: Container(
-                  child: const Text(
-                    "SignIn to Your Account",
-                    style: TextStyle(
-                        letterSpacing: 1.6,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700),
+                child: const Text(
+                  "Sign In to Your Account",
+                  style: TextStyle(
+                    letterSpacing: 1.6,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -51,10 +71,12 @@ class _LoginpageState extends State<Loginpage> {
                 padding: const EdgeInsets.only(top: 70),
                 child: Column(
                   children: [
+                    // Email Input
                     SizedBox(
                       height: 60,
                       width: 368,
                       child: TextField(
+                        controller: email,
                         decoration: InputDecoration(
                           fillColor: Colors.white,
                           filled: true,
@@ -66,13 +88,14 @@ class _LoginpageState extends State<Loginpage> {
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 25,
-                    ),
+                    const SizedBox(height: 25),
+                    // Password Input
                     SizedBox(
                       height: 60,
                       width: 368,
                       child: TextField(
+                        controller: password,
+                        obscureText: true,
                         decoration: InputDecoration(
                           fillColor: Colors.white,
                           filled: true,
@@ -85,82 +108,58 @@ class _LoginpageState extends State<Loginpage> {
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 25,
-                    ),
+                    const SizedBox(height: 25),
+                    // Forgot Password
                     Padding(
                       padding: const EdgeInsets.only(left: 190),
                       child: GestureDetector(
                         onTap: () {
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Forgotpassword()));
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const Forgotpassword()),
+                          );
                         },
-                        child: Container(
-                          child: const Text("Forgot Password ?"),
-                        ),
+                        child: const Text("Forgot Password ?"),
                       ),
                     ),
-                    const SizedBox(
-                      height: 25,
-                    ),
+                    const SizedBox(height: 25),
+                    // Login Button
                     Padding(
                       padding: const EdgeInsets.only(left: 10, top: 10),
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const Signuppages(),
-                            ),
-                          );
+                          SignIn(); // Trigger the login function
                         },
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const Dashboard(),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            height: 50,
-                            width: 200,
-                            decoration: BoxDecoration(
-                              color: const Color.fromRGBO(
-                                239,
-                                42,
-                                57,
-                                0.9,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                "Login",
-                                style: TextStyle(
-                                    letterSpacing: 1.5,
-                                    fontSize: 20,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500),
+                        child: Container(
+                          height: 50,
+                          width: 200,
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(239, 42, 57, 0.9),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              "Login",
+                              style: TextStyle(
+                                letterSpacing: 1.5,
+                                fontSize: 20,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 23,
-                    ),
-                    Container(
-                      child: const Text(
-                        "Or Signin With",
-                        style: TextStyle(
-                            letterSpacing: 1.4,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600),
+                    const SizedBox(height: 23),
+                    // Sign In With
+                    const Text(
+                      "Or Sign In With",
+                      style: TextStyle(
+                        letterSpacing: 1.4,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     Padding(
@@ -173,43 +172,34 @@ class _LoginpageState extends State<Loginpage> {
                             child:
                                 Image.asset('assets/Images/Icons/facebook.png'),
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          const SizedBox(width: 10),
                           SizedBox(
                             height: 55,
                             width: 55,
                             child:
                                 Image.asset('assets/Images/Icons/Google.png'),
                           ),
-                          const SizedBox(
-                            width: 15,
-                          ),
+                          const SizedBox(width: 15),
                           SizedBox(
                             height: 40,
                             width: 40,
                             child: Image.asset('assets/Images/Icons/x.png'),
-                          )
+                          ),
                         ],
                       ),
                     ),
-                    const SizedBox(
-                      height: 20,
-                    ),
+                    const SizedBox(height: 20),
+                    // Don't Have Account? Sign Up
                     Padding(
                       padding: const EdgeInsets.only(left: 105),
                       child: Row(
                         children: [
-                          Container(
-                            child: const Text(
-                              "Don't Have Account?",
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.w700),
-                            ),
+                          const Text(
+                            "Don't Have Account?",
+                            style: TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.w700),
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          const SizedBox(width: 10),
                           GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -219,15 +209,14 @@ class _LoginpageState extends State<Loginpage> {
                                 ),
                               );
                             },
-                            child: Container(
-                              child: Text(
-                                "SignUp",
-                                style: TextStyle(
-                                    decoration: TextDecoration.underline,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 0.9,
-                                    fontSize: 16,
-                                    color: Colors.red.shade400),
+                            child: Text(
+                              "SignUp",
+                              style: TextStyle(
+                                decoration: TextDecoration.underline,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.9,
+                                fontSize: 16,
+                                color: Colors.red.shade400,
                               ),
                             ),
                           ),
@@ -239,6 +228,7 @@ class _LoginpageState extends State<Loginpage> {
               ),
             ),
           ),
+          // Logo at Top
           Padding(
             padding: const EdgeInsets.only(left: 10),
             child: SizedBox(

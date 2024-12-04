@@ -1,5 +1,10 @@
+import 'package:bloodlife/DonorsSectionPages/dashboard.dart';
 import 'package:bloodlife/SignupandSignPages/loginpage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 class Signuppages extends StatefulWidget {
   const Signuppages({super.key});
@@ -9,6 +14,51 @@ class Signuppages extends StatefulWidget {
 }
 
 class _SignuppagesState extends State<Signuppages> {
+  TextEditingController dobController = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController password = TextEditingController();
+  TextEditingController confirmpassword = TextEditingController();
+
+  SignUp() async {
+    if (email.text.isEmpty ||
+        password.text.isEmpty ||
+        confirmpassword.text.isEmpty) {
+      Get.snackbar("Error", "Please fill all the textfeild");
+      return;
+    }
+    if (password.text != confirmpassword.text) {
+      Get.snackbar("Error", "please enter the same password");
+      return;
+    }
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: email.text, password: password.text);
+      Get.snackbar("Login", "Login Successful", backgroundColor: Colors.green);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Dashboard()),
+      );
+    } catch (e) {
+      Get.snackbar("Error", "Something wrong $e");
+    }
+  }
+
+  // Function to show the date picker
+  Future<void> selectDate(BuildContext context) async {
+    DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+
+    if (selectedDate != null) {
+      setState(() {
+        dobController.text = "${selectedDate.toLocal()}".split(' ')[0];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -25,7 +75,7 @@ class _SignuppagesState extends State<Signuppages> {
               child: Stack(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 138, left: 33),
+                    padding: const EdgeInsets.only(top: 138, left: 130),
                     child: Container(
                       child: const Text(
                         "SignUp",
@@ -79,12 +129,15 @@ class _SignuppagesState extends State<Signuppages> {
                         height: 60,
                         width: 368,
                         child: TextField(
+                          controller: dobController,
+                          readOnly: true,
+                          onTap: () => selectDate(context),
                           decoration: InputDecoration(
                             fillColor: Colors.white,
                             filled: true,
                             label: const Text("DOB"),
-                            hintText: 'Enter Your DOB',
-                            suffixIcon: const Icon(Icons.calendar_month),
+                            hintText: 'Select Your DOB',
+                            suffixIcon: const Icon(Icons.calendar_today),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
@@ -116,6 +169,7 @@ class _SignuppagesState extends State<Signuppages> {
                         height: 60,
                         width: 368,
                         child: TextField(
+                          controller: email,
                           decoration: InputDecoration(
                             fillColor: Colors.white,
                             filled: true,
@@ -134,6 +188,7 @@ class _SignuppagesState extends State<Signuppages> {
                         height: 60,
                         width: 368,
                         child: TextField(
+                          controller: password,
                           decoration: InputDecoration(
                             fillColor: Colors.white,
                             filled: true,
@@ -153,6 +208,7 @@ class _SignuppagesState extends State<Signuppages> {
                         height: 60,
                         width: 368,
                         child: TextField(
+                          controller: confirmpassword,
                           decoration: InputDecoration(
                             fillColor: Colors.white,
                             filled: true,
@@ -168,28 +224,31 @@ class _SignuppagesState extends State<Signuppages> {
                       const SizedBox(
                         height: 25,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10, top: 10),
-                        child: Container(
-                          height: 50,
-                          width: 200,
-                          decoration: BoxDecoration(
-                            color: const Color.fromRGBO(
-                              239,
-                              42,
-                              57,
-                              0.9,
+                      GestureDetector(
+                        onTap: SignUp,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 10, top: 10),
+                          child: Container(
+                            height: 50,
+                            width: 200,
+                            decoration: BoxDecoration(
+                              color: const Color.fromRGBO(
+                                239,
+                                42,
+                                57,
+                                0.9,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              "SignUp",
-                              style: TextStyle(
-                                  letterSpacing: 1.5,
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500),
+                            child: const Center(
+                              child: Text(
+                                "SignUp",
+                                style: TextStyle(
+                                    letterSpacing: 1.5,
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500),
+                              ),
                             ),
                           ),
                         ),

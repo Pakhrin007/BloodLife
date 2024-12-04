@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "329199974427",
+    "project_id": "signu-signin",
+    "storage_bucket": "signu-signin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:329199974427:android:352bf8060c8564db9320be",
+        "android_client_info": {
+          "package_name": "com.example.bloodlife"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDC0gnzLbAh4qL_LWjfWvKcfYeT9cR_8VY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
