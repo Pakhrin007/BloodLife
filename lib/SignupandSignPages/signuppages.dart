@@ -1,7 +1,9 @@
 import 'package:bloodlife/DonorsSectionPages/dashboard.dart';
 import 'package:bloodlife/SignupandSignPages/loginpage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -15,6 +17,8 @@ class Signuppages extends StatefulWidget {
 
 class _SignuppagesState extends State<Signuppages> {
   TextEditingController dobController = TextEditingController();
+  TextEditingController fullname = TextEditingController();
+  TextEditingController phonenumber = TextEditingController();
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
   TextEditingController confirmpassword = TextEditingController();
@@ -22,24 +26,46 @@ class _SignuppagesState extends State<Signuppages> {
   SignUp() async {
     if (email.text.isEmpty ||
         password.text.isEmpty ||
-        confirmpassword.text.isEmpty) {
-      Get.snackbar("Error", "Please fill all the textfeild");
+        confirmpassword.text.isEmpty ||
+        fullname.text.isEmpty ||
+        dobController.text.isEmpty ||
+        phonenumber.text.isEmpty) {
+      Get.snackbar("Error", "Please fill all the fields");
       return;
     }
+
     if (password.text != confirmpassword.text) {
-      Get.snackbar("Error", "please enter the same password");
+      Get.snackbar("Error", "Passwords do not match");
       return;
     }
+
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: email.text, password: password.text);
-      Get.snackbar("Login", "Login Successful", backgroundColor: Colors.green);
+      await addUserDetails(fullname.text, dobController.text, phonenumber.text);
+
+      Get.snackbar("Success", "Sign Up Successful",
+          backgroundColor: Colors.green);
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const Dashboard()),
       );
     } catch (e) {
-      Get.snackbar("Error", "Something wrong $e");
+      Get.snackbar("Error", "Something went wrong: $e");
+    }
+  }
+
+  Future addUserDetails(String fullname, String dob, String phoneNumber) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'FullName': fullname,
+        'DateOfBirth': dob,
+        'PhoneNumber': phoneNumber,
+        'Email': email.text
+      });
+    } catch (e) {
+      Get.snackbar("Error", "Failed to add user details: $e");
     }
   }
 
@@ -111,6 +137,7 @@ class _SignuppagesState extends State<Signuppages> {
                         height: 60,
                         width: 368,
                         child: TextField(
+                          controller: fullname,
                           decoration: InputDecoration(
                             fillColor: Colors.white,
                             filled: true,
@@ -151,6 +178,7 @@ class _SignuppagesState extends State<Signuppages> {
                         height: 60,
                         width: 368,
                         child: TextField(
+                          controller: phonenumber,
                           decoration: InputDecoration(
                             fillColor: Colors.white,
                             filled: true,
