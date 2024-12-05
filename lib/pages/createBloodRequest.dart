@@ -1,7 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloudinary_public/cloudinary_public.dart';
+import 'package:file_picker/file_picker.dart';
 
 class CreateBloodRequestScreen extends StatefulWidget {
   @override
@@ -10,74 +12,89 @@ class CreateBloodRequestScreen extends StatefulWidget {
 }
 
 class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
-  final _formKey = GlobalKey<FormState>(); // Global key for form validation
-  bool isUrgent = false;
-  String? fileName;
+  // Form Key
+  final _formKey = GlobalKey<FormState>();
 
-  // Controllers to access form field data
-  TextEditingController patientNameController = TextEditingController();
-  TextEditingController locationController = TextEditingController();
-  TextEditingController contactController = TextEditingController();
-  TextEditingController neededDateController = TextEditingController();
+  // Text Controllers
+  final TextEditingController patientNameController = TextEditingController();
+  final TextEditingController locationController = TextEditingController();
+  final TextEditingController contactController = TextEditingController();
+  final TextEditingController neededDateController = TextEditingController();
+  final TextEditingController additionalInfoController = TextEditingController();
 
+  // State Variables
   String? selectedBloodType;
-  String _date = ''; // Variable to hold the selected date
+  bool isUrgent = false;
+  File? selectedMedicalFile;
+  String? cloudinaryFileUrl;
+  String _date = '';
+
+  // Cloudinary Configuration
+  final cloudinary = CloudinaryPublic(
+    'dykgt0uth', // Replace with your Cloudinary cloud name
+    'bloodlife', // Replace with your upload preset
+    cache: false,
+  );
+
+  // Firestore Instance
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // File Picker Method
+  Future<void> pickMedicalDocument() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'png', 'jpeg'],
+      );
 
-  // Function to open file picker and get file
-  void pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+      if (result != null) {
+        File file = File(result.files.single.path!);
 
-    if (result != null) {
-      setState(() {
-        fileName = result.files.single.name; // Set the file name
-      });
-    }
-  }
-
-  // Function to handle form submission
-  Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        // Await Firestore operation
-        await _firestore.collection('bloodRequests').add({
-          'patientName': patientNameController.text,
-          'location': locationController.text,
-          'contact': contactController.text,
-          'bloodType': selectedBloodType,
-          'neededDate': neededDateController.text,
-          'urgent': isUrgent,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Blood Request Submitted Successfully')),
-        );
-
-        // Clear the form after successful submission
-        patientNameController.clear();
-        locationController.clear();
-        contactController.clear();
-        neededDateController.clear();
         setState(() {
-          selectedBloodType = null;
-          isUrgent = false;
-          fileName = null;
+          selectedMedicalFile = file;
         });
 
-      } catch (e) {
-        // Handle errors in a user-friendly way
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to submit request: $e')),
-        );
+        // Offload upload task to Isolate
+        String? uploadedUrl = await uploadToCloudinary(file);
+        if (uploadedUrl != null) {
+          setState(() {
+            cloudinaryFileUrl = uploadedUrl;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Document uploaded successfully')),
+          );
+        }
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('File upload failed: $e')),
+      );
     }
   }
 
+  Future<String?> uploadToCloudinary(File file) async {
+    try {
+      CloudinaryResponse response = await cloudinary.uploadFile(
+        CloudinaryFile.fromFile(
+          file.path,
+          folder: 'blood_request_docs',
+          resourceType: CloudinaryResourceType.Image,
+        ),
+      );
+      return response.secureUrl;
+    } on CloudinaryException catch (e) {
+      debugPrint('Cloudinary error: ${e.message}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Cloudinary upload failed: ${e.message}')),
+      );
+      return null;
+    } catch (e) {
+      debugPrint('Unexpected error: $e');
+      return null;
+    }
+  }
 
-  // Function to pick a date
+  // Date Picker Method
   Future<void> _selectDate(BuildContext context) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -88,10 +105,54 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
 
     if (pickedDate != null) {
       setState(() {
-        _date = "${pickedDate.toLocal()}".split(' ')[0]; // Format the date to yyyy-mm-dd
-        neededDateController.text = _date; // Set the date to TextField
+        _date = "${pickedDate.toLocal()}".split(' ')[0];
+        neededDateController.text = _date;
       });
     }
+  }
+
+  // Form Submission Method
+  Future<void> submitBloodRequest() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        await _firestore.collection('bloodRequests').add({
+          'patientName': patientNameController.text,
+          'location': locationController.text,
+          'contactNumber': contactController.text,
+          'bloodType': selectedBloodType,
+          'neededDate': neededDateController.text,
+          'additionalInfo': additionalInfoController.text,
+          'medicalDocumentUrl': cloudinaryFileUrl,
+          'isUrgent': isUrgent,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Blood Request Submitted Successfully')),
+        );
+        _resetForm();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Submission failed: $e')),
+        );
+      }
+    }
+  }
+
+  // Reset Form Method
+  void _resetForm() {
+    patientNameController.clear();
+    locationController.clear();
+    contactController.clear();
+    neededDateController.clear();
+    additionalInfoController.clear();
+
+    setState(() {
+      selectedBloodType = null;
+      isUrgent = false;
+      selectedMedicalFile = null;
+      cloudinaryFileUrl = null;
+    });
   }
 
   @override
@@ -102,217 +163,144 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.close, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Create a Blood Request',
+          'Create Blood Request',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Patient Name
-                TextFormField(
-                  controller: patientNameController,
-                  decoration: InputDecoration(
-                    labelText: 'Patient Name',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Patient Name is required';
-                    }
-                    return null;
-                  },
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Patient Name
+              TextFormField(
+                controller: patientNameController,
+                decoration: InputDecoration(
+                  labelText: 'Patient Name',
+                  border: OutlineInputBorder(),
                 ),
-                SizedBox(height: 16),
+                validator: (value) =>
+                value!.isEmpty ? 'Please enter patient name' : null,
+              ),
+              SizedBox(height: 16),
 
-                // Location
-                TextFormField(
-                  controller: locationController,
-                  decoration: InputDecoration(
-                    labelText: 'Location',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Location is required';
-                    }
-                    return null;
-                  },
+              // Location
+              TextFormField(
+                controller: locationController,
+                decoration: InputDecoration(
+                  labelText: 'Location',
+                  border: OutlineInputBorder(),
                 ),
-                SizedBox(height: 16),
+                validator: (value) =>
+                value!.isEmpty ? 'Please enter location' : null,
+              ),
+              SizedBox(height: 16),
 
-                // Contact Number
-                TextFormField(
-                  controller: contactController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    labelText: 'Contact Number',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Contact Number is required';
-                    }
-                    return null;
-                  },
+              // Contact Number
+              TextFormField(
+                controller: contactController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  labelText: 'Contact Number',
+                  border: OutlineInputBorder(),
                 ),
-                SizedBox(height: 16),
+                validator: (value) =>
+                value!.isEmpty ? 'Please enter contact number' : null,
+              ),
+              SizedBox(height: 16),
 
-                // Blood Type Dropdown
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    labelText: 'Blood Type',
-                    border: OutlineInputBorder(),
-                  ),
-                  value: selectedBloodType,
-                  items: [
-                    DropdownMenuItem(value: 'A+', child: Text('A+')),
-                    DropdownMenuItem(value: 'A-', child: Text('A-')),
-                    DropdownMenuItem(value: 'B+', child: Text('B+')),
-                    DropdownMenuItem(value: 'B-', child: Text('B-')),
-                    DropdownMenuItem(value: 'O+', child: Text('O+')),
-                    DropdownMenuItem(value: 'O-', child: Text('O-')),
-                    DropdownMenuItem(value: 'AB+', child: Text('AB+')),
-                    DropdownMenuItem(value: 'AB-', child: Text('AB-')),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      selectedBloodType = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Blood Type is required';
-                    }
-                    return null;
-                  },
+              // Blood Type Dropdown
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  labelText: 'Blood Type',
+                  border: OutlineInputBorder(),
                 ),
-                SizedBox(height: 16),
+                value: selectedBloodType,
+                items: [
+                  'A+', 'A-', 'B+', 'B-',
+                  'O+', 'O-', 'AB+', 'AB-'
+                ]
+                    .map((type) =>
+                    DropdownMenuItem(value: type, child: Text(type)))
+                    .toList(),
+                onChanged: (value) => setState(() {
+                  selectedBloodType = value;
+                }),
+                validator: (value) =>
+                value == null ? 'Please select blood type' : null,
+              ),
+              SizedBox(height: 16),
 
-                // Needed Date (GestureDetector)
-                GestureDetector(
-                  onTap: () => _selectDate(context),
-                  child: AbsorbPointer(
-                    child: TextFormField(
-                      controller: neededDateController,
-                      decoration: InputDecoration(
-                        labelText: 'Needed Date',
-                        border: OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.calendar_today),
-                          onPressed: () => _selectDate(context),
-                        ),
-                      ),
-                      onSaved: (value) => _date = value!,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please select a date';
-                        }
-                        return null;
-                      },
-                    ),
+              // Needed Date
+              TextFormField(
+                controller: neededDateController,
+                decoration: InputDecoration(
+                  labelText: 'Needed Date',
+                  border: OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.calendar_today),
+                    onPressed: () => _selectDate(context),
                   ),
                 ),
-                SizedBox(height: 16),
+                onTap: () => _selectDate(context),
+                validator: (value) =>
+                value!.isEmpty ? 'Please select needed date' : null,
+              ),
+              SizedBox(height: 16),
 
-                // Additional Information
-                TextFormField(
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    labelText: 'Enter additional information (optional)',
-                    border: OutlineInputBorder(),
+              // Additional Information
+              TextFormField(
+                controller: additionalInfoController,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  labelText: 'Additional Information (Optional)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 16),
+
+              // Medical Document Upload
+              ElevatedButton.icon(
+                onPressed: pickMedicalDocument,
+                icon: Icon(Icons.upload_file),
+                label: Text(selectedMedicalFile != null
+                    ? 'File Selected: ${selectedMedicalFile!.path.split('/').last}'
+                    : 'Upload Medical Document'),
+              ),
+              SizedBox(height: 16),
+
+              // Urgent Checkbox
+              Row(
+                children: [
+                  Checkbox(
+                    value: isUrgent,
+                    onChanged: (value) => setState(() {
+                      isUrgent = value!;
+                    }),
                   ),
-                ),
-                SizedBox(height: 16),
+                  Text('Urgent Request'),
+                ],
+              ),
+              SizedBox(height: 16),
 
-                // Upload Medical Documents (File Picker)
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: pickFile,
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Colors.grey[200],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.upload_file, color: Colors.black),
-                            SizedBox(width: 8),
-                            Text(
-                              fileName != null ? fileName! : 'Upload Medical Documents',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
+              // Submit Button
+              ElevatedButton(
+                onPressed: submitBloodRequest,
+                child: Text('Submit Blood Request'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
                 ),
-                SizedBox(height: 16),
-
-                // Urgent Need Checkbox
-                Row(
-                  children: [
-                    Text(
-                      'Urgent Need',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    Spacer(),
-                    Checkbox(
-                      value: isUrgent,
-                      onChanged: (value) {
-                        setState(() {
-                          isUrgent = value!;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16),
-
-                // Submit Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      await _submitForm();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFEF2A39), // Red color
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: Text(
-                      'Submit Request',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
