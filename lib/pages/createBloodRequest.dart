@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+
 
 class CreateBloodRequestScreen extends StatefulWidget {
   @override
@@ -20,6 +22,8 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
 
   String? selectedBloodType;
   String _date = ''; // Variable to hold the selected date
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
 
   // Function to open file picker and get file
   void pickFile() async {
@@ -33,19 +37,45 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
   }
 
   // Function to handle form submission
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // If the form is valid, display the data or proceed with submission
-      Navigator.pop(context, {
-        'patientName': patientNameController.text,
-        'location': locationController.text,
-        'contact': contactController.text,
-        'bloodType': selectedBloodType,
-        'neededDate': neededDateController.text,
-        'urgent': isUrgent,
-      });
+      try {
+        // Await Firestore operation
+        await _firestore.collection('bloodRequests').add({
+          'patientName': patientNameController.text,
+          'location': locationController.text,
+          'contact': contactController.text,
+          'bloodType': selectedBloodType,
+          'neededDate': neededDateController.text,
+          'urgent': isUrgent,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Blood Request Submitted Successfully')),
+        );
+
+        // Clear the form after successful submission
+        patientNameController.clear();
+        locationController.clear();
+        contactController.clear();
+        neededDateController.clear();
+        setState(() {
+          selectedBloodType = null;
+          isUrgent = false;
+          fileName = null;
+        });
+
+      } catch (e) {
+        // Handle errors in a user-friendly way
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to submit request: $e')),
+        );
+      }
     }
   }
+
 
   // Function to pick a date
   Future<void> _selectDate(BuildContext context) async {
@@ -261,7 +291,9 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _submitForm,
+                    onPressed: () async {
+                      await _submitForm();
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFEF2A39), // Red color
                       padding: const EdgeInsets.symmetric(vertical: 16),
