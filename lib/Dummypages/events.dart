@@ -77,6 +77,7 @@ class _EventsPageState extends State<EventsPage> with SingleTickerProviderStateM
       description: 'Students and staff of Kathmandu University come together for a blood donation drive to support local hospitals in need of blood.',
     ),
   ];
+
   late TabController _tabController;
 
   @override
@@ -114,8 +115,8 @@ class _EventsPageState extends State<EventsPage> with SingleTickerProviderStateM
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildEventsList(_allEvents, 'No events available.\nCreate a new event to get started.'),
-          _buildEventsList(_myEvents, 'You have no event history.'),
+          _buildEventsList(_allEvents, 'No events available.\nCreate a new event to get started.', false),
+          _buildEventsList(_myEvents, 'You have no event history.', true),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -139,7 +140,7 @@ class _EventsPageState extends State<EventsPage> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildEventsList(List<Event> events, String emptyMessage) {
+  Widget _buildEventsList(List<Event> events, String emptyMessage, bool isMyEvents) {
     if (events.isEmpty) {
       return Center(
         child: Text(
@@ -157,140 +158,306 @@ class _EventsPageState extends State<EventsPage> with SingleTickerProviderStateM
         final event = events[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 16.0),
-          child: _buildEventCard(event),
+          child: _ExpandableEventCard(event: event, isMyEvent: isMyEvents),
         );
       },
     );
   }
+}
 
-  Widget _buildEventCard(Event event) {
-    final isMyEvent = _myEvents.contains(event);  // Check if the event is in "My Events" list
+class _ExpandableEventCard extends StatefulWidget {
+  final Event event;
+  final bool isMyEvent; // Flag to differentiate between 'All Events' and 'My Events'
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                // Event Date
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.purple[50],
-                    borderRadius: BorderRadius.circular(8.0),
+  const _ExpandableEventCard({Key? key, required this.event, required this.isMyEvent}) : super(key: key);
+
+  @override
+  __ExpandableEventCardState createState() => __ExpandableEventCardState();
+}
+
+class __ExpandableEventCardState extends State<_ExpandableEventCard> {
+  bool _isDescriptionExpanded = false; // Toggle for description visibility
+  bool _isGoing = false; // State for the button (Interested/Going)
+  bool _isCompleted = false; // State to track Completed button
+  bool _isCancelled = false; // State to track Cancelled button
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isDescriptionExpanded = !_isDescriptionExpanded; // Toggle description
+        });
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  // Event Date
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.purple[50],
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            widget.event.date.split('-')[2], // Day
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Poppins-Medium",
+                              color: Colors.purple,
+                            ),
+                          ),
+                          Text(
+                            _getMonth(widget.event.date), // Month
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: "Poppins-Medium",
+                              color: Colors.purple,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  child: Center(
+                  const SizedBox(width: 16.0),
+                  // Event Name & Organizer
+                  Expanded(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          event.date.split('-')[2], // Day
+                          widget.event.name,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.purple,
+                            fontFamily: "Poppins-Medium",
                           ),
                         ),
+                        const SizedBox(height: 4.0),
                         Text(
-                          _getMonth(event.date), // Month
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.purple,
+                          widget.event.organizer,
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.grey[600],
+                            fontFamily: "Poppins-Light",
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(width: 16.0),
-                // Event Name & Organizer
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        event.name,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4.0),
-                      Text(
-                        'By ${event.organizer}',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16.0),
-            // Event Details (Time, Venue)
-            Row(
-              children: [
-                const Icon(Icons.access_time, size: 16.0, color: Colors.grey),
-                const SizedBox(width: 4.0),
-                Text(
-                  event.time,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                ),
-                const SizedBox(width: 16.0),
-                const Icon(Icons.location_on, size: 16.0, color: Colors.grey),
-                const SizedBox(width: 4.0),
-                Expanded(
-                  child: Text(
-                    event.venue,
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16.0),
-            // Event Description
-            Text(
-              event.description,
-              style: TextStyle(color: Colors.grey[700], fontSize: 14),
-            ),
-            const SizedBox(height: 16.0),
-            // Event Interaction Buttons (only visible for "All Events")
-            if (!isMyEvent)
+                ],
+              ),
+              const SizedBox(height: 16.0),
+              // Event Time
               Row(
                 children: [
-                  ElevatedButton(
+                  const Icon(Icons.access_time, size: 16.0, color: Colors.grey),
+                  const SizedBox(width: 4.0),
+                  Text(
+                    widget.event.time,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14, fontFamily: "Poppins-Light"),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8.0),
+              // Event Location
+              Row(
+                children: [
+                  const Icon(Icons.location_on, size: 16.0, color: Colors.grey),
+                  const SizedBox(width: 4.0),
+                  Expanded(
+                    child: Text(
+                      widget.event.venue,
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14, fontFamily: "Poppins-Light"),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16.0),
+              // Description - shown only when expanded
+              if (_isDescriptionExpanded)
+                Text(
+                  widget.event.description,
+                  style: TextStyle(color: Colors.grey[700], fontSize: 14, fontFamily: "Poppins-Light"),
+                ),
+              const SizedBox(height: 16.0),
+              // Button Section for My Events
+              if (widget.isMyEvent)
+                Row(
+                  children: [
+                    // Show Completed Button if event is completed
+                    if (_isCompleted)
+                      Expanded(
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: null, // Disable the button
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                                side: const BorderSide(
+                                  color: Color(0xFFEF2A39),
+                                ),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14.0),
+                            ),
+                            child: const Text(
+                              'Completed',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFEF2A39),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    // Show Cancelled Button if event is cancelled
+                    if (_isCancelled)
+                      Expanded(
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: null, // Disable the button
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                                side: const BorderSide(
+                                  color: Color(0xFFEF2A39),
+                                ),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14.0),
+                            ),
+                            child: const Text(
+                              'Cancelled',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFEF2A39),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    // Show Complete and Cancel buttons when the event is not yet completed or cancelled
+                    if (!_isCompleted && !_isCancelled)
+                      Expanded(
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              bool? confirm = await _showConfirmationDialog(context, 'Complete the Event');
+                              if (confirm == true) {
+                                setState(() {
+                                  _isCompleted = true;
+                                });
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFEF2A39),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14.0),
+                            ),
+                            child: const Text(
+                              'Complete',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    // Cancel button
+                    if (!_isCancelled && !_isCompleted)
+                      Expanded(
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              bool? confirm = await _showConfirmationDialog(context, 'Cancel the Event');
+                              if (confirm == true) {
+                                setState(() {
+                                  _isCancelled = true;
+                                });
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                                side: const BorderSide(
+                                  color: Color(0xFFEF2A39),
+                                ),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14.0),
+                            ),
+                            child: const Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFEF2A39),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              // Interested/Going Button for non-my-events
+              if (!widget.isMyEvent && !_isCompleted && !_isCancelled)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
                     onPressed: () {
-                      // Handle "Interested" action
+                      setState(() {
+                        _isGoing = !_isGoing; // Toggle button text and style
+                      });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      backgroundColor: _isGoing ? Colors.white : const Color(0xFFEF2A39),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        side: BorderSide(
+                          color: _isGoing ? const Color(0xFFEF2A39) : Colors.transparent,
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
                     ),
-                    child: const Text('Interested'),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Handle "Accept Event" action
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    child: Text(
+                      _isGoing ? 'Going' : 'Interested',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "Poppins-Medium",
+                        color: _isGoing ? const Color(0xFFEF2A39) : Colors.white,
+                      ),
                     ),
-                    child: const Text('Accept Event'),
                   ),
-              ],
-            ),
-          ],
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -298,20 +465,84 @@ class _EventsPageState extends State<EventsPage> with SingleTickerProviderStateM
 
   String _getMonth(String date) {
     final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec'
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
     ];
     final monthIndex = int.parse(date.split('-')[1]) - 1;
     return months[monthIndex];
+  }
+
+  // Confirmation Dialog before completing or canceling
+  Future<bool?> _showConfirmationDialog(BuildContext context, String action) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white, // Custom background color
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0), // Rounded corners for the dialog
+          ),
+          title: Text(
+            'Are you sure?',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFFEF2A39), // Custom title color
+            ),
+          ),
+          content: Text(
+            'Do you want to $action?',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal,
+              color: Colors.black87, // Custom content color
+            ),
+          ),
+          actions: [
+            // Cancel Button
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // Close the dialog with 'false'
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Color(0xFFEF2A39), // Custom cancel button color
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                side: BorderSide(color: Color(0xFFEF2A39)), // Border for cancel button
+              ),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            // Confirm Button
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // Close the dialog with 'true'
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: Color(0xFFEF2A39), // Custom confirm button color
+                foregroundColor: Colors.white, // Button text color
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              child: Text(
+                'Yes',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
