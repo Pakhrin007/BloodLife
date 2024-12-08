@@ -7,10 +7,43 @@ class BloodRequestsPage extends StatefulWidget {
 }
 
 class _BloodRequestsPageState extends State<BloodRequestsPage> {
-  List<Map<String, dynamic>> bloodRequests = [];
+  // Dummy list of blood requests
+  List<Map<String, dynamic>> bloodRequests = [
+    {
+      'patientName': 'John Doe',
+      'location': 'City Hospital',
+      'neededDate': '2024-12-10',
+      'bloodType': 'A+',
+      'urgent': true,
+      'additionalInfo': 'Patient requires 2 units of blood due to surgery.'
+    },
+    {
+      'patientName': 'Jane Smith',
+      'location': 'HealthCare Center',
+      'neededDate': '2024-12-15',
+      'bloodType': 'O-',
+      'urgent': false,
+      'additionalInfo': 'Blood needed for transfusion therapy.'
+    },
+    {
+      'patientName': 'Mike Johnson',
+      'location': 'Red Cross Clinic',
+      'neededDate': '2024-12-12',
+      'bloodType': 'B+',
+      'urgent': true,
+      'additionalInfo': 'Emergency case for accident victim.'
+    },
+  ];
 
   // List to track which card is expanded
   List<bool> _isExpandedList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize _isExpandedList with false for all requests
+    _isExpandedList = List<bool>.filled(bloodRequests.length, false);
+  }
 
   // Function to navigate to CreateBloodRequestScreen and add a new request
   Future<void> _createBloodRequest() async {
@@ -46,35 +79,35 @@ class _BloodRequestsPageState extends State<BloodRequestsPage> {
           // If no blood requests, show a message
           bloodRequests.isEmpty
               ? Center(
-                  child: Text(
-                    'No blood requests yet.\nCreate a new request to get started.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
-                  ),
-                )
+            child: Text(
+              'No blood requests yet.\nCreate a new request to get started.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            ),
+          )
               : ListView.builder(
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: bloodRequests.length,
-                  itemBuilder: (context, index) {
-                    final request = bloodRequests[index];
-                    return Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              // Toggle the expanded state for this request
-                              _isExpandedList[index] = !_isExpandedList[index];
-                            });
-                          },
-                          child: _buildBloodRequestCard(
-                              request: request,
-                              isExpanded: _isExpandedList[index]),
-                        ),
-                        const SizedBox(height: 16.0),
-                      ],
-                    );
-                  },
-                ),
+            padding: const EdgeInsets.all(16.0),
+            itemCount: bloodRequests.length,
+            itemBuilder: (context, index) {
+              final request = bloodRequests[index];
+              return Column(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        // Toggle the expanded state for this request
+                        _isExpandedList[index] = !_isExpandedList[index];
+                      });
+                    },
+                    child: _buildBloodRequestCard(
+                        request: request,
+                        isExpanded: _isExpandedList[index]),
+                  ),
+                  const SizedBox(height: 16.0),
+                ],
+              );
+            },
+          ),
           // Floating button to create a new blood request
           Align(
             alignment: Alignment.bottomRight,
@@ -87,7 +120,7 @@ class _BloodRequestsPageState extends State<BloodRequestsPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
                     side:
-                        const BorderSide(color: Color(0xffEF2A39), width: 2.0),
+                    const BorderSide(color: Color(0xffEF2A39), width: 2.0),
                   ),
                 ),
                 child: const Text(
@@ -180,7 +213,6 @@ class _BloodRequestsPageState extends State<BloodRequestsPage> {
                         ),
                       ],
                     ),
-                    // Only show "Urgent" if it's true
                     if (request['urgent'])
                       Row(
                         children: [
@@ -221,7 +253,7 @@ class _BloodRequestsPageState extends State<BloodRequestsPage> {
                     ),
                   ),
                 ),
-                SizedBox(width: 10), // Space between buttons
+                SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
@@ -238,7 +270,6 @@ class _BloodRequestsPageState extends State<BloodRequestsPage> {
                 ),
               ],
             ),
-            // Expanded Description Section (if expanded)
             if (isExpanded)
               Padding(
                 padding: const EdgeInsets.only(top: 16.0),
