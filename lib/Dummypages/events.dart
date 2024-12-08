@@ -2,7 +2,6 @@ import 'package:bloodlife/pages/createEvent.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:your_app_name/pages/create_event.dart'; // Adjust import path as needed
 
 class EventsPage extends StatefulWidget {
   const EventsPage({Key? key}) : super(key: key);
@@ -14,9 +13,8 @@ class EventsPage extends StatefulWidget {
 class _EventsPageState extends State<EventsPage> {
   final user = FirebaseAuth.instance.currentUser!;
   Map<String, dynamic>? userData;
-
-  // Set to track events marked as interested
   final Set<String> interestedEvents = {};
+  final Map<String, bool> expandedEvents = {};
 
   @override
   void initState() {
@@ -42,317 +40,347 @@ class _EventsPageState extends State<EventsPage> {
 
   Widget buildEventCard(DocumentSnapshot event, bool canManage) {
     final eventId = event.id;
+    final String status = event['status'] ?? 'active';
+    bool isGoing = interestedEvents.contains(eventId);
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12.0),
-          color: Colors.white,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Date section
-            Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: Colors.purple.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8.0),
+    String date = event['date'] ?? 'NA';
+    List<String> dateParts = date.split('-');
+    String day = (dateParts.length > 2) ? dateParts[2] : 'NA';
+    String month = (dateParts.length > 1) ? _getMonth(dateParts[1]) : 'NA';
+
+    bool isExpanded = expandedEvents[eventId] ?? false;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          expandedEvents[eventId] = !isExpanded;
+        });
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.purple[50],
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            day,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.purple,
+                              fontFamily: "Poppins-Medium",
+                            ),
+                          ),
+                          Text(
+                            month,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.purple,
+                              fontFamily: "Poppins-Medium",
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  child: Column(
-                    children: [
-                      Text(
-                        event['date']?.split('-')[2] ?? 'NA',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.purple,
+                  const SizedBox(width: 16.0),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          event['name'] ?? 'Event Name',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Poppins-Medium",
+                          ),
                         ),
-                      ),
-                      Text(
-                        event['date']?.split('-')[1] ?? 'NA',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.purple,
+                        const SizedBox(height: 4.0),
+                        Text(
+                          event['organizer'] ?? 'Unknown',
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.grey[600],
+                            fontFamily: "Poppins-Light",
+                          ),
                         ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16.0),
+              Row(
+                children: [
+                  const Icon(Icons.access_time, size: 16.0, color: Colors.grey),
+                  const SizedBox(width: 4.0),
+                  Text(
+                    event['time'] ?? 'Time',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 14,
+                      fontFamily: "Poppins-Light",
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8.0),
+              Row(
+                children: [
+                  const Icon(Icons.location_on, size: 16.0, color: Colors.grey),
+                  const SizedBox(width: 4.0),
+                  Expanded(
+                    child: Text(
+                      event['venue'] ?? 'Venue',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                        fontFamily: "Poppins-Light",
                       ),
-                    ],
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16.0),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                child: ConstrainedBox(
+                  constraints: isExpanded
+                      ? const BoxConstraints()
+                      : const BoxConstraints(maxHeight: 0),
+                  child: Text(
+                    event['description'] ?? 'No description provided',
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontSize: 14,
+                      fontFamily: "Poppins-Light",
+                    ),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(width: 16.0),
-            // Event details section
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    event['name'] ?? 'Event Name',
-                    style: const TextStyle(
-                      fontSize: 18.0,
+              ),
+              const SizedBox(height: 16.0),
+              if (status == 'cancelled')
+                const Center(
+                  child: Text(
+                    "This event has been cancelled.",
+                    style: TextStyle(
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                      fontFamily: "Poppins-Medium",
                     ),
                   ),
-                  const SizedBox(height: 4.0),
-                  Text(
-                    'By ${event['organizer'] ?? 'Unknown'}',
-                    style: const TextStyle(
-                      fontSize: 14.0,
-                      color: Colors.grey,
+                )
+              else if (status == 'completed')
+                const Center(
+                  child: Text(
+                    "This event has ended.",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                      fontFamily: "Poppins-Medium",
                     ),
                   ),
-                  const SizedBox(height: 8.0),
-                  Row(
-                    children: [
-                      const Icon(Icons.access_time, size: 16.0),
-                      const SizedBox(width: 4.0),
-                      Text(event['time'] ?? 'Time'),
-                      const SizedBox(width: 16.0),
-                      const Icon(Icons.location_on, size: 16.0),
-                      const SizedBox(width: 4.0),
-                      Expanded(
-                        child: Text(
-                          event['venue'] ?? 'Venue',
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    event['description'] ?? 'No description provided',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 10.0),
-                  // Interested Button or Delete Button
-                  Row(
-                    children: [
-                      // Interested Button
-                      GestureDetector(
-                        onTap: () {
+                )
+              else ...[
+                  if (canManage) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 3.0),
+                      child: _buildButton('Complete', Colors.white, const Color(0xFFF44336), true, event),
+                    ),
+                    _buildButton('Cancel', const Color(0xFFF44336), Colors.white, true, event),
+                  ],
+                  if (!canManage)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
                           setState(() {
-                            if (interestedEvents.contains(eventId)) {
+                            if (isGoing) {
                               interestedEvents.remove(eventId);
                             } else {
                               interestedEvents.add(eventId);
                             }
                           });
+                          _updateInterested(eventId, isGoing);
                         },
-                        child: Container(
-                          height: 30,
-                          width: 120,
-                          decoration: BoxDecoration(
-                            color: interestedEvents.contains(eventId)
-                                ? Colors.green
-                                : Colors.red.shade300,
-                            borderRadius: BorderRadius.circular(20),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isGoing ? Colors.white : const Color(0xFFEF2A39),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
                           ),
-                          child: Center(
-                            child: Text(
-                              interestedEvents.contains(eventId)
-                                  ? "Interested"
-                                  : "Interested?",
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                              ),
-                            ),
+                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        ),
+                        child: Text(
+                          isGoing ? 'Going' : 'Interested',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isGoing ? const Color(0xFFEF2A39) : Colors.white,
+                            fontFamily: "Poppins-Medium",
                           ),
                         ),
                       ),
-
-                      // Delete Button for My Events
-                      if (canManage) ...[
-                        const SizedBox(width: 10),
-                        GestureDetector(
-                          onTap: () async {
-                            try {
-                              await FirebaseFirestore.instance
-                                  .collection('events')
-                                  .doc(eventId)
-                                  .delete();
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Event deleted successfully'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Failed to delete event: $e'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          },
-                          child: Container(
-                            height: 30,
-                            width: 30,
-                            decoration: BoxDecoration(
-                              color: Colors.red.shade300,
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.delete,
-                                size: 20,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
+                    ),
                 ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Events"),
-          centerTitle: true,
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: "All Events"),
-              Tab(text: "My Events"),
             ],
           ),
         ),
-        body: userData == null
-            ? const Center(child: CircularProgressIndicator())
-            : TabBarView(
-                children: [
-                  // All Events Tab
-                  StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('events')
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                        return const Center(child: Text("No events available"));
-                      }
-                      final events = snapshot.data!.docs;
-                      return ListView.builder(
-                        itemCount: events.length,
-                        itemBuilder: (context, index) {
-                          return buildEventCard(events[index], false);
-                        },
-                      );
-                    },
-                  ),
+      ),
+    );
+  }
 
-                  // My Events Tab
-                  StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('events')
-                        .where('userId', isEqualTo: user.uid)
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                        return const Center(
-                            child: Text("No events created by you"));
-                      }
-                      final events = snapshot.data!.docs;
-                      return ListView.builder(
-                        itemCount: events.length,
-                        itemBuilder: (context, index) {
-                          return buildEventCard(events[index], true);
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const CreateEventScreen()),
-            );
-          },
-          child: const Icon(Icons.add),
+  Widget _buildButton(String label, Color textColor, Color backgroundColor, bool isActive, DocumentSnapshot event) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: isActive
+            ? () async {
+          bool? confirm = await _showConfirmationDialog(context, label);
+          if (confirm == true) {
+            _updateEventStatus(event.id, label);
+          }
+        }
+            : null,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: backgroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: textColor,
+            fontFamily: "Poppins-Medium",
+          ),
         ),
       ),
     );
   }
 
-  // Confirmation Dialog before completing or canceling
-  Future<bool?> _showConfirmationDialog(
-      BuildContext context, String action) async {
+  Future<void> _updateEventStatus(String eventId, String action) async {
+    try {
+      final eventRef = FirebaseFirestore.instance.collection('event').doc(eventId);
+      if (action == 'Complete') {
+        await eventRef.update({'status': 'completed'});
+      } else if (action == 'Cancel') {
+        await eventRef.update({'status': 'cancelled'});
+      }
+    } catch (e) {
+      print('Failed to update event status: $e');
+    }
+  }
+
+  Future<void> _updateInterested(String eventId, bool isGoing) async {
+    try {
+      final userRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
+      final userDoc = await userRef.get();
+      final userName = userDoc.data()?['FullName'] ?? 'Unknown User';
+
+      final eventRef = FirebaseFirestore.instance.collection('event').doc(eventId);
+      final eventDoc = await eventRef.get();
+      List<String> participants = List<String>.from(eventDoc.data()?['participants'] ?? []);
+
+      if (isGoing) {
+        participants.remove(userName);
+      } else {
+        participants.add(userName);
+      }
+
+      await eventRef.update({'participants': participants});
+
+      final goingEvents = List<String>.from(userDoc.data()?['goingEvents'] ?? []);
+      if (isGoing) {
+        goingEvents.remove(eventId);
+      } else {
+        goingEvents.add(eventId);
+      }
+      await userRef.update({'goingEvents': goingEvents});
+
+    } catch (e) {
+      print('Failed to update user participation and event participants: $e');
+    }
+  }
+
+  String _getMonth(String month) {
+    final months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    final monthIndex = int.tryParse(month) ?? 0;
+    return monthIndex > 0 && monthIndex <= 12 ? months[monthIndex - 1] : 'NA';
+  }
+
+  Future<bool?> _showConfirmationDialog(BuildContext context, String action) async {
     return showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white, // Custom background color
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(12.0), // Rounded corners for the dialog
+            borderRadius: BorderRadius.circular(12.0),
           ),
-          title: Text(
+          title: const Text(
             'Are you sure?',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Color(0xFFEF2A39), // Custom title color
+              fontFamily: "Poppins-Medium", // Font style
             ),
           ),
           content: Text(
             'Do you want to $action?',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.normal,
               color: Colors.black87, // Custom content color
+              fontFamily: "Poppins-Light", // Font style
             ),
           ),
           actions: [
             // Cancel Button
             TextButton(
               onPressed: () {
-                Navigator.of(context)
-                    .pop(false); // Close the dialog with 'false'
+                Navigator.of(context).pop(false); // Close the dialog with 'false'
               },
               style: TextButton.styleFrom(
-                foregroundColor:
-                    Color(0xFFEF2A39), // Custom cancel button color
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                foregroundColor: const Color(0xFFEF2A39), // Custom cancel button color
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
-                side: BorderSide(
-                    color: Color(0xFFEF2A39)), // Border for cancel button
+                side: const BorderSide(color: Color(0xFFEF2A39)), // Border for cancel button
               ),
-              child: Text(
+              child: const Text(
                 'Cancel',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
+                  fontFamily: "Poppins-Medium", // Font style
                 ),
               ),
             ),
@@ -362,25 +390,135 @@ class _EventsPageState extends State<EventsPage> {
                 Navigator.of(context).pop(true); // Close the dialog with 'true'
               },
               style: TextButton.styleFrom(
-                backgroundColor:
-                    Color(0xFFEF2A39), // Custom confirm button color
+                backgroundColor: const Color(0xFFEF2A39), // Custom confirm button color
                 foregroundColor: Colors.white, // Button text color
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
-              child: Text(
+              child: const Text(
                 'Yes',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
+                  fontFamily: "Poppins-Medium", // Font style
                 ),
               ),
             ),
           ],
         );
       },
+    );
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            "Events",
+            style: TextStyle(
+              fontFamily: "Poppins-Medium",
+            ),
+          ),
+          centerTitle: true,
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: "All Events"),
+              Tab(text: "My Events"),
+            ],
+            labelStyle: TextStyle(
+              fontFamily: "Poppins-Medium",
+            ),
+          ),
+        ),
+        body: userData == null
+            ? const Center(child: CircularProgressIndicator())
+            : TabBarView(
+          children: [
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('event').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(child: Text("No events available"));
+                }
+                final events = snapshot.data!.docs;
+                events.sort((a, b) {
+                  DateTime dateA = DateTime.parse(a['date']);
+                  DateTime dateB = DateTime.parse(b['date']);
+                  return dateA.compareTo(dateB);
+                });
+                return ListView.builder(
+                  itemCount: events.length,
+                  itemBuilder: (context, index) {
+                    return buildEventCard(events[index], false);
+                  },
+                );
+              },
+            ),
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('event')
+                  .where('userId', isEqualTo: user.uid)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(child: Text("No events created by you"));
+                }
+                final events = snapshot.data!.docs;
+                events.sort((a, b) {
+                  DateTime dateA = DateTime.parse(a['date']);
+                  DateTime dateB = DateTime.parse(b['date']);
+                  return dateA.compareTo(dateB);
+                });
+                return ListView.builder(
+                  itemCount: events.length,
+                  itemBuilder: (context, index) {
+                    return buildEventCard(events[index], true);
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+        floatingActionButton: Align(
+          alignment: Alignment.bottomRight,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: _createEvent,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xffFAF0F0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  side: const BorderSide(color: Color(0xffEF2A39), width: 2.0),
+                ),
+              ),
+              child: const Text(
+                'Create an Event',
+                style: TextStyle(color: Color(0xffEF2A39)),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _createEvent() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CreateEventScreen()),
     );
   }
 }

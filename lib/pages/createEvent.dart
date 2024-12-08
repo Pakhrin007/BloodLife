@@ -1,4 +1,3 @@
-// create_event.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,6 +22,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
   bool _isLoading = false;
 
+  // Function to submit event data to Firestore
   Future<void> _submitEvent() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -36,7 +36,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       final user = FirebaseAuth.instance.currentUser;
 
       // Add event details to Firestore
-      await FirebaseFirestore.instance.collection('events').add({
+      await FirebaseFirestore.instance.collection('event').add({
         'name': _nameController.text.trim(),
         'venue': _venueController.text.trim(),
         'organizer': _organizerController.text.trim(),
@@ -45,6 +45,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         'time': _timeController.text.trim(),
         'createdAt': FieldValue.serverTimestamp(),
         'userId': user!.uid, // Add userId to associate event with the creator
+        'status': 'Upcoming', // Default event status
+        'participants': [],   // Initial empty list of participants
+        'completed': false,   // Default to false, event is not completed
+        'cancelled': false,   // Default to false, event is not cancelled
       });
 
       // Clear input fields after successful submission
@@ -72,6 +76,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     }
   }
 
+  // Function to select date using a date picker
   Future<void> _selectDate(BuildContext context) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -82,11 +87,12 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     if (pickedDate != null) {
       setState(() {
         _dateController.text =
-            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+        "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
       });
     }
   }
 
+  // Function to select time using a time picker
   Future<void> _selectTime(BuildContext context) async {
     TimeOfDay? pickedTime = await showTimePicker(
       context: context,
@@ -125,6 +131,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Event Name Input
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
@@ -139,6 +146,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 },
               ),
               const SizedBox(height: 16.0),
+
+              // Venue Input
               TextFormField(
                 controller: _venueController,
                 decoration: const InputDecoration(
@@ -153,6 +162,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 },
               ),
               const SizedBox(height: 16.0),
+
+              // Organizer Input
               TextFormField(
                 controller: _organizerController,
                 decoration: const InputDecoration(
@@ -167,15 +178,17 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 },
               ),
               const SizedBox(height: 16.0),
+
+              // Date Picker
               GestureDetector(
                 onTap: () => _selectDate(context),
                 child: AbsorbPointer(
                   child: TextFormField(
                     controller: _dateController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Date',
-                      border: const OutlineInputBorder(),
-                      suffixIcon: const Icon(Icons.calendar_today),
+                      border: OutlineInputBorder(),
+                      suffixIcon: Icon(Icons.calendar_today),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -187,15 +200,17 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 ),
               ),
               const SizedBox(height: 16.0),
+
+              // Time Picker
               GestureDetector(
                 onTap: () => _selectTime(context),
                 child: AbsorbPointer(
                   child: TextFormField(
                     controller: _timeController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Time',
-                      border: const OutlineInputBorder(),
-                      suffixIcon: const Icon(Icons.access_time),
+                      border: OutlineInputBorder(),
+                      suffixIcon: Icon(Icons.access_time),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -207,6 +222,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 ),
               ),
               const SizedBox(height: 16.0),
+
+              // Event Description Input
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 5,
@@ -222,6 +239,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 },
               ),
               const SizedBox(height: 16.0),
+
+              // Create Event Button
               ElevatedButton(
                 onPressed: _isLoading ? null : _submitEvent,
                 style: ElevatedButton.styleFrom(
