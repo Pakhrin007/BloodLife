@@ -302,4 +302,85 @@ class _EventsPageState extends State<EventsPage> {
       ),
     );
   }
+
+  // Confirmation Dialog before completing or canceling
+  Future<bool?> _showConfirmationDialog(
+      BuildContext context, String action) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white, // Custom background color
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(12.0), // Rounded corners for the dialog
+          ),
+          title: Text(
+            'Are you sure?',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFFEF2A39), // Custom title color
+            ),
+          ),
+          content: Text(
+            'Do you want to $action?',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal,
+              color: Colors.black87, // Custom content color
+            ),
+          ),
+          actions: [
+            // Cancel Button
+            TextButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(false); // Close the dialog with 'false'
+              },
+              style: TextButton.styleFrom(
+                foregroundColor:
+                    Color(0xFFEF2A39), // Custom cancel button color
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                side: BorderSide(
+                    color: Color(0xFFEF2A39)), // Border for cancel button
+              ),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            // Confirm Button
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // Close the dialog with 'true'
+              },
+              style: TextButton.styleFrom(
+                backgroundColor:
+                    Color(0xFFEF2A39), // Custom confirm button color
+                foregroundColor: Colors.white, // Button text color
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              child: Text(
+                'Yes',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
