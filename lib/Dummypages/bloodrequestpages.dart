@@ -1,284 +1,343 @@
+import 'package:bloodlife/models/BloodRequest.dart';
+import 'package:bloodlife/pages/createBloodRequest.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../pages/createBloodRequest.dart';
+import 'package:get/get.dart';
 
-class BloodRequestsPage extends StatefulWidget {
+class Bloodrequestpage extends StatefulWidget {
+  const Bloodrequestpage({super.key});
+
   @override
-  _BloodRequestsPageState createState() => _BloodRequestsPageState();
+  State<Bloodrequestpage> createState() => _BloodrequestpageState();
 }
 
-class _BloodRequestsPageState extends State<BloodRequestsPage> {
-  // Dummy list of blood requests
-  List<Map<String, dynamic>> bloodRequests = [
-    {
-      'patientName': 'John Doe',
-      'location': 'City Hospital',
-      'neededDate': '2024-12-10',
-      'bloodType': 'A+',
-      'urgent': true,
-      'additionalInfo': 'Patient requires 2 units of blood due to surgery.'
-    },
-    {
-      'patientName': 'Jane Smith',
-      'location': 'HealthCare Center',
-      'neededDate': '2024-12-15',
-      'bloodType': 'O-',
-      'urgent': false,
-      'additionalInfo': 'Blood needed for transfusion therapy.'
-    },
-    {
-      'patientName': 'Mike Johnson',
-      'location': 'Red Cross Clinic',
-      'neededDate': '2024-12-12',
-      'bloodType': 'B+',
-      'urgent': true,
-      'additionalInfo': 'Emergency case for accident victim.'
-    },
-  ];
-
-  // List to track which card is expanded
-  List<bool> _isExpandedList = [];
-
-  @override
-  void initState() {
-    super.initState();
-    // Initialize _isExpandedList with false for all requests
-    _isExpandedList = List<bool>.filled(bloodRequests.length, false);
-  }
-
-  // Function to navigate to CreateBloodRequestScreen and add a new request
-  Future<void> _createBloodRequest() async {
-    final newRequest = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CreateBloodRequestScreen(),
-      ),
-    );
-
-    if (newRequest != null) {
-      setState(() {
-        bloodRequests.add(newRequest); // Add new request to the list
-        _isExpandedList
-            .add(false); // Initialize the expanded state for the new request
-      });
-    }
-  }
-
+class _BloodrequestpageState extends State<Bloodrequestpage> {
+  final String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          "Blood Requests",
-          style: TextStyle(color: Colors.black, fontFamily: "Poppins-Medium"),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Requests List"),
+          centerTitle: true,
+          bottom: TabBar(
+            tabs: [
+              Tab(
+                text: "All Request",
+              ),
+              Tab(
+                text: "My request",
+              )
+            ],
+          ),
         ),
-      ),
-      body: Stack(
-        children: [
-          // If no blood requests, show a message
-          bloodRequests.isEmpty
-              ? Center(
-            child: Text(
-              'No blood requests yet.\nCreate a new request to get started.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600], fontSize: 16),
-            ),
-          )
-              : ListView.builder(
-            padding: const EdgeInsets.all(16.0),
-            itemCount: bloodRequests.length,
-            itemBuilder: (context, index) {
-              final request = bloodRequests[index];
-              return Column(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        // Toggle the expanded state for this request
-                        _isExpandedList[index] = !_isExpandedList[index];
-                      });
-                    },
-                    child: _buildBloodRequestCard(
-                        request: request,
-                        isExpanded: _isExpandedList[index]),
-                  ),
-                  const SizedBox(height: 16.0),
-                ],
-              );
-            },
-          ),
-          // Floating button to create a new blood request
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                onPressed: _createBloodRequest,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xffFAF0F0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    side:
-                    const BorderSide(color: Color(0xffEF2A39), width: 2.0),
-                  ),
-                ),
-                child: const Text(
-                  'Create a Blood Request',
-                  style: TextStyle(color: Color(0xffEF2A39)),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Build individual blood request card widget with expanded details
-  Widget _buildBloodRequestCard(
-      {required Map<String, dynamic> request, required bool isExpanded}) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      color: Colors.pink[50],
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        body: TabBarView(
           children: [
-            // Row with Icon and Patient Details
-            Row(
-              children: [
-                const Icon(
-                  Icons.bloodtype,
-                  color: Colors.red,
-                  size: 40.0,
-                ),
-                SizedBox(width: 10.0),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${request['patientName']}',
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.location_on,
-                          color: Colors.red,
-                          size: 20.0,
-                        ),
-                        SizedBox(width: 5.0),
-                        Text(
-                          '${request['location']}',
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.red,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.calendar_today,
-                          color: Colors.red,
-                          size: 20.0,
-                        ),
-                        SizedBox(width: 5.0),
-                        Text(
-                          'Needed by ${request['neededDate']}',
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.red,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(width: 5.0),
-                        Text(
-                          'Blood Group: ${request['bloodType']}',
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.red,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (request['urgent'])
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.warning,
-                            color: Colors.red,
-                            size: 20.0,
-                          ),
-                          SizedBox(width: 5.0),
-                          Text(
-                            'Urgent',
-                            style: const TextStyle(
-                              fontSize: 16.0,
-                              color: Colors.red,
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('bloodRequests')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(
+                    child: Text("No data Available"),
+                  );
+                }
+                final bloodRequests = snapshot.data!.docs;
+                return ListView.builder(
+                  itemCount: bloodRequests.length,
+                  itemBuilder: (context, index) {
+                    final bloodrequest = bloodRequests[index];
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        height: 220,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            color: Colors.cyan.shade100,
+                            borderRadius: BorderRadius.circular(20)),
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10),
+                              child: Container(
+                                child: Icon(Icons.person),
+                              ),
                             ),
-                          ),
-                        ],
+                            SizedBox(
+                              width: 30,
+                            ),
+                            Container(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Text(
+                                      "Additional Info: ${bloodrequest["additionalInfo"]}",
+                                      style: TextStyle(
+                                          fontFamily: 'Poppins-Light'),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Text(
+                                      "BloodType: ${bloodrequest["bloodType"]}",
+                                      style: TextStyle(
+                                          fontFamily: 'Poppins-Light'),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Text(
+                                      "contactNumber: ${bloodrequest["contactNumber"]}",
+                                      style: TextStyle(
+                                          fontFamily: 'Poppins-Light'),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Text(
+                                      "Location: ${bloodrequest["location"]}",
+                                      style: TextStyle(
+                                          fontFamily: 'Poppins-Light'),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Text(
+                                      "Needed Date: ${bloodrequest["neededDate"]}",
+                                      style: TextStyle(
+                                          fontFamily: 'Poppins-Light'),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Text(
+                                      "Name: ${bloodrequest["patientName"]}",
+                                      style: TextStyle(
+                                          fontFamily: 'Poppins-Light'),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 5),
+                                    child: Container(
+                                      height: 40,
+                                      width: 120,
+                                      decoration: BoxDecoration(
+                                          color: Colors.grey.shade200,
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      child: Center(
+                                          child: Text(
+                                        "Accept",
+                                        style: TextStyle(
+                                            color: Colors.green,
+                                            fontFamily: 'Poppins-Medium'),
+                                      )),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                  ],
-                ),
-              ],
+                    );
+                  },
+                );
+              },
             ),
-            SizedBox(height: 20.0),
-            // Buttons (Accept and Medical Details)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Handle the accept request action
-                    },
-                    child: Text('Accept Request'),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.black,
-                      backgroundColor: Colors.pink[100],
-                      padding: EdgeInsets.symmetric(vertical: 16.0),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      // Navigate to the medical details screen
-                    },
-                    icon: Icon(Icons.description),
-                    label: Text('Medical Details'),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.black,
-                      backgroundColor: Colors.pink[100],
-                      padding: EdgeInsets.symmetric(vertical: 16.0),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            if (isExpanded)
-              Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: Text(
-                  request['additionalInfo'] ?? 'No info',
-                  style: TextStyle(fontSize: 16.0, color: Colors.black54),
-                ),
-              ),
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('bloodRequests')
+                  .where('userId', isEqualTo: currentUserId)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(
+                    child: Text("No data Available"),
+                  );
+                }
+                final bloodRequests = snapshot.data!.docs;
+                return ListView.builder(
+                  itemCount: bloodRequests.length,
+                  itemBuilder: (context, index) {
+                    final bloodrequest = bloodRequests[index];
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        height: 230,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            color: Colors.cyan.shade100,
+                            borderRadius: BorderRadius.circular(20)),
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10),
+                              child: Container(
+                                child: Icon(Icons.person),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 30,
+                            ),
+                            Container(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Text(
+                                      "Additional Info: ${bloodrequest["additionalInfo"]}",
+                                      style: TextStyle(
+                                          fontFamily: 'Poppins-Light'),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Text(
+                                      "BloodType: ${bloodrequest["bloodType"]}",
+                                      style: TextStyle(
+                                          fontFamily: 'Poppins-Light'),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Text(
+                                      "contactNumber: ${bloodrequest["contactNumber"]}",
+                                      style: TextStyle(
+                                          fontFamily: 'Poppins-Light'),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Text(
+                                      "Location: ${bloodrequest["location"]}",
+                                      style: TextStyle(
+                                          fontFamily: 'Poppins-Light'),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Text(
+                                      "Needed Date: ${bloodrequest["neededDate"]}",
+                                      style: TextStyle(
+                                          fontFamily: 'Poppins-Light'),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Text(
+                                      "Name: ${bloodrequest["patientName"]}",
+                                      style: TextStyle(
+                                          fontFamily: 'Poppins-Light'),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 10),
+                                    child: Container(
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            height: 40,
+                                            width: 120,
+                                            decoration: BoxDecoration(
+                                                color: Colors.grey.shade200,
+                                                borderRadius:
+                                                    BorderRadius.circular(20)),
+                                            child: Center(
+                                              child: Text(
+                                                "pending",
+                                                style: TextStyle(
+                                                    fontFamily:
+                                                        'Poppins-light'),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 40,
+                                          ),
+                                          GestureDetector(
+                                            onTap: () async {
+                                              try {
+                                                await FirebaseFirestore.instance
+                                                    .collection('bloodRequests')
+                                                    .doc(bloodrequest.id)
+                                                    .delete();
+                                                Get.snackbar("Delete",
+                                                    "Sucessfully Deleted",
+                                                    backgroundColor:
+                                                        Colors.green);
+                                              } catch (e) {
+                                                Get.snackbar("Error",
+                                                    "Something went wrong",
+                                                    backgroundColor:
+                                                        Colors.red);
+                                              }
+                                            },
+                                            child: Container(
+                                              height: 40,
+                                              width: 120,
+                                              decoration: BoxDecoration(
+                                                  color: Colors.red,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20)),
+                                              child: Center(
+                                                  child: Text(
+                                                "Cancel",
+                                                style: TextStyle(
+                                                    fontFamily:
+                                                        'Poppins-light'),
+                                              )),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            )
           ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => CreateBloodRequestScreen()),
+            );
+          },
+          child: const Icon(
+            Icons.add,
+            color: Colors.red,
+            shadows: [Shadow(blurRadius: 1)],
+          ),
         ),
       ),
     );
