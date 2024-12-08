@@ -24,7 +24,8 @@ class _BloodRequestsPageState extends State<BloodRequestsPage> {
     if (newRequest != null) {
       setState(() {
         bloodRequests.add(newRequest); // Add new request to the list
-        _isExpandedList.add(false); // Initialize the expanded state for the new request
+        _isExpandedList
+            .add(false); // Initialize the expanded state for the new request
       });
     }
   }
@@ -45,34 +46,35 @@ class _BloodRequestsPageState extends State<BloodRequestsPage> {
           // If no blood requests, show a message
           bloodRequests.isEmpty
               ? Center(
-            child: Text(
-              'No blood requests yet.\nCreate a new request to get started.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600], fontSize: 16),
-            ),
-          )
-              : ListView.builder(
-
-            padding: const EdgeInsets.all(16.0),
-            itemCount: bloodRequests.length,
-            itemBuilder: (context, index) {
-              final request = bloodRequests[index];
-              return Column(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        // Toggle the expanded state for this request
-                        _isExpandedList[index] = !_isExpandedList[index];
-                      });
-                    },
-                    child: _buildBloodRequestCard(request: request, isExpanded: _isExpandedList[index]),
+                  child: Text(
+                    'No blood requests yet.\nCreate a new request to get started.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
                   ),
-                  const SizedBox(height: 16.0),
-                ],
-              );
-            },
-          ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16.0),
+                  itemCount: bloodRequests.length,
+                  itemBuilder: (context, index) {
+                    final request = bloodRequests[index];
+                    return Column(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              // Toggle the expanded state for this request
+                              _isExpandedList[index] = !_isExpandedList[index];
+                            });
+                          },
+                          child: _buildBloodRequestCard(
+                              request: request,
+                              isExpanded: _isExpandedList[index]),
+                        ),
+                        const SizedBox(height: 16.0),
+                      ],
+                    );
+                  },
+                ),
           // Floating button to create a new blood request
           Align(
             alignment: Alignment.bottomRight,
@@ -84,7 +86,8 @@ class _BloodRequestsPageState extends State<BloodRequestsPage> {
                   backgroundColor: const Color(0xffFAF0F0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
-                    side: const BorderSide(color: Color(0xffEF2A39), width: 2.0),
+                    side:
+                        const BorderSide(color: Color(0xffEF2A39), width: 2.0),
                   ),
                 ),
                 child: const Text(
@@ -100,7 +103,8 @@ class _BloodRequestsPageState extends State<BloodRequestsPage> {
   }
 
   // Build individual blood request card widget with expanded details
-  Widget _buildBloodRequestCard({required Map<String, dynamic> request, required bool isExpanded}) {
+  Widget _buildBloodRequestCard(
+      {required Map<String, dynamic> request, required bool isExpanded}) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),

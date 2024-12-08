@@ -1,485 +1,319 @@
+import 'package:bloodlife/pages/createEvent.dart';
 import 'package:flutter/material.dart';
-import '../models/event.dart';
-import '../pages/createEvent.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:your_app_name/pages/create_event.dart'; // Adjust import path as needed
 
 class EventsPage extends StatefulWidget {
+  const EventsPage({Key? key}) : super(key: key);
+
   @override
-  _EventsPageState createState() => _EventsPageState();
+  State<EventsPage> createState() => _EventsPageState();
 }
 
-class _EventsPageState extends State<EventsPage> with SingleTickerProviderStateMixin {
-  final List<Event> _allEvents = [
-    Event(
-      name: 'Blood Donation Drive by Red Cross',
-      organizer: 'Red Cross Society',
-      date: '2024-12-10',
-      time: '9:00 AM - 3:00 PM',
-      venue: 'Red Cross Blood Donation Center, Kathmandu',
-      description: 'Join the Red Cross Blood Donation Drive and help save lives. Donors will receive a certificate and refreshments.',
-    ),
-    Event(
-      name: 'Blood Donation Campaign: Save Lives',
-      organizer: 'Nepal Blood Bank',
-      date: '2024-12-12',
-      time: '10:00 AM - 4:00 PM',
-      venue: 'Nepal Blood Bank, Lalitpur',
-      description: 'Donate blood and save lives. Each donation can save up to three lives. Refreshments and a small token of appreciation will be provided.',
-    ),
-    Event(
-      name: 'University Blood Donation Drive',
-      organizer: 'Kathmandu University Students Association',
-      date: '2024-12-15',
-      time: '9:00 AM - 1:00 PM',
-      venue: 'Kathmandu University Campus, Dhulikhel',
-      description: 'Students and staff of Kathmandu University come together for a blood donation drive to support local hospitals in need of blood.',
-    ),
-    Event(
-      name: 'Blood Donation & Health Checkup',
-      organizer: 'City Hospital, Kathmandu',
-      date: '2024-12-18',
-      time: '8:00 AM - 2:00 PM',
-      venue: 'City Hospital, Kathmandu',
-      description: 'A combined event for blood donation and free health checkup. Get a health check while saving lives by donating blood.',
-    ),
-    Event(
-      name: 'Corporate Blood Donation Event',
-      organizer: 'Tech Corp',
-      date: '2024-12-22',
-      time: '10:00 AM - 3:00 PM',
-      venue: 'Tech Corp Office, Kathmandu',
-      description: 'Tech Corp employees and the general public are invited to donate blood and contribute to a noble cause. Free snacks and a thank you gift for all donors.',
-    ),
-    Event(
-      name: 'Blood Donation for Emergency Victims',
-      organizer: 'Hospitals Association of Nepal',
-      date: '2024-12-25',
-      time: '9:00 AM - 5:00 PM',
-      venue: 'Various Hospitals in Kathmandu Valley',
-      description: 'Join us in this urgent blood donation campaign for victims of recent accidents and natural disasters. Your donation can save lives.',
-    ),
-  ];
+class _EventsPageState extends State<EventsPage> {
+  final user = FirebaseAuth.instance.currentUser!;
+  Map<String, dynamic>? userData;
 
-  final List<Event> _myEvents = [
-    Event(
-      name: 'Blood Donation Drive by Red Cross',
-      organizer: 'Red Cross Society',
-      date: '2024-12-10',
-      time: '9:00 AM - 3:00 PM',
-      venue: 'Red Cross Blood Donation Center, Kathmandu',
-      description: 'Join the Red Cross Blood Donation Drive and help save lives. Donors will receive a certificate and refreshments.',
-    ),
-    Event(
-      name: 'University Blood Donation Drive',
-      organizer: 'Kathmandu University Students Association',
-      date: '2024-12-15',
-      time: '9:00 AM - 1:00 PM',
-      venue: 'Kathmandu University Campus, Dhulikhel',
-      description: 'Students and staff of Kathmandu University come together for a blood donation drive to support local hospitals in need of blood.',
-    ),
-  ];
-
-  late TabController _tabController;
+  // Set to track events marked as interested
+  final Set<String> interestedEvents = {};
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    fetchUserDetails();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'Events',
-          style: TextStyle(
-            fontFamily: "Poppins-Medium",
-            fontSize: 18,
-            color: Colors.black,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: Colors.black,
-          unselectedLabelColor: Colors.grey,
-          indicatorColor: const Color(0xffEF2A39),
-          tabs: const [
-            Tab(text: 'All Events'),
-            Tab(text: 'My Events'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildEventsList(_allEvents, 'No events available.\nCreate a new event to get started.', false),
-          _buildEventsList(_myEvents, 'You have no event history.', true),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final newEvent = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const CreateEventScreen(),
-            ),
-          );
-          if (newEvent != null && newEvent is Event) {
-            setState(() {
-              _allEvents.add(newEvent);
-              _myEvents.add(newEvent); // Optionally add to My Events
-            });
-          }
-        },
-        backgroundColor: const Color(0xffEF2A39),
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-    );
-  }
-
-  Widget _buildEventsList(List<Event> events, String emptyMessage, bool isMyEvents) {
-    if (events.isEmpty) {
-      return Center(
-        child: Text(
-          emptyMessage,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.grey[600], fontSize: 16),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
-      itemCount: events.length,
-      itemBuilder: (context, index) {
-        final event = events[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16.0),
-          child: _ExpandableEventCard(event: event, isMyEvent: isMyEvents),
-        );
-      },
-    );
-  }
-}
-
-class _ExpandableEventCard extends StatefulWidget {
-  final Event event;
-  final bool isMyEvent; // Flag to differentiate between 'All Events' and 'My Events'
-
-  const _ExpandableEventCard({Key? key, required this.event, required this.isMyEvent}) : super(key: key);
-
-  @override
-  __ExpandableEventCardState createState() => __ExpandableEventCardState();
-}
-
-class __ExpandableEventCardState extends State<_ExpandableEventCard> {
-  bool _isDescriptionExpanded = false; // Toggle for description visibility
-  bool _isGoing = false; // State for the button (Interested/Going)
-  bool _isCompleted = false; // State to track Completed button
-  bool _isCancelled = false; // State to track Cancelled button
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
+  Future<void> fetchUserDetails() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      if (doc.exists) {
         setState(() {
-          _isDescriptionExpanded = !_isDescriptionExpanded; // Toggle description
+          userData = doc.data();
         });
-      },
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-        elevation: 4,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  // Event Date
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.purple[50],
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            widget.event.date.split('-')[2], // Day
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Poppins-Medium",
-                              color: Colors.purple,
-                            ),
-                          ),
-                          Text(
-                            _getMonth(widget.event.date), // Month
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: "Poppins-Medium",
-                              color: Colors.purple,
-                            ),
-                          ),
-                        ],
+      }
+    } catch (e) {
+      print('Failed to fetch user data: $e');
+    }
+  }
+
+  Widget buildEventCard(DocumentSnapshot event, bool canManage) {
+    final eventId = event.id;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.0),
+          color: Colors.white,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Date section
+            Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        event['date']?.split('-')[2] ?? 'NA',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.purple,
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  // Event Name & Organizer
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.event.name,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Poppins-Medium",
-                          ),
+                      Text(
+                        event['date']?.split('-')[1] ?? 'NA',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.purple,
                         ),
-                        const SizedBox(height: 4.0),
-                        Text(
-                          widget.event.organizer,
-                          style: TextStyle(
-                            fontSize: 14.0,
-                            color: Colors.grey[600],
-                            fontFamily: "Poppins-Light",
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-              // Event Time
-              Row(
-                children: [
-                  const Icon(Icons.access_time, size: 16.0, color: Colors.grey),
-                  const SizedBox(width: 4.0),
-                  Text(
-                    widget.event.time,
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14, fontFamily: "Poppins-Light"),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8.0),
-              // Event Location
-              Row(
-                children: [
-                  const Icon(Icons.location_on, size: 16.0, color: Colors.grey),
-                  const SizedBox(width: 4.0),
-                  Expanded(
-                    child: Text(
-                      widget.event.venue,
-                      style: TextStyle(color: Colors.grey[600], fontSize: 14, fontFamily: "Poppins-Light"),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-              // Description - shown only when expanded
-              if (_isDescriptionExpanded)
-                Text(
-                  widget.event.description,
-                  style: TextStyle(color: Colors.grey[700], fontSize: 14, fontFamily: "Poppins-Light"),
                 ),
-              const SizedBox(height: 16.0),
-              // Button Section for My Events
-              if (widget.isMyEvent)
-                Row(
-                  children: [
-                    // Show Completed Button if event is completed
-                    if (_isCompleted)
+              ],
+            ),
+            const SizedBox(width: 16.0),
+            // Event details section
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    event['name'] ?? 'Event Name',
+                    style: const TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4.0),
+                  Text(
+                    'By ${event['organizer'] ?? 'Unknown'}',
+                    style: const TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 8.0),
+                  Row(
+                    children: [
+                      const Icon(Icons.access_time, size: 16.0),
+                      const SizedBox(width: 4.0),
+                      Text(event['time'] ?? 'Time'),
+                      const SizedBox(width: 16.0),
+                      const Icon(Icons.location_on, size: 16.0),
+                      const SizedBox(width: 4.0),
                       Expanded(
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: null, // Disable the button
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                side: const BorderSide(
-                                  color: Color(0xFFEF2A39),
-                                ),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 14.0),
-                            ),
-                            child: const Text(
-                              'Completed',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFFEF2A39),
+                        child: Text(
+                          event['venue'] ?? 'Venue',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    event['description'] ?? 'No description provided',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 10.0),
+                  // Interested Button or Delete Button
+                  Row(
+                    children: [
+                      // Interested Button
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (interestedEvents.contains(eventId)) {
+                              interestedEvents.remove(eventId);
+                            } else {
+                              interestedEvents.add(eventId);
+                            }
+                          });
+                        },
+                        child: Container(
+                          height: 30,
+                          width: 120,
+                          decoration: BoxDecoration(
+                            color: interestedEvents.contains(eventId)
+                                ? Colors.green
+                                : Colors.red.shade300,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Center(
+                            child: Text(
+                              interestedEvents.contains(eventId)
+                                  ? "Interested"
+                                  : "Interested?",
+                              style: const TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
                               ),
                             ),
                           ),
                         ),
                       ),
-                    // Show Cancelled Button if event is cancelled
-                    if (_isCancelled)
-                      Expanded(
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: null, // Disable the button
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                side: const BorderSide(
-                                  color: Color(0xFFEF2A39),
+
+                      // Delete Button for My Events
+                      if (canManage) ...[
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          onTap: () async {
+                            try {
+                              await FirebaseFirestore.instance
+                                  .collection('events')
+                                  .doc(eventId)
+                                  .delete();
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Event deleted successfully'),
+                                  backgroundColor: Colors.green,
                                 ),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 14.0),
+                              );
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Failed to delete event: $e'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
+                          child: Container(
+                            height: 30,
+                            width: 30,
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade300,
+                              borderRadius: BorderRadius.circular(15),
                             ),
-                            child: const Text(
-                              'Cancelled',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFFEF2A39),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    // Show Complete and Cancel buttons when the event is not yet completed or cancelled
-                    if (!_isCompleted && !_isCancelled)
-                      Expanded(
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              bool? confirm = await _showConfirmationDialog(context, 'Complete the Event');
-                              if (confirm == true) {
-                                setState(() {
-                                  _isCompleted = true;
-                                });
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFEF2A39),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 14.0),
-                            ),
-                            child: const Text(
-                              'Complete',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                            child: const Center(
+                              child: Icon(
+                                Icons.delete,
+                                size: 20,
                                 color: Colors.white,
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    // Cancel button
-                    if (!_isCancelled && !_isCompleted)
-                      Expanded(
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              bool? confirm = await _showConfirmationDialog(context, 'Cancel the Event');
-                              if (confirm == true) {
-                                setState(() {
-                                  _isCancelled = true;
-                                });
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                side: const BorderSide(
-                                  color: Color(0xFFEF2A39),
-                                ),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 14.0),
-                            ),
-                            child: const Text(
-                              'Cancel',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFFEF2A39),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              // Interested/Going Button for non-my-events
-              if (!widget.isMyEvent && !_isCompleted && !_isCancelled)
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _isGoing = !_isGoing; // Toggle button text and style
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isGoing ? Colors.white : const Color(0xFFEF2A39),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        side: BorderSide(
-                          color: _isGoing ? const Color(0xFFEF2A39) : Colors.transparent,
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    ),
-                    child: Text(
-                      _isGoing ? 'Going' : 'Interested',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "Poppins-Medium",
-                        color: _isGoing ? const Color(0xFFEF2A39) : Colors.white,
-                      ),
-                    ),
+                      ],
+                    ],
                   ),
-                ),
-            ],
-          ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  String _getMonth(String date) {
-    final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    final monthIndex = int.parse(date.split('-')[1]) - 1;
-    return months[monthIndex];
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Events"),
+          centerTitle: true,
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: "All Events"),
+              Tab(text: "My Events"),
+            ],
+          ),
+        ),
+        body: userData == null
+            ? const Center(child: CircularProgressIndicator())
+            : TabBarView(
+                children: [
+                  // All Events Tab
+                  StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('events')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return const Center(child: Text("No events available"));
+                      }
+                      final events = snapshot.data!.docs;
+                      return ListView.builder(
+                        itemCount: events.length,
+                        itemBuilder: (context, index) {
+                          return buildEventCard(events[index], false);
+                        },
+                      );
+                    },
+                  ),
+
+                  // My Events Tab
+                  StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('events')
+                        .where('userId', isEqualTo: user.uid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return const Center(
+                            child: Text("No events created by you"));
+                      }
+                      final events = snapshot.data!.docs;
+                      return ListView.builder(
+                        itemCount: events.length,
+                        itemBuilder: (context, index) {
+                          return buildEventCard(events[index], true);
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const CreateEventScreen()),
+            );
+          },
+          child: const Icon(Icons.add),
+        ),
+      ),
+    );
   }
 
   // Confirmation Dialog before completing or canceling
-  Future<bool?> _showConfirmationDialog(BuildContext context, String action) async {
+  Future<bool?> _showConfirmationDialog(
+      BuildContext context, String action) async {
     return showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.white, // Custom background color
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0), // Rounded corners for the dialog
+            borderRadius:
+                BorderRadius.circular(12.0), // Rounded corners for the dialog
           ),
           title: Text(
             'Are you sure?',
@@ -501,15 +335,18 @@ class __ExpandableEventCardState extends State<_ExpandableEventCard> {
             // Cancel Button
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(false); // Close the dialog with 'false'
+                Navigator.of(context)
+                    .pop(false); // Close the dialog with 'false'
               },
               style: TextButton.styleFrom(
-                foregroundColor: Color(0xFFEF2A39), // Custom cancel button color
+                foregroundColor:
+                    Color(0xFFEF2A39), // Custom cancel button color
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
-                side: BorderSide(color: Color(0xFFEF2A39)), // Border for cancel button
+                side: BorderSide(
+                    color: Color(0xFFEF2A39)), // Border for cancel button
               ),
               child: Text(
                 'Cancel',
@@ -525,7 +362,8 @@ class __ExpandableEventCardState extends State<_ExpandableEventCard> {
                 Navigator.of(context).pop(true); // Close the dialog with 'true'
               },
               style: TextButton.styleFrom(
-                backgroundColor: Color(0xFFEF2A39), // Custom confirm button color
+                backgroundColor:
+                    Color(0xFFEF2A39), // Custom confirm button color
                 foregroundColor: Colors.white, // Button text color
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
