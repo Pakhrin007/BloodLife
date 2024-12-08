@@ -1,5 +1,6 @@
 import 'package:bloodlife/SignupandSignPages/loginpage.dart';
 import 'package:bloodlife/api/api.dart';
+import 'package:bloodlife/pages/eventhistory.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -182,25 +183,33 @@ class _MoreState extends State<More> {
                         indent: 10,
                       ),
                     ),
-                    Row(
-                      children: [
-                        Padding(padding: EdgeInsets.all(10)),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Container(
-                            child: Text(
-                              "Event History",
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Eventhistory()));
+                      },
+                      child: Row(
+                        children: [
+                          Padding(padding: EdgeInsets.all(10)),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Container(
+                              child: Text(
+                                "Event History",
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ),
-                        ),
-                        SizedBox(width: 10),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Icon(Icons.arrow_circle_right_outlined),
-                        ),
-                      ],
+                          SizedBox(width: 10),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Icon(Icons.arrow_circle_right_outlined),
+                          ),
+                        ],
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 15),

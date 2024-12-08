@@ -1,5 +1,7 @@
+// create_event.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CreateEventScreen extends StatefulWidget {
   const CreateEventScreen({Key? key}) : super(key: key);
@@ -31,6 +33,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     });
 
     try {
+      final user = FirebaseAuth.instance.currentUser;
+
       // Add event details to Firestore
       await FirebaseFirestore.instance.collection('events').add({
         'name': _nameController.text.trim(),
@@ -40,6 +44,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         'date': _dateController.text.trim(),
         'time': _timeController.text.trim(),
         'createdAt': FieldValue.serverTimestamp(),
+        'userId': user!.uid, // Add userId to associate event with the creator
       });
 
       // Clear input fields after successful submission
@@ -53,6 +58,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Event created successfully!')),
       );
+
+      // Optional: Navigate back to the previous screen
+      Navigator.of(context).pop();
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to create event: $error')),
@@ -68,11 +76,14 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
+      firstDate: DateTime.now(), // Prevent selecting past dates
       lastDate: DateTime(2101),
     );
     if (pickedDate != null) {
-      _dateController.text = "${pickedDate.toLocal()}".split(' ')[0];
+      setState(() {
+        _dateController.text =
+            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+      });
     }
   }
 
@@ -82,7 +93,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       initialTime: TimeOfDay.now(),
     );
     if (pickedTime != null) {
-      _timeController.text = pickedTime.format(context);
+      setState(() {
+        _timeController.text = pickedTime.format(context);
+      });
     }
   }
 
@@ -102,21 +115,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        title: const Text(
-          'Create an Event',
-          style: TextStyle(
-            fontFamily: "Poppins-Medium",
-            color: Colors.black,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
+        title: const Text('Create an Event'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -124,6 +123,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
                 controller: _nameController,
@@ -222,27 +222,15 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 },
               ),
               const SizedBox(height: 16.0),
-              SizedBox(
-                width: double.infinity,
-                height: 50.0,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFEF2A39),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
-                  ),
-                  onPressed: _isLoading ? null : _submitEvent,
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                    'Submit Event',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _submitEvent,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Create Event'),
               ),
             ],
           ),
