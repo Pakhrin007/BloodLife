@@ -1,15 +1,20 @@
-import 'package:file_picker/file_picker.dart';
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloudinary_public/cloudinary_public.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 
 class BloodDonationForm extends StatefulWidget {
   final String hospitalName;
   final String hospitalAddress;
 
   const BloodDonationForm({
-    super.key,
+    Key? key,
     required this.hospitalName,
     required this.hospitalAddress,
-  });
+  }) : super(key: key);
 
   @override
   _BloodDonationFormState createState() => _BloodDonationFormState();
@@ -22,16 +27,116 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   late String _bloodType;
   late DateTime _appointmentDate;
   late String _additionalInfo;
+  File? selectedMedicalFile;
+  String? cloudinaryFileUrl;
 
   final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _contactController = TextEditingController();
+  String? _uploadedFileUrl;
 
-  void pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+  final cloudinary = CloudinaryPublic(
+    'dykgt0uth', // Replace with your Cloudinary cloud name
+    'bloodlife', // Replace with your upload preset
+    cache: false,
+  );
 
-    if (result != null) {
-      setState(() {
-        var fileName = result.files.single.name; // Set the file name
-      });
+  @override
+  void initState() {
+    super.initState();
+    _initializeUserData();
+  }
+
+  Future<void> pickMedicalDocument() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'png', 'jpeg'],
+      );
+
+      if (result != null) {
+        File file = File(result.files.single.path!);
+
+        setState(() {
+          selectedMedicalFile = file;
+        });
+
+        // Offload upload task to Isolate
+        String? uploadedUrl = await uploadToCloudinary(file);
+        if (uploadedUrl != null) {
+          setState(() {
+            cloudinaryFileUrl = uploadedUrl;
+            _uploadedFileUrl = uploadedUrl; // Set the URL here for use in submission
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Document uploaded successfully')),
+          );
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('File upload failed: $e')),
+      );
+    }
+  }
+
+  void _initializeUserData() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      _nameController.text = user.displayName ?? '';
+      _contactController.text = user.phoneNumber ?? '';
+    }
+  }
+
+  Future<String?> uploadToCloudinary(File file) async {
+    try {
+      CloudinaryResponse response = await cloudinary.uploadFile(
+        CloudinaryFile.fromFile(
+          file.path,
+          folder: 'appointments',
+          resourceType: CloudinaryResourceType.Auto, // Adjust resource type
+        ),
+      );
+      print("Uploaded file URL: ${response.secureUrl}");
+      return response.secureUrl;
+    } on CloudinaryException catch (e) {
+      debugPrint('Cloudinary error: ${e.message}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Cloudinary upload failed: ${e.message}')),
+      );
+      return null;
+    } catch (e) {
+      debugPrint('Unexpected error: $e');
+      return null;
+    }
+  }
+
+  Future<void> _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState?.save();
+
+      try {
+        await FirebaseFirestore.instance.collection('appointments').add({
+          'donorName': _donorName,
+          'contactNumber': _contactNumber,
+          'bloodType': _bloodType,
+          'appointmentDate': _appointmentDate.toIso8601String(),
+          'additionalInfo': _additionalInfo,
+          'hospitalName': widget.hospitalName,
+          'hospitalAddress': widget.hospitalAddress,
+          'fileUrl': _uploadedFileUrl,
+          'userId': FirebaseAuth.instance.currentUser?.uid,
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Appointment booked successfully!')),
+        );
+        Navigator.pop(context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error booking appointment: $e')),
+        );
+      }
     }
   }
 
@@ -54,29 +159,37 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
           child: ListView(
             children: <Widget>[
               TextFormField(
-                initialValue: widget.hospitalName, // Display the selected hospital's name
+                initialValue: widget.hospitalName,
                 decoration: const InputDecoration(labelText: "Hospital Name"),
                 readOnly: true,
               ),
               TextFormField(
-                initialValue: widget.hospitalAddress, // Display the selected hospital's address
+                initialValue: widget.hospitalAddress,
                 decoration: const InputDecoration(labelText: "Hospital Address"),
                 readOnly: true,
               ),
-
+              const SizedBox(height: 20),
               TextFormField(
+                controller: _nameController,
                 decoration: const InputDecoration(labelText: "Donor's Name"),
+                validator: (value) =>
+                value!.isEmpty ? "Please enter your name" : null,
                 onSaved: (value) {
                   _donorName = value!;
                 },
               ),
+              const SizedBox(height: 20),
               TextFormField(
+                controller: _contactController,
                 decoration: const InputDecoration(labelText: 'Contact Number'),
                 keyboardType: TextInputType.phone,
+                validator: (value) =>
+                value!.isEmpty ? "Please enter your contact number" : null,
                 onSaved: (value) {
                   _contactNumber = value!;
                 },
               ),
+              const SizedBox(height: 20),
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Blood Type'),
                 items: [
@@ -85,12 +198,15 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                   value: label,
                   child: Text(label),
                 )).toList(),
+                validator: (value) =>
+                value == null ? "Please select a blood type" : null,
                 onChanged: (value) {
                   setState(() {
                     _bloodType = value!;
                   });
                 },
               ),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: _dateController,
                 decoration: const InputDecoration(
@@ -108,38 +224,40 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                   if (pickedDate != null) {
                     setState(() {
                       _appointmentDate = pickedDate;
-                      _dateController.text = "${_appointmentDate.toLocal()}".split(' ')[0];
+                      _dateController.text =
+                      "${_appointmentDate.toLocal()}".split(' ')[0];
                     });
                   }
                 },
+                validator: (value) =>
+                value!.isEmpty ? "Please select an appointment date" : null,
               ),
+              const SizedBox(height: 20),
               TextFormField(
                 decoration: const InputDecoration(
                     labelText: 'Enter additional information (optional)'),
                 onSaved: (value) {
-                  _additionalInfo = value!;
+                  _additionalInfo = value ?? '';
                 },
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: () {
-                  pickFile();
-                },
+                onPressed: pickMedicalDocument,
                 icon: const Icon(Icons.upload_file),
-                label: const Text('Upload Medical Documents'),
+                label: Text(
+                  _uploadedFileUrl == null
+                      ? 'Upload Medical Documents'
+                      : 'File Uploaded',
+                ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState?.save();
-                  }
-                },
+                onPressed: _submitForm,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                 ),
-                child: const Text('Appoint Booking'),
+                child: const Text('Book Appointment'),
               ),
             ],
           ),
