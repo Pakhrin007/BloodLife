@@ -20,7 +20,7 @@ class _DashboardState extends State<Dashboard> {
     const MapPage(),
     EventsPage(),
     const Fav(),
-    BloodRequestsPage(),
+    Bloodrequestpage(),
     const More()
   ];
 

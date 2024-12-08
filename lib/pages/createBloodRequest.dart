@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
@@ -20,7 +21,8 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
   final TextEditingController locationController = TextEditingController();
   final TextEditingController contactController = TextEditingController();
   final TextEditingController neededDateController = TextEditingController();
-  final TextEditingController additionalInfoController = TextEditingController();
+  final TextEditingController additionalInfoController =
+      TextEditingController();
 
   // State Variables
   String? selectedBloodType;
@@ -115,6 +117,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
   Future<void> submitBloodRequest() async {
     if (_formKey.currentState!.validate()) {
       try {
+        final user = FirebaseAuth.instance.currentUser!;
         await _firestore.collection('bloodRequests').add({
           'patientName': patientNameController.text,
           'location': locationController.text,
@@ -125,6 +128,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
           'medicalDocumentUrl': cloudinaryFileUrl,
           'isUrgent': isUrgent,
           'createdAt': FieldValue.serverTimestamp(),
+          'userId': user!.uid,
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -189,7 +193,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) =>
-                value!.isEmpty ? 'Please enter patient name' : null,
+                    value!.isEmpty ? 'Please enter patient name' : null,
               ),
               SizedBox(height: 16),
 
@@ -201,7 +205,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) =>
-                value!.isEmpty ? 'Please enter location' : null,
+                    value!.isEmpty ? 'Please enter location' : null,
               ),
               SizedBox(height: 16),
 
@@ -214,7 +218,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) =>
-                value!.isEmpty ? 'Please enter contact number' : null,
+                    value!.isEmpty ? 'Please enter contact number' : null,
               ),
               SizedBox(height: 16),
 
@@ -225,18 +229,15 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                   border: OutlineInputBorder(),
                 ),
                 value: selectedBloodType,
-                items: [
-                  'A+', 'A-', 'B+', 'B-',
-                  'O+', 'O-', 'AB+', 'AB-'
-                ]
+                items: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']
                     .map((type) =>
-                    DropdownMenuItem(value: type, child: Text(type)))
+                        DropdownMenuItem(value: type, child: Text(type)))
                     .toList(),
                 onChanged: (value) => setState(() {
                   selectedBloodType = value;
                 }),
                 validator: (value) =>
-                value == null ? 'Please select blood type' : null,
+                    value == null ? 'Please select blood type' : null,
               ),
               SizedBox(height: 16),
 
@@ -253,7 +254,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                 ),
                 onTap: () => _selectDate(context),
                 validator: (value) =>
-                value!.isEmpty ? 'Please select needed date' : null,
+                    value!.isEmpty ? 'Please select needed date' : null,
               ),
               SizedBox(height: 16),
 
@@ -295,7 +296,10 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
               // Submit Button
               ElevatedButton(
                 onPressed: submitBloodRequest,
-                child: Text('Submit Blood Request'),
+                child: Text(
+                  'Submit Blood Request',
+                  style: TextStyle(color: Colors.black),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                 ),
