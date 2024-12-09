@@ -325,18 +325,27 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
             )
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => CreateBloodRequestScreen()),
-            );
-          },
-          child: const Icon(
-            Icons.add,
-            color: Colors.red,
-            shadows: [Shadow(blurRadius: 1)],
+        floatingActionButton: Align(
+          alignment: Alignment.bottomRight,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xffFAF0F0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  side: const BorderSide(color: Color(0xffEF2A39), width: 2.0),
+                ),
+              ),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=> CreateBloodRequestScreen()));
+              },
+              child: const Text(
+                'Request Blood',
+                style: TextStyle(color: Color(0xffEF2A39)),
+              ),
+            ),
           ),
         ),
       ),
