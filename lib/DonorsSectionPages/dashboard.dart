@@ -18,7 +18,7 @@ class _DashboardState extends State<Dashboard> {
 
   final screen = [
     const MapPage(),
-    EventsPage(),
+    const EventsPage(),
     const Fav(),
     Bloodrequestpage(),
     const More()
