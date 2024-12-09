@@ -14,6 +14,84 @@ class Bloodrequestpage extends StatefulWidget {
 
 class _BloodrequestpageState extends State<Bloodrequestpage> {
   final String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
+  String? userBloodType;
+  String? acceptedByName;
+
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserBloodType();
+  }
+  Future<String?> fetchUserName(String uid) async {
+    try {
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      return userDoc['FullName'] ?? 'Unknown User';
+    } catch (e) {
+      print('Error fetching user name: $e');
+      return null;
+    }
+  }
+  Future<void> fetchUserBloodType() async {
+    try {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) {
+        return;
+      }
+
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (!userDoc.exists || userDoc['BloodType'] == null) {
+        return;
+      }
+
+      setState(() {
+        userBloodType = userDoc['BloodType'];
+      });
+    } catch (e) {
+      print("Error fetching user blood type: $e");
+      Get.snackbar('Error', 'Failed to fetch user blood type',
+          backgroundColor: Colors.red);
+    }
+  }
+  Future<void> acceptBloodRequest(String requestId, BuildContext context) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+      final userName = await fetchUserName(user.uid);
+
+      await FirebaseFirestore.instance.collection('bloodRequests').doc(requestId).update({
+        'acceptedById': user.uid, // Store the user ID
+        'acceptedBy': userName,   // Store the user name
+        'isAccepted': true,
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Request accepted')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error accepting request: $e')),
+      );
+    }
+  }
+
+  bool canDonate(String donorType, String recipientType) {
+    final compatibility = {
+      'A+': ['A+', 'AB+'],
+      'A-': ['A+', 'A-', 'AB+', 'AB-'],
+      'B+': ['B+', 'AB+'],
+      'B-': ['B+', 'B-', 'AB+', 'AB-'],
+      'AB+': ['AB+'],
+      'AB-': ['AB+', 'AB-'],
+      'O+': ['A+', 'B+', 'AB+', 'O+'],
+      'O-': ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+    };
+    return compatibility[donorType]?.contains(recipientType) ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -325,27 +403,18 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
             )
           ],
         ),
-        floatingActionButton: Align(
-          alignment: Alignment.bottomRight,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xffFAF0F0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  side: const BorderSide(color: Color(0xffEF2A39), width: 2.0),
-                ),
-              ),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=> CreateBloodRequestScreen()));
-              },
-              child: const Text(
-                'Request Blood',
-                style: TextStyle(color: Color(0xffEF2A39)),
-              ),
-            ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => CreateBloodRequestScreen()),
+            );
+          },
+          child: const Icon(
+            Icons.add,
+            color: Colors.red,
+            shadows: [Shadow(blurRadius: 1)],
           ),
         ),
       ),
