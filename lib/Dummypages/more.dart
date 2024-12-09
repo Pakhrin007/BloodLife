@@ -42,263 +42,225 @@ class _MoreState extends State<More> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: userData == null
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
+          ? const Center(
+        child: CircularProgressIndicator(),
+      )
           : Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 50),
+            child: Text(
+              "Personal Details",
+              style: TextStyle(
+                fontSize: 18,
+                fontFamily: "Poppins-Medium",
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 40),
+                const Padding(
+                  padding: EdgeInsets.only(left: 20, top: 20),
                   child: Text(
-                    "Personal Details",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    "FullName:",
+                    style: TextStyle(
+                        fontSize: 16, fontFamily: "Poppins-Medium"),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20, top: 20),
-                        child: Text(
-                          "FullName",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20, top: 20),
-                        child: Text(
-                          "${userData?['FullName'] ?? 'Loading...'}",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w400),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, top: 13),
-                      child: Text(
-                        "E-Mail",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, top: 13),
-                      child: Text(
-                        "${userData?['Email'] ?? 'Loading...'}",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w400),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, top: 13),
-                      child: Text(
-                        "PhoneNumber",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, top: 13),
-                      child: Text(
-                        "${userData?['PhoneNumber'] ?? 'Loading...'}",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w400),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, top: 13),
-                      child: Text(
-                        "Date-of-Birth",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, top: 13),
-                      child: Text(
-                        "${userData?['DateOfBirth'] ?? 'Loading...'}",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w400),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, top: 13),
-                      child: Text(
-                        "Blood Type:",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, top: 13),
-                      child: Text(
-                        "${userData?['BloodType'] ?? 'Loading...'}",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w400),
-                      ),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 15),
-                  child: Divider(
-                    color: Colors.grey,
-                    thickness: 1,
-                    indent: 10,
-                  ),
-                ),
-                Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const Api()));
-                      },
-                      child: Row(
-                        children: [
-                          Padding(padding: EdgeInsets.only(top: 20, left: 20)),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Container(
-                              child: Text(
-                                "Blogs",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Icon(Icons.arrow_circle_right_outlined),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 15),
-                      child: Divider(
-                        color: Colors.grey,
-                        thickness: 1,
-                        indent: 10,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Eventhistory()));
-                      },
-                      child: Row(
-                        children: [
-                          Padding(padding: EdgeInsets.all(10)),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Container(
-                              child: Text(
-                                "Event History",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Icon(Icons.arrow_circle_right_outlined),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 15),
-                      child: Divider(
-                        color: Colors.grey,
-                        thickness: 1,
-                        indent: 10,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Padding(padding: EdgeInsets.all(10)),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Container(
-                            child: Text(
-                              "Donation History",
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Icon(Icons.arrow_circle_right_outlined),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Spacer(),
-                Align(
-                  alignment: AlignmentDirectional.bottomEnd,
-                  child: Padding(
-                    padding: const EdgeInsets.all(19.0),
-                    child: SizedBox(
-                      width: 150, // Set your desired width
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Loginpage()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFEF2A39),
-                          foregroundColor: Colors.white,
-                        ),
-                        child: Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.center, // Align text and icon
-                          children: [
-                            Text(
-                              "Logout",
-                              style:
-                                  TextStyle(fontSize: 18, letterSpacing: 1.2),
-                            ),
-                            SizedBox(width: 9),
-                            Icon(Icons.logout),
-                          ],
-                        ),
-                      ),
-                    ),
+                  padding: const EdgeInsets.only(left: 20, top: 20),
+                  child: Text(
+                    "${userData?['FullName'] ?? 'Loading...'}",
+                    style: const TextStyle(
+                        fontSize: 16, fontFamily: "Poppins-Light"),
                   ),
                 ),
               ],
             ),
+          ),
+          Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(left: 20, top: 13),
+                child: Text(
+                  "E-Mail:",
+                  style: TextStyle(
+                      fontSize: 16, fontFamily: "Poppins-Medium"),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20, top: 13),
+                child: Text(
+                  "${userData?['Email'] ?? 'Loading...'}",
+                  style: const TextStyle(
+                      fontSize: 16, fontFamily: "Poppins-Light"),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(left: 20, top: 13),
+                child: Text(
+                  "PhoneNumber:",
+                  style: TextStyle(
+                      fontSize: 16, fontFamily: "Poppins-Medium"),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20, top: 13),
+                child: Text(
+                  "${userData?['PhoneNumber'] ?? 'Loading...'}",
+                  style: const TextStyle(
+                      fontSize: 16, fontFamily: "Poppins-Light"),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(left: 20, top: 13),
+                child: Text(
+                  "Date-of-Birth:",
+                  style: TextStyle(
+                      fontSize: 16, fontFamily: "Poppins-Medium"),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20, top: 13),
+                child: Text(
+                  "${userData?['DateOfBirth'] ?? 'Loading...'}",
+                  style: const TextStyle(
+                      fontSize: 16, fontFamily: "Poppins-Light"),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(left: 20, top: 13),
+                child: Text(
+                  "Blood Type:",
+                  style: TextStyle(
+                      fontSize: 16, fontFamily: "Poppins-Medium"),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20, top: 13),
+                child: Text(
+                  "${userData?['BloodType'] ?? 'Loading...'}",
+                  style: const TextStyle(
+                      fontSize: 16, fontFamily: "Poppins-Light"),
+                ),
+              ),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.only(top: 15),
+            child: Divider(
+              color: Colors.grey,
+              thickness: 1,
+              indent: 10,
+            ),
+          ),
+          Column(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Api()));
+                },
+                child: const ListTile(
+                  title: Text(
+                    "Blogs",
+                    style: TextStyle(
+                        fontSize: 16, fontFamily: "Poppins-Medium"),
+                  ),
+                  trailing: Icon(Icons.arrow_circle_right_outlined),
+                ),
+              ),
+              const Divider(color: Colors.grey, thickness: 1),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Eventhistory()));
+                },
+                child: const ListTile(
+                  title: Text(
+                    "Event History",
+                    style: TextStyle(
+                        fontSize: 16, fontFamily: "Poppins-Medium"),
+                  ),
+                  trailing: Icon(Icons.arrow_circle_right_outlined),
+                ),
+              ),
+              const Divider(color: Colors.grey, thickness: 1),
+              GestureDetector(
+                onTap: () {
+                  // Navigate to Donation History
+                },
+                child: const ListTile(
+                  title: Text(
+                    "Donation History",
+                    style: TextStyle(
+                        fontSize: 16, fontFamily: "Poppins-Medium"),
+                  ),
+                  trailing: Icon(Icons.arrow_circle_right_outlined),
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(19.0),
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Loginpage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFEF2A39),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(40),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Logout",
+                        style: TextStyle(
+                            fontSize: 18,
+                            letterSpacing: 1.2,
+                            fontFamily: "Poppins-Medium"),
+                      ),
+                      SizedBox(width: 9),
+                      Icon(Icons.logout),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
