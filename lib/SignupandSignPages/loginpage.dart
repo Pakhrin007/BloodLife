@@ -45,7 +45,7 @@ class _LoginpageState extends State<Loginpage> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 138, left: 38),
                 child: const Text(
-                  "Sign In to Your Account",
+                  "Log In to Your Account",
                   style: TextStyle(
                     letterSpacing: 1.6,
                     fontSize: 22,

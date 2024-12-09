@@ -137,6 +137,26 @@ class _MoreState extends State<More> {
                     ),
                   ],
                 ),
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20, top: 13),
+                      child: Text(
+                        "Blood Type:",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20, top: 13),
+                      child: Text(
+                        "${userData?['BloodType'] ?? 'Loading...'}",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w400),
+                      ),
+                    ),
+                  ],
+                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 15),
                   child: Divider(
