@@ -1,5 +1,6 @@
 import 'package:bloodlife/SignupandSignPages/loginpage.dart';
 import 'package:bloodlife/api/api.dart';
+import 'package:bloodlife/pages/donationhistory.dart';
 import 'package:bloodlife/pages/eventhistory.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -224,11 +225,19 @@ class _MoreState extends State<More> {
                         Padding(padding: EdgeInsets.all(10)),
                         Padding(
                           padding: const EdgeInsets.only(top: 10),
-                          child: Container(
-                            child: Text(
-                              "Donation History",
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Donationhistory()));
+                            },
+                            child: Container(
+                              child: Text(
+                                "Donation History",
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ),
                         ),
@@ -239,6 +248,48 @@ class _MoreState extends State<More> {
                         ),
                       ],
                     ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 15),
+                      child: Divider(
+                        color: Colors.grey,
+                        thickness: 1,
+                        indent: 10,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        height: 100,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            color: Colors.red.shade100,
+                            boxShadow: [
+                              BoxShadow(color: Colors.black, blurRadius: 0.5)
+                            ]),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                child: Text(
+                                  "Your Next Donation is in:",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontFamily: "Poppins-Medium"),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              child: Text(
+                                " days :  Hours : Minutes",
+                                style: TextStyle(
+                                    fontSize: 18, fontFamily: "Poppins-Light"),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    )
                   ],
                 ),
                 Spacer(),
