@@ -33,7 +33,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
   // Cloudinary Configuration
   final cloudinary = CloudinaryPublic(
     'dykgt0uth', // Replace with your Cloudinary cloud name
-    'bloodlife', // Replace with your upload preset
+    'BloodLife', // Replace with your upload preset
     cache: false,
   );
 
@@ -75,14 +75,22 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
 
   Future<String?> uploadToCloudinary(File file) async {
     try {
+      // Determine the resource type based on the file extension
+      final String fileExtension = file.path.split('.').last.toLowerCase();
+      final resourceType = (fileExtension == 'pdf')
+          ? CloudinaryResourceType.Raw // Use Raw for PDFs or other non-image files
+          : CloudinaryResourceType.Image; // Use Image for JPG/PNG
+
+      // Upload the file to Cloudinary
       CloudinaryResponse response = await cloudinary.uploadFile(
         CloudinaryFile.fromFile(
           file.path,
           folder: 'blood_request_docs',
-          resourceType: CloudinaryResourceType.Image,
+          resourceType: resourceType,
         ),
       );
-      return response.secureUrl;
+
+      return response.secureUrl; // Return the uploaded file's URL
     } on CloudinaryException catch (e) {
       debugPrint('Cloudinary error: ${e.message}');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -94,6 +102,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
       return null;
     }
   }
+
 
   // Date Picker Method
   Future<void> _selectDate(BuildContext context) async {
@@ -130,6 +139,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
           'userId': user!.uid,
           'acceptedBy': null,
           'isAccepted': false,
+          'acceptedById': null,
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
