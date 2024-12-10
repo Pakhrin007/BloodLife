@@ -1,4 +1,3 @@
-import 'package:bloodlife/pages/createEvent.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -47,7 +46,7 @@ class _EventhistoryState extends State<Eventhistory> {
           ? const Center(child: CircularProgressIndicator())
           : StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('events')
+                  .collection('event')
                   .where('userId', isEqualTo: user.uid)
                   .snapshots(),
               builder: (context, snapshot) {
