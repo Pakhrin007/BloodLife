@@ -24,7 +24,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   final _formKey = GlobalKey<FormState>();
   late String _donorName;
   late String _contactNumber;
-  late String _bloodType;
+  // late String _bloodType;
   late DateTime _appointmentDate;
   late String _additionalInfo;
   File? selectedMedicalFile;
@@ -84,7 +84,10 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       // Fetch user data from Firestore based on user UID
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
 
       if (userDoc.exists) {
         var userData = userDoc.data() as Map<String, dynamic>;
@@ -93,14 +96,14 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
         setState(() {
           _nameController.text = userData['FullName'] ?? '';
           _contactController.text = userData['PhoneNumber'] ?? '';
-          _bloodType = userData['BloodType'] ?? 'O+'; // Set default blood type if not found
+          // _bloodType = userData['BloodType'] ?? 'O+'; // Set default blood type if not found
         });
       } else {
         // Handle the case where user data is not found in Firestore
         setState(() {
           _nameController.text = '';
           _contactController.text = '';
-          _bloodType = 'O+'; // Default blood type
+          // _bloodType = 'O+'; // Default blood type
         });
       }
     }
@@ -160,7 +163,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
         await FirebaseFirestore.instance.collection('appointments').add({
           'donorName': _donorName,
           'contactNumber': _contactNumber,
-          'bloodType': _bloodType,
+          // 'bloodType': _bloodType,
           'appointmentDate': _appointmentDate.toIso8601String(),
           'additionalInfo': _additionalInfo,
           'hospitalName': widget.hospitalName,
@@ -180,7 +183,10 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Appointment Form',style: TextStyle(fontFamily: "Poppins-Medium"),),
+        title: const Text(
+          'Appointment Form',
+          style: TextStyle(fontFamily: "Poppins-Medium"),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -217,9 +223,9 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                   labelText: "Donor's Name",
                   labelStyle: TextStyle(fontFamily: 'Poppins-Light'),
                 ),
-                style: TextStyle(fontFamily: 'Poppins-Medium'),  // Bold text
+                style: TextStyle(fontFamily: 'Poppins-Medium'), // Bold text
                 validator: (value) =>
-                value!.isEmpty ? "Please enter your name" : null,
+                    value!.isEmpty ? "Please enter your name" : null,
                 onSaved: (value) {
                   _donorName = value!;
                 },
@@ -234,7 +240,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                 style: TextStyle(fontFamily: 'Poppins-Medium'), // Bold text
                 keyboardType: TextInputType.phone,
                 validator: (value) =>
-                value!.isEmpty ? "Please enter your contact number" : null,
+                    value!.isEmpty ? "Please enter your contact number" : null,
                 onSaved: (value) {
                   _contactNumber = value!;
                 },
@@ -245,18 +251,18 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                   labelText: 'Blood Type',
                   labelStyle: TextStyle(fontFamily: 'Poppins-Light'),
                 ),
-                value: _bloodType, // Set the initial blood type value
-                items: [
-                  'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
-                ].map((label) => DropdownMenuItem(
-                  value: label,
-                  child: Text(label),
-                )).toList(),
+                // value: _bloodType, // Set the initial blood type value
+                items: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+                    .map((label) => DropdownMenuItem(
+                          value: label,
+                          child: Text(label),
+                        ))
+                    .toList(),
                 validator: (value) =>
-                value == null ? "Please select a blood type" : null,
+                    value == null ? "Please select a blood type" : null,
                 onChanged: (value) {
                   setState(() {
-                    _bloodType = value!;
+                    // _bloodType = value!;
                   });
                 },
               ),
@@ -280,7 +286,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                     setState(() {
                       _appointmentDate = pickedDate;
                       _dateController.text =
-                      "${_appointmentDate.toLocal()}".split(' ')[0];
+                          "${_appointmentDate.toLocal()}".split(' ')[0];
                     });
                   }
                 },

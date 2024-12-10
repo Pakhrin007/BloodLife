@@ -1,8 +1,3 @@
-import 'package:bloodlife/DonorsSectionPages/dashboard.dart';
-import 'package:bloodlife/Dummypages/bloodrequestpages.dart';
-import 'package:bloodlife/Dummypages/events.dart';
-import 'package:bloodlife/pages/createBloodRequest.dart';
-import 'package:bloodlife/pages/createEvent.dart';
 import 'package:bloodlife/splashscreen/splashscreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
