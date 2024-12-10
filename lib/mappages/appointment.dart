@@ -149,6 +149,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
           'hospitalName': widget.hospitalName,
           'hospitalAddress': widget.hospitalAddress,
           'fileUrl': _uploadedFileUrl,
+          'additionalInfo': _additionalInfo,
           'bloodType': _bloodType,
           'appointmentDate': _appointmentDate.toIso8601String(),
           'userId': user.uid,
