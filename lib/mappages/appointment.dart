@@ -4,6 +4,7 @@ import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:get/get.dart';
 
 class BloodDonationForm extends StatefulWidget {
   final String hospitalName;
@@ -60,12 +61,11 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
           selectedMedicalFile = file;
         });
 
-        // Offload upload task to Isolate
         String? uploadedUrl = await uploadToCloudinary(file);
         if (uploadedUrl != null) {
           setState(() {
             cloudinaryFileUrl = uploadedUrl;
-            _uploadedFileUrl = uploadedUrl; // Set the URL here for use in submission
+            _uploadedFileUrl = uploadedUrl;
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Document uploaded successfully')),
@@ -112,7 +112,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
         CloudinaryFile.fromFile(
           file.path,
           folder: 'appointments',
-          resourceType: CloudinaryResourceType.Auto, // Adjust resource type
+          resourceType: CloudinaryResourceType.Auto,
         ),
       );
       print("Uploaded file URL: ${response.secureUrl}");
@@ -134,6 +134,29 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
       _formKey.currentState?.save();
 
       try {
+        final user = FirebaseAuth.instance.currentUser!;
+        final QuerySnapshot recentAppointments = await FirebaseFirestore
+            .instance
+            .collection('appointments')
+            .where('userId', isEqualTo: user.uid)
+            .orderBy('appointmentDate', descending: true)
+            .limit(1)
+            .get();
+
+        if (recentAppointments.docs.isNotEmpty) {
+          final recentAppointment = recentAppointments.docs.first;
+          final DateTime lastAppointmentDate =
+              DateTime.parse(recentAppointment['appointmentDate']);
+
+          final DateTime allowedBookingDate =
+              lastAppointmentDate.add(const Duration(days: 85));
+
+          if (DateTime.now().isBefore(allowedBookingDate)) {
+            Get.snackbar("Error", "You cannot Appoint another date");
+            return;
+          }
+        }
+
         await FirebaseFirestore.instance.collection('appointments').add({
           'donorName': _donorName,
           'contactNumber': _contactNumber,
@@ -143,17 +166,12 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
           'hospitalName': widget.hospitalName,
           'hospitalAddress': widget.hospitalAddress,
           'fileUrl': _uploadedFileUrl,
-          'userId': FirebaseAuth.instance.currentUser?.uid,
+          'userId': user.uid,
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Appointment booked successfully!')),
-        );
-        Navigator.pop(context);
+        Get.snackbar("sucessfully", "Appointment sucessfull");
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error booking appointment: $e')),
-        );
+        Get.snackbar("Already Appointed", "you cannot Appoint");
       }
     }
   }
@@ -267,7 +285,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                   }
                 },
                 validator: (value) =>
-                value!.isEmpty ? "Please select an appointment date" : null,
+                    value!.isEmpty ? "Please select an appointment date" : null,
               ),
               const SizedBox(height: 20),
               TextFormField(
@@ -296,9 +314,10 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                   backgroundColor: Colors.red,
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                 ),
-                child: Text(
+                child: const Text(
                   'Book Appointment',
-                  style: TextStyle(fontFamily: 'Poppins-Medium'), // Bold text
+                  style: TextStyle(
+                      color: Colors.black, fontFamily: 'Poppins-Medium'),
                 ),
               ),
             ],

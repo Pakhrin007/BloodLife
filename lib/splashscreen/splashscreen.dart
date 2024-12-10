@@ -1,5 +1,4 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
-import 'package:bloodlife/SignupandSignPages/loginpage.dart';
 import 'package:bloodlife/SignupandSignPages/wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
