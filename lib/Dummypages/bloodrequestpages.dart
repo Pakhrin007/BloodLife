@@ -23,6 +23,15 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
     super.initState();
     fetchUserBloodType();
   }
+  Future<String?> fetchUserContact(String uid) async {
+    try {
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      return userDoc['PhoneNumber'] ?? 'N/A'; // Returns contact number or 'N/A' if not available
+    } catch (e) {
+      print('Error fetching user contact number: $e');
+      return null;
+    }
+  }
   Future<String?> fetchUserName(String uid) async {
     try {
       final userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
@@ -57,9 +66,16 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
           backgroundColor: Colors.red);
     }
   }
-  Future<void> acceptBloodRequest(String requestId, BuildContext context) async {
+  Future<void> acceptBloodRequest(String requestId, String requestUserId, BuildContext context) async {
     try {
       final user = FirebaseAuth.instance.currentUser!;
+      if (user.uid == requestUserId) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('You cannot accept your own request')),
+        );
+        return;
+      }
+
       final userName = await fetchUserName(user.uid);
 
       await FirebaseFirestore.instance.collection('bloodRequests').doc(requestId).update({
@@ -77,6 +93,7 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
       );
     }
   }
+
 
   bool canDonate(String donorType, String recipientType) {
     final compatibility = {
@@ -111,7 +128,7 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
           children: [
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('bloodRequests')
+                  .collection('bloodRequests').where('isAccepted', isEqualTo: false)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -129,6 +146,7 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                     final acceptedById = bloodRequest['acceptedById'];
                     final acceptedBy = bloodRequest['acceptedBy'];
                     final isAccepted = bloodRequest['isAccepted'] ?? false;
+
                     final isEligibleToDonate =
                         userBloodType != null && canDonate(userBloodType!, recipientBloodType);
 
@@ -215,27 +233,33 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                           ),
                                         ),
                                         GestureDetector(
-                                          onTap: isEligibleToDonate
+                                          onTap: isEligibleToDonate && (bloodRequest['userId'] != currentUserId)
                                               ? () async {
-                                            await acceptBloodRequest(bloodRequest.id, context);
+                                            await acceptBloodRequest(
+                                                bloodRequest.id, bloodRequest['userId'], context);
                                           }
                                               : null,
                                           child: Padding(
-                                            padding: const EdgeInsets.only(top: 5,bottom: 5),
+                                            padding: const EdgeInsets.only(top: 5, bottom: 5),
                                             child: Container(
                                               height: 35,
                                               width: 120,
                                               decoration: BoxDecoration(
-                                                color: isEligibleToDonate
+                                                color: isEligibleToDonate && (bloodRequest['userId'] != currentUserId)
                                                     ? Colors.green
                                                     : Colors.grey.shade300,
                                                 borderRadius: BorderRadius.circular(20),
                                               ),
                                               child: Center(
                                                 child: Text(
-                                                  isAccepted ? "Accepted" : (isEligibleToDonate ? "Accept" : "Not Eligible"),
+                                                  isAccepted
+                                                      ? "Accepted"
+                                                      : (isEligibleToDonate && (bloodRequest['userId'] != currentUserId)
+                                                      ? "Accept"
+                                                      : "Not Eligible"),
                                                   style: TextStyle(
-                                                    color: isEligibleToDonate
+                                                    color: isEligibleToDonate &&
+                                                        (bloodRequest['userId'] != currentUserId)
                                                         ? Colors.white
                                                         : Colors.black54,
                                                     fontFamily: 'Poppins-Medium',
@@ -245,6 +269,7 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                             ),
                                           ),
                                         ),
+
                                       ],
                                     ),
                                   ),
@@ -276,6 +301,9 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                   itemCount: bloodRequests.length,
                   itemBuilder: (context, index) {
                     final bloodRequest = bloodRequests[index];
+                    final isAccepted = bloodRequest['isAccepted'] ?? false;
+                    final acceptedBy = bloodRequest['acceptedBy'];
+
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
@@ -340,11 +368,6 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                     ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: GestureDetector(
-                                      child: Icon(Icons.file_copy,size: 20,),),
-                                  ),
-                                  Padding(
                                     padding: const EdgeInsets.only(top: 10),
                                     child: Row(
                                       children: [
@@ -352,46 +375,48 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                           height: 40,
                                           width: 120,
                                           decoration: BoxDecoration(
-                                            color: Colors.grey.shade200,
+                                            color: isAccepted ? Colors.grey : Colors.grey.shade200,
                                             borderRadius: BorderRadius.circular(20),
                                           ),
-                                          child: const Center(
+                                          child: Center(
                                             child: Text(
-                                              "Pending",
-                                              style: TextStyle(fontFamily: 'Poppins-light'),
+                                              isAccepted ? "Accepted by: $acceptedBy" : "Pending",
+                                              style: const TextStyle(fontFamily: 'Poppins-Light'),
                                             ),
                                           ),
                                         ),
                                         const SizedBox(width: 40),
-                                        GestureDetector(
-                                          onTap: () async {
-                                            try {
-                                              await FirebaseFirestore.instance
-                                                  .collection('bloodRequests')
-                                                  .doc(bloodRequest.id)
-                                                  .delete();
-                                              Get.snackbar("Delete", "Successfully Deleted",
-                                                  backgroundColor: Colors.green);
-                                            } catch (e) {
-                                              Get.snackbar("Error", "Something went wrong",
-                                                  backgroundColor: Colors.red);
-                                            }
-                                          },
-                                          child: Container(
-                                            height: 40,
-                                            width: 120,
-                                            decoration: BoxDecoration(
-                                              color: Colors.red,
-                                              borderRadius: BorderRadius.circular(20),
-                                            ),
-                                            child: const Center(
-                                              child: Text(
-                                                "Cancel",
-                                                style: TextStyle(fontFamily: 'Poppins-light'),
+                                        // Show "Delete" button only if request is not accepted
+                                        if (!isAccepted)
+                                          GestureDetector(
+                                            onTap: () async {
+                                              try {
+                                                await FirebaseFirestore.instance
+                                                    .collection('bloodRequests')
+                                                    .doc(bloodRequest.id)
+                                                    .delete();
+                                                Get.snackbar("Delete", "Successfully Deleted",
+                                                    backgroundColor: Colors.green);
+                                              } catch (e) {
+                                                Get.snackbar("Error", "Something went wrong",
+                                                    backgroundColor: Colors.red);
+                                              }
+                                            },
+                                            child: Container(
+                                              height: 40,
+                                              width: 120,
+                                              decoration: BoxDecoration(
+                                                color: Colors.red,
+                                                borderRadius: BorderRadius.circular(20),
+                                              ),
+                                              child: const Center(
+                                                child: Text(
+                                                  "Cancel",
+                                                  style: TextStyle(fontFamily: 'Poppins-Light'),
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
                                       ],
                                     ),
                                   ),
@@ -406,6 +431,9 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                 );
               },
             ),
+
+
+
           ],
         ),
         floatingActionButton: FloatingActionButton(
