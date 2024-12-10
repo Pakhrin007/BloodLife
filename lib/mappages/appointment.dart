@@ -5,6 +5,7 @@ import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:get/get.dart';
 
 class BloodDonationForm extends StatefulWidget {
   final String hospitalName;
@@ -26,18 +27,17 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   late String _contactNumber;
   late String _bloodType;
   late DateTime _appointmentDate;
-  late String _additionalInfo;
+  String? _additionalInfo;
   File? selectedMedicalFile;
-  String? cloudinaryFileUrl;
+  String? _uploadedFileUrl;
 
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _contactController = TextEditingController();
-  String? _uploadedFileUrl;
 
   final cloudinary = CloudinaryPublic(
     'dykgt0uth', // Replace with your Cloudinary cloud name
-    'BloodLife', // Replace with your upload preset
+    'bloodlife', // Replace with your upload preset
     cache: false,
   );
 
@@ -45,6 +45,27 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   void initState() {
     super.initState();
     _initializeUserData();
+    _bloodType = 'O+';
+  }
+
+  void _initializeUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (userDoc.exists) {
+        var userData = userDoc.data() as Map<String, dynamic>;
+
+        setState(() {
+          _nameController.text = userData['FullName'] ?? '';
+          _contactController.text = userData['PhoneNumber'] ?? '';
+          _bloodType = userData['BloodType'] ?? 'O+';
+        });
+      }
+    }
   }
 
   Future<void> pickMedicalDocument() async {
@@ -61,15 +82,13 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
           selectedMedicalFile = file;
         });
 
-        // Offload upload task to Isolate
         String? uploadedUrl = await uploadToCloudinary(file);
         if (uploadedUrl != null) {
           setState(() {
-            cloudinaryFileUrl = uploadedUrl;
-            _uploadedFileUrl = uploadedUrl; // Set the URL here for use in submission
+            _uploadedFileUrl = uploadedUrl;
           });
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Document uploaded successfully')),
+            const SnackBar(content: Text('Document uploaded successfully')),
           );
         }
       }
@@ -80,33 +99,20 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
     }
   }
 
-  void _initializeUserData() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      _nameController.text = user.displayName ?? '';
-      _contactController.text = user.phoneNumber ?? '';
-    }
-  }
-
   Future<String?> uploadToCloudinary(File file) async {
     try {
       CloudinaryResponse response = await cloudinary.uploadFile(
         CloudinaryFile.fromFile(
           file.path,
           folder: 'appointments',
-          resourceType: CloudinaryResourceType.Auto, // Adjust resource type
+          resourceType: CloudinaryResourceType.Auto,
         ),
       );
-      print("Uploaded file URL: ${response.secureUrl}");
       return response.secureUrl;
     } on CloudinaryException catch (e) {
-      debugPrint('Cloudinary error: ${e.message}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Cloudinary upload failed: ${e.message}')),
       );
-      return null;
-    } catch (e) {
-      debugPrint('Unexpected error: $e');
       return null;
     }
   }
@@ -116,22 +122,43 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
       _formKey.currentState?.save();
 
       try {
+        final user = FirebaseAuth.instance.currentUser!;
+        final QuerySnapshot recentAppointments = await FirebaseFirestore
+            .instance
+            .collection('appointments')
+            .where('userId', isEqualTo: user.uid)
+            .orderBy('appointmentDate', descending: true)
+            .limit(1)
+            .get();
+
+        if (recentAppointments.docs.isNotEmpty) {
+          final DateTime lastAppointmentDate =
+          DateTime.parse(recentAppointments.docs.first['appointmentDate']);
+          final DateTime allowedBookingDate =
+          lastAppointmentDate.add(const Duration(days: 85));
+
+          if (DateTime.now().isBefore(allowedBookingDate)) {
+            Get.snackbar("Error", "You cannot book another appointment yet.");
+            return;
+          }
+        }
+
         await FirebaseFirestore.instance.collection('appointments').add({
           'donorName': _donorName,
           'contactNumber': _contactNumber,
-          'bloodType': _bloodType,
-          'appointmentDate': _appointmentDate.toIso8601String(),
-          'additionalInfo': _additionalInfo,
           'hospitalName': widget.hospitalName,
           'hospitalAddress': widget.hospitalAddress,
           'fileUrl': _uploadedFileUrl,
-          'userId': FirebaseAuth.instance.currentUser?.uid,
+          'bloodType': _bloodType,
+          'appointmentDate': _appointmentDate.toIso8601String(),
+          'userId': user.uid,
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Appointment booked successfully!')),
         );
         Navigator.pop(context);
+        Get.snackbar("Success", "Appointment booked successfully!");
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error booking appointment: $e')),
@@ -144,7 +171,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Blood Donation Appointment'),
+        title: const Text('Appointment Form'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -192,12 +219,13 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
               const SizedBox(height: 20),
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Blood Type'),
-                items: [
-                  'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
-                ].map((label) => DropdownMenuItem(
+                value: _bloodType,
+                items: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+                    .map((label) => DropdownMenuItem(
                   value: label,
                   child: Text(label),
-                )).toList(),
+                ))
+                    .toList(),
                 validator: (value) =>
                 value == null ? "Please select a blood type" : null,
                 onChanged: (value) {
@@ -235,7 +263,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
               const SizedBox(height: 20),
               TextFormField(
                 decoration: const InputDecoration(
-                    labelText: 'Enter additional information (optional)'),
+                    labelText: 'Additional Information (optional)'),
                 onSaved: (value) {
                   _additionalInfo = value ?? '';
                 },
@@ -257,7 +285,10 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                   backgroundColor: Colors.red,
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                 ),
-                child: const Text('Book Appointment'),
+                child: const Text(
+                  'Book Appointment',
+                  style: TextStyle(color: Colors.black),
+                ),
               ),
             ],
           ),

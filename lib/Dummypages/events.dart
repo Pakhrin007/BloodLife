@@ -41,7 +41,7 @@ class _EventsPageState extends State<EventsPage> {
   Widget buildEventCard(DocumentSnapshot event, bool canManage) {
     final eventId = event.id;
     final String status = event['status'] ?? 'active';
-    bool isGoing = interestedEvents.contains(eventId);
+    bool isGoing = event['participants'].contains(user.uid);
 
     String date = event['date'] ?? 'NA';
     List<String> dateParts = date.split('-');
@@ -306,9 +306,9 @@ class _EventsPageState extends State<EventsPage> {
       List<String> participants = List<String>.from(eventDoc.data()?['participants'] ?? []);
 
       if (isGoing) {
-        participants.remove(userName);
+        participants.remove(user.uid); // Remove user's ID if they are going
       } else {
-        participants.add(userName);
+        participants.add(user.uid); // Add user's ID if they are interested
       }
 
       await eventRef.update({'participants': participants});
@@ -412,7 +412,6 @@ class _EventsPageState extends State<EventsPage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -491,34 +490,17 @@ class _EventsPageState extends State<EventsPage> {
             ),
           ],
         ),
-        floatingActionButton: Align(
-          alignment: Alignment.bottomRight,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: _createEvent,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xffFAF0F0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  side: const BorderSide(color: Color(0xffEF2A39), width: 2.0),
-                ),
-              ),
-              child: const Text(
-                'Create an Event',
-                style: TextStyle(color: Color(0xffEF2A39)),
-              ),
-            ),
-          ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CreateEventScreen()),
+            );
+          },
+          backgroundColor: const Color(0xFFEF2A39),
+          child: const Icon(Icons.add),
         ),
       ),
-    );
-  }
-
-  void _createEvent() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const CreateEventScreen()),
     );
   }
 }
