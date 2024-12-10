@@ -37,7 +37,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
 
   final cloudinary = CloudinaryPublic(
     'dykgt0uth', // Replace with your Cloudinary cloud name
-    'bloodlife', // Replace with your upload preset
+    'BloodLife', // Replace with your upload preset
     cache: false,
   );
 
@@ -144,7 +144,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Appointment for Blood Donation'),
+        title: const Text('Blood Donation Appointment'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
