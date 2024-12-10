@@ -44,11 +44,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         'date': _dateController.text.trim(),
         'time': _timeController.text.trim(),
         'createdAt': FieldValue.serverTimestamp(),
-        'userId': user!.uid, // Add userId to associate event with the creator
-        'status': 'Upcoming', // Default event status
-        'participants': [],   // Initial empty list of participants
-        'completed': false,   // Default to false, event is not completed
-        'cancelled': false,   // Default to false, event is not cancelled
+        'userId': user!.uid,
+        'status': 'Upcoming',
+        'participants': [],
+        'completed': false,
+        'cancelled': false,
       });
 
       // Clear input fields after successful submission
@@ -81,7 +81,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime.now(), // Prevent selecting past dates
+      firstDate: DateTime.now(),
       lastDate: DateTime(2101),
     );
     if (pickedDate != null) {
@@ -121,7 +121,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create an Event'),
+        title: const Text(
+          'Create an Event',
+          style: TextStyle(fontFamily: "Poppins-Medium"),
+        ),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -137,6 +140,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Event Name',
                   border: OutlineInputBorder(),
+                  labelStyle: TextStyle(fontFamily: "Poppins-Light"),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -153,6 +157,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Venue',
                   border: OutlineInputBorder(),
+                  labelStyle: TextStyle(fontFamily: "Poppins-Light"),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -169,6 +174,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Organizer\'s Name',
                   border: OutlineInputBorder(),
+                  labelStyle: TextStyle(fontFamily: "Poppins-Light"),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -188,6 +194,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Date',
                       border: OutlineInputBorder(),
+                      labelStyle: TextStyle(fontFamily: "Poppins-Light"),
                       suffixIcon: Icon(Icons.calendar_today),
                     ),
                     validator: (value) {
@@ -210,6 +217,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Time',
                       border: OutlineInputBorder(),
+                      labelStyle: TextStyle(fontFamily: "Poppins-Light"),
                       suffixIcon: Icon(Icons.access_time),
                     ),
                     validator: (value) {
@@ -230,6 +238,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Event Description',
                   border: OutlineInputBorder(),
+                  labelStyle: TextStyle(fontFamily: "Poppins-Light"),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -244,12 +253,15 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               ElevatedButton(
                 onPressed: _isLoading ? null : _submitEvent,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.red,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Create Event'),
+                    : const Text(
+                  'Create Event',
+                  style: TextStyle(fontFamily: "Poppins-Medium", color: Colors.white),
+                ),
               ),
             ],
           ),

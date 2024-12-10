@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -80,11 +79,30 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
     }
   }
 
-  void _initializeUserData() {
+  // Initialize user data by fetching from Firestore
+  void _initializeUserData() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      _nameController.text = user.displayName ?? '';
-      _contactController.text = user.phoneNumber ?? '';
+      // Fetch user data from Firestore based on user UID
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+
+      if (userDoc.exists) {
+        var userData = userDoc.data() as Map<String, dynamic>;
+
+        // Populate the fields with user data from Firestore
+        setState(() {
+          _nameController.text = userData['FullName'] ?? '';
+          _contactController.text = userData['PhoneNumber'] ?? '';
+          _bloodType = userData['BloodType'] ?? 'O+'; // Set default blood type if not found
+        });
+      } else {
+        // Handle the case where user data is not found in Firestore
+        setState(() {
+          _nameController.text = '';
+          _contactController.text = '';
+          _bloodType = 'O+'; // Default blood type
+        });
+      }
     }
   }
 
@@ -162,7 +180,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Appointment for Blood Donation'),
+        title: const Text('Appointment Form',style: TextStyle(fontFamily: "Poppins-Medium"),),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -178,21 +196,30 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
             children: <Widget>[
               TextFormField(
                 initialValue: widget.hospitalName,
-                decoration: const InputDecoration(labelText: "Hospital Name"),
+                decoration: InputDecoration(
+                  labelText: "Hospital Name",
+                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'),
+                ),
                 readOnly: true,
               ),
               TextFormField(
                 initialValue: widget.hospitalAddress,
-                decoration:
-                    const InputDecoration(labelText: "Hospital Address"),
+                decoration: InputDecoration(
+                  labelText: "Hospital Address",
+                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'),
+                ),
                 readOnly: true,
               ),
               const SizedBox(height: 20),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: "Donor's Name"),
+                decoration: InputDecoration(
+                  labelText: "Donor's Name",
+                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'),
+                ),
+                style: TextStyle(fontFamily: 'Poppins-Medium'),  // Bold text
                 validator: (value) =>
-                    value!.isEmpty ? "Please enter your name" : null,
+                value!.isEmpty ? "Please enter your name" : null,
                 onSaved: (value) {
                   _donorName = value!;
                 },
@@ -200,25 +227,33 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _contactController,
-                decoration: const InputDecoration(labelText: 'Contact Number'),
+                decoration: InputDecoration(
+                  labelText: 'Contact Number',
+                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'),
+                ),
+                style: TextStyle(fontFamily: 'Poppins-Medium'), // Bold text
                 keyboardType: TextInputType.phone,
                 validator: (value) =>
-                    value!.isEmpty ? "Please enter your contact number" : null,
+                value!.isEmpty ? "Please enter your contact number" : null,
                 onSaved: (value) {
                   _contactNumber = value!;
                 },
               ),
               const SizedBox(height: 20),
               DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Blood Type'),
-                items: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
-                    .map((label) => DropdownMenuItem(
-                          value: label,
-                          child: Text(label),
-                        ))
-                    .toList(),
+                decoration: InputDecoration(
+                  labelText: 'Blood Type',
+                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'),
+                ),
+                value: _bloodType, // Set the initial blood type value
+                items: [
+                  'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
+                ].map((label) => DropdownMenuItem(
+                  value: label,
+                  child: Text(label),
+                )).toList(),
                 validator: (value) =>
-                    value == null ? "Please select a blood type" : null,
+                value == null ? "Please select a blood type" : null,
                 onChanged: (value) {
                   setState(() {
                     _bloodType = value!;
@@ -228,9 +263,10 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _dateController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Appointment Date',
                   suffixIcon: Icon(Icons.calendar_today),
+                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'),
                 ),
                 readOnly: true,
                 onTap: () async {
@@ -244,7 +280,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                     setState(() {
                       _appointmentDate = pickedDate;
                       _dateController.text =
-                          "${_appointmentDate.toLocal()}".split(' ')[0];
+                      "${_appointmentDate.toLocal()}".split(' ')[0];
                     });
                   }
                 },
@@ -253,8 +289,9 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
               ),
               const SizedBox(height: 20),
               TextFormField(
-                decoration: const InputDecoration(
-                    labelText: 'Enter additional information (optional)'),
+                decoration: InputDecoration(
+                    labelText: 'Enter additional information (optional)',
+                    labelStyle: TextStyle(fontFamily: 'Poppins-Light')),
                 onSaved: (value) {
                   _additionalInfo = value ?? '';
                 },
@@ -267,6 +304,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                   _uploadedFileUrl == null
                       ? 'Upload Medical Documents'
                       : 'File Uploaded',
+                  style: TextStyle(fontFamily: 'Poppins-Medium'), // Bold text
                 ),
               ),
               const SizedBox(height: 20),
