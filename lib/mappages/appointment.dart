@@ -25,7 +25,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   final _formKey = GlobalKey<FormState>();
   late String _donorName;
   late String _contactNumber;
-  // late String _bloodType;
+  late String _bloodType;
   late DateTime _appointmentDate;
   String? _additionalInfo;
   File? selectedMedicalFile;
