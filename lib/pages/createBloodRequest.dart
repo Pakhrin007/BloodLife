@@ -128,6 +128,8 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
           'isUrgent': isUrgent,
           'createdAt': FieldValue.serverTimestamp(),
           'userId': user!.uid,
+          'acceptedBy': null,
+          'isAccepted': false,
         });
 
         ScaffoldMessenger.of(context).showSnackBar(

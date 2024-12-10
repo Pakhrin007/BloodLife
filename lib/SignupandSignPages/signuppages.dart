@@ -20,6 +20,8 @@ class _SignuppagesState extends State<Signuppages> {
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
   TextEditingController confirmpassword = TextEditingController();
+  String? selectedBloodType;
+
 
   SignUp() async {
     if (email.text.isEmpty ||
@@ -27,7 +29,8 @@ class _SignuppagesState extends State<Signuppages> {
         confirmpassword.text.isEmpty ||
         fullname.text.isEmpty ||
         dobController.text.isEmpty ||
-        phonenumber.text.isEmpty) {
+        phonenumber.text.isEmpty ||
+        selectedBloodType == null) {
       Get.snackbar("Error", "Please fill all the fields");
       return;
     }
@@ -40,7 +43,7 @@ class _SignuppagesState extends State<Signuppages> {
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: email.text, password: password.text);
-      await addUserDetails(fullname.text, dobController.text, phonenumber.text);
+      await addUserDetails(fullname.text, dobController.text, phonenumber.text, selectedBloodType!);
 
       Get.snackbar("Success", "Sign Up Successful",
           backgroundColor: Colors.green);
@@ -53,14 +56,16 @@ class _SignuppagesState extends State<Signuppages> {
     }
   }
 
-  Future addUserDetails(String fullname, String dob, String phoneNumber) async {
+  Future addUserDetails(String fullname, String dob, String phoneNumber, String bloodType) async {
     try {
       final user = FirebaseAuth.instance.currentUser!;
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'FullName': fullname,
         'DateOfBirth': dob,
         'PhoneNumber': phoneNumber,
-        'Email': email.text
+        'Email': email.text,
+        'BloodType': bloodType,
+
       });
     } catch (e) {
       Get.snackbar("Error", "Failed to add user details: $e");
@@ -186,6 +191,29 @@ class _SignuppagesState extends State<Signuppages> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      SizedBox(
+                        height: 60,
+                        width: 368,
+                        child: DropdownButtonFormField<String>(
+                          decoration: InputDecoration(
+                            labelText: 'Blood Type',
+                            border: OutlineInputBorder(),
+                          ),
+                          value: selectedBloodType,
+                          items: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']
+                              .map((type) =>
+                              DropdownMenuItem(value: type, child: Text(type)))
+                              .toList(),
+                          onChanged: (value) => setState(() {
+                            selectedBloodType = value;
+                          }),
+                          validator: (value) =>
+                          value == null ? 'Please select blood type' : null,
                         ),
                       ),
                       const SizedBox(
