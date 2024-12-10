@@ -15,6 +15,7 @@ class Loginpage extends StatefulWidget {
 class _LoginpageState extends State<Loginpage> {
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
+  bool isPasswordVisible = false; // Password visibility toggle state
 
   SignIn() async {
     if (email.text.isEmpty || password.text.isEmpty) {
@@ -89,19 +90,30 @@ class _LoginpageState extends State<Loginpage> {
                       ),
                     ),
                     const SizedBox(height: 25),
-                    // Password Input
+                    // Password Input with Toggle
                     SizedBox(
                       height: 60,
                       width: 368,
                       child: TextField(
                         controller: password,
-                        obscureText: true,
+                        obscureText: !isPasswordVisible,
                         decoration: InputDecoration(
                           fillColor: Colors.white,
                           filled: true,
                           label: const Text("Password"),
                           hintText: 'Enter Your Password',
-                          suffixIcon: const Icon(Icons.remove_red_eye),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                isPasswordVisible = !isPasswordVisible;
+                              });
+                            },
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(15),
                           ),
@@ -152,8 +164,9 @@ class _LoginpageState extends State<Loginpage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 23),
-                    // Sign In With
+                    const SizedBox(height: 40),
+                    // Commented Out: Sign In With and Social Media Buttons
+                    /*
                     const Text(
                       "Or Sign In With",
                       style: TextStyle(
@@ -170,14 +183,14 @@ class _LoginpageState extends State<Loginpage> {
                             height: 55,
                             width: 55,
                             child:
-                                Image.asset('assets/Images/Icons/facebook.png'),
+                            Image.asset('assets/Images/Icons/facebook.png'),
                           ),
                           const SizedBox(width: 10),
                           SizedBox(
                             height: 55,
                             width: 55,
                             child:
-                                Image.asset('assets/Images/Icons/Google.png'),
+                            Image.asset('assets/Images/Icons/Google.png'),
                           ),
                           const SizedBox(width: 15),
                           SizedBox(
@@ -188,40 +201,39 @@ class _LoginpageState extends State<Loginpage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    // Don't Have Account? Sign Up
-                    Padding(
-                      padding: const EdgeInsets.only(left: 105),
-                      child: Row(
-                        children: [
-                          const Text(
-                            "Don't Have Account?",
-                            style: TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(width: 10),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const Signuppages(),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              "SignUp",
-                              style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.9,
-                                fontSize: 16,
-                                color: Colors.red.shade400,
+                    */
+                    // Centered "Don't Have Account? Sign Up"
+                    const SizedBox(height: 40),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Don't Have Account?",
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const Signuppages(),
                               ),
+                            );
+                          },
+                          child: Text(
+                            "SignUp",
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.9,
+                              fontSize: 16,
+                              color: Colors.red.shade400,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

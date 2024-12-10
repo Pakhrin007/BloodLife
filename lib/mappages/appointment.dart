@@ -101,18 +101,30 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
 
   Future<String?> uploadToCloudinary(File file) async {
     try {
+      // Determine the resource type based on the file extension
+      final String fileExtension = file.path.split('.').last.toLowerCase();
+      final resourceType = (fileExtension == 'pdf')
+          ? CloudinaryResourceType.Raw // Use Raw for PDFs or other non-image files
+          : CloudinaryResourceType.Image; // Use Image for JPG/PNG
+
+      // Upload the file to Cloudinary
       CloudinaryResponse response = await cloudinary.uploadFile(
         CloudinaryFile.fromFile(
           file.path,
           folder: 'appointments',
-          resourceType: CloudinaryResourceType.Auto,
+          resourceType: resourceType,
         ),
       );
-      return response.secureUrl;
+
+      return response.secureUrl; // Return the uploaded file's URL
     } on CloudinaryException catch (e) {
+      debugPrint('Cloudinary error: ${e.message}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Cloudinary upload failed: ${e.message}')),
       );
+      return null;
+    } catch (e) {
+      debugPrint('Unexpected error: $e');
       return null;
     }
   }
