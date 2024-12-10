@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,14 +27,13 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   late String _contactNumber;
   // late String _bloodType;
   late DateTime _appointmentDate;
-  late String _additionalInfo;
+  String? _additionalInfo;
   File? selectedMedicalFile;
-  String? cloudinaryFileUrl;
+  String? _uploadedFileUrl;
 
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _contactController = TextEditingController();
-  String? _uploadedFileUrl;
 
   final cloudinary = CloudinaryPublic(
     'dykgt0uth', // Replace with your Cloudinary cloud name
@@ -45,6 +45,27 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   void initState() {
     super.initState();
     _initializeUserData();
+    _bloodType = 'O+';
+  }
+
+  void _initializeUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (userDoc.exists) {
+        var userData = userDoc.data() as Map<String, dynamic>;
+
+        setState(() {
+          _nameController.text = userData['FullName'] ?? '';
+          _contactController.text = userData['PhoneNumber'] ?? '';
+          _bloodType = userData['BloodType'] ?? 'O+';
+        });
+      }
+    }
   }
 
   Future<void> pickMedicalDocument() async {
@@ -64,11 +85,10 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
         String? uploadedUrl = await uploadToCloudinary(file);
         if (uploadedUrl != null) {
           setState(() {
-            cloudinaryFileUrl = uploadedUrl;
             _uploadedFileUrl = uploadedUrl;
           });
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Document uploaded successfully')),
+            const SnackBar(content: Text('Document uploaded successfully')),
           );
         }
       }
@@ -76,36 +96,6 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('File upload failed: $e')),
       );
-    }
-  }
-
-  // Initialize user data by fetching from Firestore
-  void _initializeUserData() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      // Fetch user data from Firestore based on user UID
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-
-      if (userDoc.exists) {
-        var userData = userDoc.data() as Map<String, dynamic>;
-
-        // Populate the fields with user data from Firestore
-        setState(() {
-          _nameController.text = userData['FullName'] ?? '';
-          _contactController.text = userData['PhoneNumber'] ?? '';
-          // _bloodType = userData['BloodType'] ?? 'O+'; // Set default blood type if not found
-        });
-      } else {
-        // Handle the case where user data is not found in Firestore
-        setState(() {
-          _nameController.text = '';
-          _contactController.text = '';
-          // _bloodType = 'O+'; // Default blood type
-        });
-      }
     }
   }
 
@@ -118,16 +108,11 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
           resourceType: CloudinaryResourceType.Auto,
         ),
       );
-      print("Uploaded file URL: ${response.secureUrl}");
       return response.secureUrl;
     } on CloudinaryException catch (e) {
-      debugPrint('Cloudinary error: ${e.message}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Cloudinary upload failed: ${e.message}')),
       );
-      return null;
-    } catch (e) {
-      debugPrint('Unexpected error: $e');
       return null;
     }
   }
@@ -147,15 +132,13 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
             .get();
 
         if (recentAppointments.docs.isNotEmpty) {
-          final recentAppointment = recentAppointments.docs.first;
           final DateTime lastAppointmentDate =
-              DateTime.parse(recentAppointment['appointmentDate']);
-
+              DateTime.parse(recentAppointments.docs.first['appointmentDate']);
           final DateTime allowedBookingDate =
               lastAppointmentDate.add(const Duration(days: 85));
 
           if (DateTime.now().isBefore(allowedBookingDate)) {
-            Get.snackbar("Error", "You cannot Appoint another date");
+            Get.snackbar("Error", "You cannot book another appointment yet.");
             return;
           }
         }
@@ -163,18 +146,23 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
         await FirebaseFirestore.instance.collection('appointments').add({
           'donorName': _donorName,
           'contactNumber': _contactNumber,
-          // 'bloodType': _bloodType,
-          'appointmentDate': _appointmentDate.toIso8601String(),
-          'additionalInfo': _additionalInfo,
           'hospitalName': widget.hospitalName,
           'hospitalAddress': widget.hospitalAddress,
           'fileUrl': _uploadedFileUrl,
+          'bloodType': _bloodType,
+          'appointmentDate': _appointmentDate.toIso8601String(),
           'userId': user.uid,
         });
 
-        Get.snackbar("sucessfully", "Appointment sucessfull");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Appointment booked successfully!')),
+        );
+        Navigator.pop(context);
+        Get.snackbar("Success", "Appointment booked successfully!");
       } catch (e) {
-        Get.snackbar("Already Appointed", "you cannot Appoint");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error booking appointment: $e')),
+        );
       }
     }
   }
@@ -183,10 +171,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Appointment Form',
-          style: TextStyle(fontFamily: "Poppins-Medium"),
-        ),
+        title: const Text('Appointment Form'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -202,28 +187,19 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
             children: <Widget>[
               TextFormField(
                 initialValue: widget.hospitalName,
-                decoration: InputDecoration(
-                  labelText: "Hospital Name",
-                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'),
-                ),
+                decoration: const InputDecoration(labelText: "Hospital Name"),
                 readOnly: true,
               ),
               TextFormField(
                 initialValue: widget.hospitalAddress,
-                decoration: InputDecoration(
-                  labelText: "Hospital Address",
-                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'),
-                ),
+                decoration:
+                    const InputDecoration(labelText: "Hospital Address"),
                 readOnly: true,
               ),
               const SizedBox(height: 20),
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: "Donor's Name",
-                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'),
-                ),
-                style: TextStyle(fontFamily: 'Poppins-Medium'), // Bold text
+                decoration: const InputDecoration(labelText: "Donor's Name"),
                 validator: (value) =>
                     value!.isEmpty ? "Please enter your name" : null,
                 onSaved: (value) {
@@ -233,11 +209,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _contactController,
-                decoration: InputDecoration(
-                  labelText: 'Contact Number',
-                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'),
-                ),
-                style: TextStyle(fontFamily: 'Poppins-Medium'), // Bold text
+                decoration: const InputDecoration(labelText: 'Contact Number'),
                 keyboardType: TextInputType.phone,
                 validator: (value) =>
                     value!.isEmpty ? "Please enter your contact number" : null,
@@ -247,11 +219,8 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
               ),
               const SizedBox(height: 20),
               DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  labelText: 'Blood Type',
-                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'),
-                ),
-                // value: _bloodType, // Set the initial blood type value
+                decoration: const InputDecoration(labelText: 'Blood Type'),
+                value: _bloodType,
                 items: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
                     .map((label) => DropdownMenuItem(
                           value: label,
@@ -269,10 +238,9 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _dateController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Appointment Date',
                   suffixIcon: Icon(Icons.calendar_today),
-                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'),
                 ),
                 readOnly: true,
                 onTap: () async {
@@ -295,9 +263,8 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
               ),
               const SizedBox(height: 20),
               TextFormField(
-                decoration: InputDecoration(
-                    labelText: 'Enter additional information (optional)',
-                    labelStyle: TextStyle(fontFamily: 'Poppins-Light')),
+                decoration: const InputDecoration(
+                    labelText: 'Additional Information (optional)'),
                 onSaved: (value) {
                   _additionalInfo = value ?? '';
                 },
@@ -310,7 +277,6 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                   _uploadedFileUrl == null
                       ? 'Upload Medical Documents'
                       : 'File Uploaded',
-                  style: TextStyle(fontFamily: 'Poppins-Medium'), // Bold text
                 ),
               ),
               const SizedBox(height: 20),
@@ -322,8 +288,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                 ),
                 child: const Text(
                   'Book Appointment',
-                  style: TextStyle(
-                      color: Colors.black, fontFamily: 'Poppins-Medium'),
+                  style: TextStyle(color: Colors.black),
                 ),
               ),
             ],

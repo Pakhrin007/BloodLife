@@ -77,26 +77,6 @@ class _DonationhistoryState extends State<Donationhistory> {
                                         Padding(
                                           padding: const EdgeInsets.all(4.0),
                                           child: Text(
-                                            "Additional Info: ${appointment["additionalInfo"]}",
-                                            style: TextStyle(
-                                              fontFamily: 'Poppins-Light',
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Text(
-                                            "Appointment Date: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(appointment["appointmentDate"]))}",
-                                            style: TextStyle(
-                                              fontFamily: 'Poppins-Light',
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Text(
                                             "Contact Number: ${appointment["contactNumber"]}",
                                             style: TextStyle(
                                               fontFamily: 'Poppins-Light',
@@ -124,6 +104,17 @@ class _DonationhistoryState extends State<Donationhistory> {
                                             ),
                                           ),
                                         ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Text(
+                                            "Additional Info: ${appointment["additionalInfo"] ?? CircularNotchedRectangle()}",
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins-Light',
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+
                                       ],
                                     ),
                                   ),
