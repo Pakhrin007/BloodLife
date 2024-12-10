@@ -1,16 +1,15 @@
-import 'package:bloodlife/DonorsSectionPages/dashboard.dart';
-import 'package:bloodlife/SignupandSignPages/loginpage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+import '../DonorsSectionPages/dashboard.dart';
+import 'loginpage.dart'; // Assuming Loginpage is another screen
 
 class Signuppages extends StatefulWidget {
-  const Signuppages({super.key});
+  const Signuppages({Key? key}) : super(key: key);
 
   @override
-  State<Signuppages> createState() => _SignuppagesState();
+  _SignuppagesState createState() => _SignuppagesState();
 }
 
 class _SignuppagesState extends State<Signuppages> {
@@ -22,6 +21,8 @@ class _SignuppagesState extends State<Signuppages> {
   TextEditingController confirmpassword = TextEditingController();
   String? selectedBloodType;
 
+  bool _obscurePassword = true; // Toggle for password visibility
+  bool _obscureConfirmPassword = true; // Toggle for confirm password visibility
 
   SignUp() async {
     if (email.text.isEmpty ||
@@ -65,7 +66,6 @@ class _SignuppagesState extends State<Signuppages> {
         'PhoneNumber': phoneNumber,
         'Email': email.text,
         'BloodType': bloodType,
-
       });
     } catch (e) {
       Get.snackbar("Error", "Failed to add user details: $e");
@@ -97,9 +97,7 @@ class _SignuppagesState extends State<Signuppages> {
             decoration: const BoxDecoration(),
           ),
           Padding(
-            padding: const EdgeInsets.only(
-              left: 20,
-            ),
+            padding: const EdgeInsets.only(left: 20),
             child: Container(
               child: Stack(
                 children: [
@@ -152,9 +150,7 @@ class _SignuppagesState extends State<Signuppages> {
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
+                      const SizedBox(height: 15),
                       SizedBox(
                         height: 60,
                         width: 368,
@@ -174,9 +170,7 @@ class _SignuppagesState extends State<Signuppages> {
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
+                      const SizedBox(height: 15),
                       SizedBox(
                         height: 60,
                         width: 368,
@@ -193,9 +187,7 @@ class _SignuppagesState extends State<Signuppages> {
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
+                      const SizedBox(height: 15),
                       SizedBox(
                         height: 60,
                         width: 368,
@@ -216,9 +208,7 @@ class _SignuppagesState extends State<Signuppages> {
                           value == null ? 'Please select blood type' : null,
                         ),
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
+                      const SizedBox(height: 15),
                       SizedBox(
                         height: 60,
                         width: 368,
@@ -235,49 +225,68 @@ class _SignuppagesState extends State<Signuppages> {
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
+                      const SizedBox(height: 15),
                       SizedBox(
                         height: 60,
                         width: 368,
                         child: TextField(
                           controller: password,
+                          obscureText: _obscurePassword,
                           decoration: InputDecoration(
                             fillColor: Colors.white,
                             filled: true,
                             label: const Text("Password"),
                             hintText: 'Enter Your Password',
-                            suffixIcon: const Icon(Icons.remove_red_eye),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.remove_red_eye
+                                    : Icons.lock,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
+                      const SizedBox(height: 15),
                       SizedBox(
                         height: 60,
                         width: 368,
                         child: TextField(
                           controller: confirmpassword,
+                          obscureText: _obscureConfirmPassword,
                           decoration: InputDecoration(
                             fillColor: Colors.white,
                             filled: true,
                             label: const Text("Confirm Password"),
                             hintText: 'Enter Your Password',
-                            suffixIcon: const Icon(Icons.remove_red_eye),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscureConfirmPassword
+                                    ? Icons.remove_red_eye
+                                    : Icons.lock,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscureConfirmPassword =
+                                  !_obscureConfirmPassword;
+                                });
+                              },
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 25,
-                      ),
+                      const SizedBox(height: 25),
                       GestureDetector(
                         onTap: SignUp,
                         child: Padding(
@@ -307,87 +316,45 @@ class _SignuppagesState extends State<Signuppages> {
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 23,
-                      ),
-                      Container(
-                        child: const Text(
-                          "Or SignUp With",
-                          style: TextStyle(
-                              letterSpacing: 1.4,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 110, top: 10),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              height: 55,
-                              width: 55,
-                              child: Image.asset(
-                                  'assets/Images/Icons/facebook.png'),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            SizedBox(
-                              height: 55,
-                              width: 55,
-                              child:
-                                  Image.asset('assets/Images/Icons/Google.png'),
-                            ),
-                            const SizedBox(
-                              width: 15,
-                            ),
-                            SizedBox(
-                              height: 40,
-                              width: 40,
-                              child: Image.asset('assets/Images/Icons/x.png'),
-                            )
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 94, bottom: 35),
-                        child: Row(
-                          children: [
-                            Container(
-                              child: const Text(
-                                "Already Have Account?",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.w700),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const Loginpage(),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                child: Text(
-                                  "SignIn",
+                      const SizedBox(height: 23),
+                      const SizedBox(height: 20),
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 100),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                child: const Text(
+                                  "Already Have Account?",
                                   style: TextStyle(
-                                      decoration: TextDecoration.underline,
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: 0.9,
-                                      fontSize: 16,
-                                      color: Colors.red.shade400),
+                                      fontSize: 15, fontWeight: FontWeight.w700),
                                 ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 10),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const Loginpage(),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  child: Text(
+                                    "SignIn",
+                                    style: TextStyle(
+                                        decoration: TextDecoration.underline,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 0.9,
+                                        fontSize: 16,
+                                        color: Colors.red.shade400),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
