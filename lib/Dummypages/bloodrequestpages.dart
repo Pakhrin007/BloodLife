@@ -258,7 +258,7 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
-                        height: 230,
+                        height: 260,
                         width: double.infinity,
                         decoration: BoxDecoration(
                             color: Colors.cyan.shade100,
@@ -326,6 +326,12 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                       style: TextStyle(
                                           fontFamily: 'Poppins-Light'),
                                     ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: GestureDetector(
+                                      child: Icon(Icons.file_copy,size: 20,),),
+
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.only(top: 10),
