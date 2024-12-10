@@ -1,4 +1,3 @@
-import 'package:bloodlife/models/BloodRequest.dart';
 import 'package:bloodlife/pages/createBloodRequest.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,8 +15,6 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
   final String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
   String? userBloodType;
   String? acceptedByName;
-
-
   @override
   void initState() {
     super.initState();
@@ -325,6 +322,7 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  // Basic Information
                                   Padding(
                                     padding: const EdgeInsets.all(4.0),
                                     child: Text(
@@ -369,54 +367,100 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.only(top: 10),
-                                    child: Row(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Container(
-                                          height: 40,
-                                          width: 120,
-                                          decoration: BoxDecoration(
-                                            color: isAccepted ? Colors.grey : Colors.grey.shade200,
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              isAccepted ? "Accepted by: $acceptedBy" : "Pending",
-                                              style: const TextStyle(fontFamily: 'Poppins-Light'),
+                                        if (isAccepted) ...[
+                                          Text(
+                                            "Accepted by: $acceptedBy",
+                                            style: const TextStyle(
+                                              fontFamily: 'Poppins-Bold',
+                                              fontSize: 16,
                                             ),
                                           ),
-                                        ),
-                                        const SizedBox(width: 40),
-                                        // Show "Delete" button only if request is not accepted
-                                        if (!isAccepted)
-                                          GestureDetector(
-                                            onTap: () async {
-                                              try {
-                                                await FirebaseFirestore.instance
-                                                    .collection('bloodRequests')
-                                                    .doc(bloodRequest.id)
-                                                    .delete();
-                                                Get.snackbar("Delete", "Successfully Deleted",
-                                                    backgroundColor: Colors.green);
-                                              } catch (e) {
-                                                Get.snackbar("Error", "Something went wrong",
-                                                    backgroundColor: Colors.red);
+                                          FutureBuilder<String?>(
+                                            future: fetchUserContact(bloodRequest['acceptedById']),
+                                            builder: (context, contactSnapshot) {
+                                              if (contactSnapshot.connectionState == ConnectionState.waiting) {
+                                                return const Padding(
+                                                  padding: EdgeInsets.only(top: 4.0),
+                                                  child: CircularProgressIndicator(),
+                                                );
+                                              } else if (contactSnapshot.hasError) {
+                                                return const Text("Error fetching contact");
+                                              } else {
+                                                final contact = contactSnapshot.data ?? 'N/A';
+                                                return Padding(
+                                                  padding: const EdgeInsets.only(top: 4.0),
+                                                  child: Text(
+                                                    "Contact: $contact",
+                                                    style: const TextStyle(
+                                                      fontFamily: 'Poppins-Bold',
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                );
                                               }
                                             },
-                                            child: Container(
-                                              height: 40,
-                                              width: 120,
-                                              decoration: BoxDecoration(
-                                                color: Colors.red,
-                                                borderRadius: BorderRadius.circular(20),
-                                              ),
-                                              child: const Center(
-                                                child: Text(
-                                                  "Cancel",
-                                                  style: TextStyle(fontFamily: 'Poppins-Light'),
+                                          ),
+                                        ] else ...[
+                                          Row(
+                                            children: [
+                                              Container(
+                                                height: 40,
+                                                width: 120,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey.shade200,
+                                                  borderRadius: BorderRadius.circular(20),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    "Pending",
+                                                    style: const TextStyle(
+                                                      fontFamily: 'Poppins-Light',
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
+                                              const SizedBox(width: 16),
+                                              GestureDetector(
+                                                onTap: () async {
+                                                  try {
+                                                    await FirebaseFirestore.instance
+                                                        .collection('bloodRequests')
+                                                        .doc(bloodRequest.id)
+                                                        .delete();
+                                                    Get.snackbar(
+                                                      "Delete",
+                                                      "Request successfully deleted",
+                                                      backgroundColor: Colors.green,
+                                                    );
+                                                  } catch (e) {
+                                                    Get.snackbar(
+                                                      "Error",
+                                                      "Something went wrong",
+                                                      backgroundColor: Colors.red,
+                                                    );
+                                                  }
+                                                },
+                                                child: Container(
+                                                  height: 40,
+                                                  width: 120,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.red,
+                                                    borderRadius: BorderRadius.circular(20),
+                                                  ),
+                                                  child: const Center(
+                                                    child: Text(
+                                                      "Cancel",
+                                                      style: TextStyle(fontFamily: 'Poppins-Light'),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
+                                        ],
                                       ],
                                     ),
                                   ),
@@ -431,9 +475,6 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                 );
               },
             ),
-
-
-
           ],
         ),
         floatingActionButton: FloatingActionButton(
