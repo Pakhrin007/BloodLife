@@ -1,3 +1,4 @@
+import 'package:bloodlife/splashscreen/notification.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -63,6 +64,16 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         const SnackBar(content: Text('Event created successfully!')),
       );
 
+      Future.delayed(Duration(seconds: 5)).then((_) {
+        NotificationService().showNotification(
+          id: 1,
+          title: "New Event Created",
+          body:
+              "Your event '${_nameController.text.trim()}' has been added successfully.",
+          payload: "event_created",
+        );
+      });
+
       // Optional: Navigate back to the previous screen
       Navigator.of(context).pop();
     } catch (error) {
@@ -87,7 +98,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     if (pickedDate != null) {
       setState(() {
         _dateController.text =
-        "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
       });
     }
   }
@@ -259,9 +270,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text(
-                  'Create Event',
-                  style: TextStyle(fontFamily: "Poppins-Medium", color: Colors.white),
-                ),
+                        'Create Event',
+                        style: TextStyle(
+                            fontFamily: "Poppins-Medium", color: Colors.white),
+                      ),
               ),
             ],
           ),
