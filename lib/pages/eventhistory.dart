@@ -56,7 +56,7 @@ class _EventhistoryState extends State<Eventhistory> {
           ? const Center(child: CircularProgressIndicator())
           : StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('events')
+            .collection('event')
             .where('userId', isEqualTo: user.uid)
             .snapshots(),
         builder: (context, snapshot) {
