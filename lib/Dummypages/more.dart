@@ -318,33 +318,136 @@ class _MoreState extends State<More> {
                   child: Padding(
                     padding: const EdgeInsets.all(19.0),
                     child: SizedBox(
-                      width: 150, // Set your desired width
+                      width: 150,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Loginpage()),
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Dialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15), // Rounded corners
+                                ),
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width * 0.9, // Adjust width
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Column(
+                                          children: [
+                                            const Row(
+                                              children: [
+                                                Icon(Icons.warning_amber_rounded,
+                                                    color: Colors.red, size: 28),
+                                                SizedBox(width: 8),
+                                                Text(
+                                                  "Confirm Logout",
+                                                  style: TextStyle(
+                                                    fontSize: 20,
+                                                    fontFamily: "Poppins-Medium",
+                                                    color: Colors.black87,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 8),
+                                            Divider(color: Colors.grey.shade400, thickness: 1),
+                                          ],
+                                        ),
+                                      ),
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        child: Text(
+                                          "We still need you here.\nAre you sure you want to log out?",
+                                          style: TextStyle(
+                                            fontFamily: "Poppins-Light",
+                                            fontSize: 16,
+                                            color: Colors.black54,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                      SizedBox(height: 20),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop(); // Close the dialog
+                                            },
+                                            style: TextButton.styleFrom(
+                                              foregroundColor: Colors.white,
+                                              backgroundColor: Colors.grey.shade600,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                            child: const Text(
+                                              "Cancel",
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontFamily: "Poppins-Medium",
+                                              ),
+                                            ),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop(); // Close the dialog
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(builder: (context) => Loginpage()),
+                                              ); // Navigate to login page
+                                            },
+                                            style: TextButton.styleFrom(
+                                              foregroundColor: Colors.white,
+                                              backgroundColor: Colors.red.shade600,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                            child: const Text(
+                                              "Logout",
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontFamily: "Poppins-Medium",
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 16),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFEF2A39),
+                          backgroundColor: const Color(0xFFEF2A39),
                           foregroundColor: Colors.white,
                         ),
-                        child: Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.center, // Align text and icon
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               "Logout",
-                              style:
-                                  TextStyle(fontSize: 18, letterSpacing: 1.2),
+                              style: TextStyle(fontSize: 18, letterSpacing: 1.2),
                             ),
                             SizedBox(width: 9),
                             Icon(Icons.logout),
                           ],
                         ),
                       ),
+
+
+
                     ),
                   ),
                 ),
