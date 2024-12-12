@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
@@ -31,15 +32,20 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   File? selectedMedicalFile;
   String? _uploadedFileUrl;
 
+  bool isBookingAllowed = true;
+  String remainingTime = ''; // Track the remaining time for the next appointment
+
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _contactController = TextEditingController();
 
   final cloudinary = CloudinaryPublic(
-    'dykgt0uth', // Replace with your Cloudinary cloud name
-    'bloodlife', // Replace with your upload preset
+    'dykgt0uth', // Cloud name
+    'bloodlife', // Upload preset
     cache: false,
   );
+
+  Timer? _timer;
 
   @override
   void initState() {
@@ -64,7 +70,86 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
           _contactController.text = userData['PhoneNumber'] ?? '';
           _bloodType = userData['BloodType'] ?? 'O+';
         });
+
+        _checkIfBookingAllowed();
       }
+    }
+  }
+
+  Future<void> _checkIfBookingAllowed() async {
+    final user = FirebaseAuth.instance.currentUser!;
+    await calculateNextDonationDate(user); // Calculate next donation date
+
+    if (!isBookingAllowed) {
+      _startCountdownTimer();
+    }
+  }
+
+  Future<void> calculateNextDonationDate(User user) async {
+    try {
+      DateTime? appointmentDate;
+      DateTime? bloodRequestDate;
+
+      // Query appointments table for the most recent appointment
+      final QuerySnapshot appointmentSnapshot = await FirebaseFirestore.instance
+          .collection('appointments')
+          .where('userId', isEqualTo: user.uid)
+          .orderBy('appointmentDate', descending: true)
+          .limit(1)
+          .get();
+
+      if (appointmentSnapshot.docs.isNotEmpty) {
+        final appointmentDoc = appointmentSnapshot.docs.first;
+        appointmentDate = DateTime.parse(appointmentDoc['appointmentDate']);
+      }
+
+      // Query bloodRequests table for the accepted blood request
+      final QuerySnapshot bloodRequestSnapshot = await FirebaseFirestore.instance
+          .collection('bloodRequests')
+          .where('acceptedById', isEqualTo: user.uid)
+          .limit(1)
+          .get();
+
+      if (bloodRequestSnapshot.docs.isNotEmpty) {
+        final bloodRequestDoc = bloodRequestSnapshot.docs.first;
+        final neededDate = bloodRequestDoc['neededDate'];
+        bloodRequestDate = DateTime.parse(neededDate);
+      }
+
+      // Determine the latest date between appointmentDate and bloodRequestDate
+      DateTime? latestDate;
+      if (appointmentDate != null && bloodRequestDate != null) {
+        latestDate = appointmentDate.isAfter(bloodRequestDate) ? appointmentDate : bloodRequestDate;
+      } else if (appointmentDate != null) {
+        latestDate = appointmentDate;
+      } else if (bloodRequestDate != null) {
+        latestDate = bloodRequestDate;
+      }
+
+      // If a latest date was found, calculate the next donation date
+      if (latestDate != null) {
+        setState(() {
+          final nextDonationDate = latestDate?.add(const Duration(days: 85)); // Adding 85 days for the next donation
+          isBookingAllowed = DateTime.now().isAfter(nextDonationDate!); // Set if booking is allowed based on next donation date
+          remainingTime = isBookingAllowed
+              ? 'You can book now!'
+              : '${nextDonationDate.difference(DateTime.now()).inDays} days, ${nextDonationDate.difference(DateTime.now()).inHours % 24} hours';
+        });
+      }
+    } catch (e) {
+      print('Failed to calculate next donation date: $e');
+    }
+  }
+
+  // Function to start the countdown timer
+  void _startCountdownTimer() {
+    _timer?.cancel();
+    if (remainingTime != 'You can book now!') {
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        setState(() {
+          // Update the remaining time based on the next donation date
+        });
+      });
     }
   }
 
@@ -101,13 +186,11 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
 
   Future<String?> uploadToCloudinary(File file) async {
     try {
-      // Determine the resource type based on the file extension
       final String fileExtension = file.path.split('.').last.toLowerCase();
       final resourceType = (fileExtension == 'pdf')
-          ? CloudinaryResourceType.Raw // Use Raw for PDFs or other non-image files
-          : CloudinaryResourceType.Image; // Use Image for JPG/PNG
+          ? CloudinaryResourceType.Raw
+          : CloudinaryResourceType.Image;
 
-      // Upload the file to Cloudinary
       CloudinaryResponse response = await cloudinary.uploadFile(
         CloudinaryFile.fromFile(
           file.path,
@@ -116,7 +199,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
         ),
       );
 
-      return response.secureUrl; // Return the uploaded file's URL
+      return response.secureUrl;
     } on CloudinaryException catch (e) {
       debugPrint('Cloudinary error: ${e.message}');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -135,24 +218,10 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
 
       try {
         final user = FirebaseAuth.instance.currentUser!;
-        final QuerySnapshot recentAppointments = await FirebaseFirestore
-            .instance
-            .collection('appointments')
-            .where('userId', isEqualTo: user.uid)
-            .orderBy('appointmentDate', descending: true)
-            .limit(1)
-            .get();
 
-        if (recentAppointments.docs.isNotEmpty) {
-          final DateTime lastAppointmentDate =
-          DateTime.parse(recentAppointments.docs.first['appointmentDate']);
-          final DateTime allowedBookingDate =
-          lastAppointmentDate.add(const Duration(days: 85));
-
-          if (DateTime.now().isBefore(allowedBookingDate)) {
-            Get.snackbar("Error", "You cannot book another appointment yet.");
-            return;
-          }
+        if (!isBookingAllowed) {
+          Get.snackbar("Error", "You cannot book another appointment yet.");
+          return;
         }
 
         await FirebaseFirestore.instance.collection('appointments').add({
@@ -178,6 +247,12 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
         );
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -282,6 +357,13 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                 },
               ),
               const SizedBox(height: 20),
+              Text(
+                isBookingAllowed
+                    ? ''
+                    : 'You can book your appointment in $remainingTime',
+                style: const TextStyle(fontSize: 16, color: Colors.red),
+              ),
+              const SizedBox(height: 20),
               ElevatedButton.icon(
                 onPressed: pickMedicalDocument,
                 icon: const Icon(Icons.upload_file),
@@ -293,7 +375,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _submitForm,
+                onPressed: isBookingAllowed ? _submitForm : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
