@@ -68,7 +68,7 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
       final user = FirebaseAuth.instance.currentUser!;
       if (user.uid == requestUserId) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('You cannot accept your own request')),
+          const SnackBar(content: Text('You cannot accept your own request')),
         );
         return;
       }
@@ -82,7 +82,7 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Request accepted')),
+        const SnackBar(content: Text('Request accepted')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -232,8 +232,94 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                         GestureDetector(
                                           onTap: isEligibleToDonate && (bloodRequest['userId'] != currentUserId)
                                               ? () async {
-                                            await acceptBloodRequest(
-                                                bloodRequest.id, bloodRequest['userId'], context);
+                                            try {
+                                              // Calculate next donation date dynamically
+                                              DateTime? appointmentDate;
+                                              DateTime? bloodRequestDate;
+
+                                              final QuerySnapshot appointmentSnapshot = await FirebaseFirestore.instance
+                                                  .collection('appointments')
+                                                  .where('userId', isEqualTo: currentUserId)
+                                                  .orderBy('appointmentDate', descending: true)
+                                                  .limit(1)
+                                                  .get();
+
+                                              if (appointmentSnapshot.docs.isNotEmpty) {
+                                                final appointmentDoc = appointmentSnapshot.docs.first;
+                                                appointmentDate = DateTime.parse(appointmentDoc['appointmentDate']);
+                                              }
+
+                                              final QuerySnapshot bloodRequestSnapshot = await FirebaseFirestore.instance
+                                                  .collection('bloodRequests')
+                                                  .where('acceptedById', isEqualTo: currentUserId)
+                                                  .limit(1)
+                                                  .get();
+
+                                              if (bloodRequestSnapshot.docs.isNotEmpty) {
+                                                final bloodRequestDoc = bloodRequestSnapshot.docs.first;
+                                                final neededDate = bloodRequestDoc['neededDate'];
+                                                bloodRequestDate = DateTime.parse(neededDate);
+                                              }
+
+                                              DateTime? latestDate;
+                                              if (appointmentDate != null && bloodRequestDate != null) {
+                                                latestDate = appointmentDate.isAfter(bloodRequestDate) ? appointmentDate : bloodRequestDate;
+                                              } else if (appointmentDate != null) {
+                                                latestDate = appointmentDate;
+                                              } else if (bloodRequestDate != null) {
+                                                latestDate = bloodRequestDate;
+                                              }
+
+                                              final nextDonationDate = latestDate?.add(const Duration(days: 85));
+
+                                              // Check eligibility
+                                              if (nextDonationDate != null && DateTime.now().isBefore(nextDonationDate)) {
+                                                final remainingDays = nextDonationDate.difference(DateTime.now()).inDays;
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: const Text(
+                                                        "Donation Not Allowed",
+                                                        style: TextStyle(
+                                                          fontFamily: "Poppins-Medium",
+                                                          fontSize: 20,
+                                                          color: Colors.redAccent,  // You can use a custom color
+                                                        ),
+                                                      ),
+                                                      content: Text(
+                                                        "You can donate again in $remainingDays day(s). Please wait until your next eligible donation date.",
+                                                        style: const TextStyle(
+                                                          fontFamily: "Poppins-Light",
+                                                          fontSize: 16,
+                                                          color: Colors.black87,  // A darker color for readability
+                                                        ),
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            Navigator.of(context).pop();
+                                                          },
+                                                          child: const Text(
+                                                            "OK",
+                                                            style: TextStyle(
+                                                              fontFamily: "Poppins-Medium",
+                                                              fontSize: 16,
+                                                              color: Colors.blue,  // A different color for the button text
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+                                              } else {
+                                                // Proceed to accept the blood request
+                                                await acceptBloodRequest(bloodRequest.id, bloodRequest['userId'], context);
+                                              }
+                                            } catch (e) {
+                                              print('Error calculating next donation date: $e');
+                                            }
                                           }
                                               : null,
                                           child: Padding(
@@ -413,10 +499,10 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                                   color: Colors.grey.shade200,
                                                   borderRadius: BorderRadius.circular(20),
                                                 ),
-                                                child: Center(
+                                                child: const Center(
                                                   child: Text(
                                                     "Pending",
-                                                    style: const TextStyle(
+                                                    style: TextStyle(
                                                       fontFamily: 'Poppins-Light',
                                                     ),
                                                   ),
