@@ -185,7 +185,7 @@ class _MoreState extends State<More> {
           const Divider(color: Colors.grey, thickness: 1, indent: 10),
           buildOptionRow("Event History", Eventhistory(), Icons.arrow_circle_right_outlined),
           const Divider(color: Colors.grey, thickness: 1, indent: 10),
-          buildOptionRow("Donation History", Donationhistory(), Icons.arrow_circle_right_outlined),
+          buildOptionRow("Donation History", DonationHistory(), Icons.arrow_circle_right_outlined),
           const Divider(color: Colors.grey, thickness: 1, indent: 10),
           Padding(
             padding: const EdgeInsets.all(8.0),

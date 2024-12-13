@@ -147,218 +147,266 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                     final isEligibleToDonate =
                         userBloodType != null && canDonate(userBloodType!, recipientBloodType);
 
-                    return Expanded(
-                      child: SingleChildScrollView(
+                    return SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
                         child: Container(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              height: 250,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.cyan.shade100,
-                                borderRadius: BorderRadius.circular(20),
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade200,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.all(10),
+                                child: Center(
+                                  child: Icon(Icons.bloodtype_rounded, size: 40, color: Colors.black54),
+                                ),
                               ),
-                              child: Row(
-                                children: [
-                                  const Padding(
-                                    padding: EdgeInsets.only(left: 10),
-                                    child: Icon(Icons.person),
-                                  ),
-                                  const SizedBox(width: 30),
-                                  Expanded(
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Text(
-                                            "Additional Info: ${bloodRequest["additionalInfo"]}",
+                              const SizedBox(width: 30),
+                              Expanded(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min, // Adjust size dynamically
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Text(
+                                        "${bloodRequest["patientName"]}",
+                                        style: const TextStyle(
+                                          fontFamily: 'Poppins-Medium',
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Text(
+                                        "Additional Info: ${bloodRequest["additionalInfo"]}",
+                                        style: const TextStyle(fontFamily: 'Poppins-Light'),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Text(
+                                        "Blood Type: $recipientBloodType",
+                                        style: const TextStyle(fontFamily: 'Poppins-Light'),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.phone, size: 16, color: Colors.black54),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            "${bloodRequest["contactNumber"]}",
                                             style: const TextStyle(fontFamily: 'Poppins-Light'),
                                           ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Text(
-                                            "Blood Type: $recipientBloodType",
+                                        ],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.location_on, size: 16, color: Colors.black54),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            "${bloodRequest["location"]}",
                                             style: const TextStyle(fontFamily: 'Poppins-Light'),
                                           ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Text(
-                                            "Contact Number: ${bloodRequest["contactNumber"]}",
-                                            style: const TextStyle(fontFamily: 'Poppins-Light'),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Text(
-                                            "Location: ${bloodRequest["location"]}",
-                                            style: const TextStyle(fontFamily: 'Poppins-Light'),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Text(
+                                        ],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.calendar_today, size: 16, color: Colors.black54),
+                                          const SizedBox(width: 5),
+                                          Text(
                                             "Needed Date: ${bloodRequest["neededDate"]}",
                                             style: const TextStyle(fontFamily: 'Poppins-Light'),
                                           ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (acceptedBy != null && acceptedBy.isNotEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Text(
+                                          "Accepted by: $acceptedBy",
+                                          style: const TextStyle(fontFamily: 'Poppins-Bold'),
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Text(
-                                            "Name: ${bloodRequest["patientName"]}",
-                                            style: const TextStyle(fontFamily: 'Poppins-Light'),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Column(
-                                            children: [
-                                              // Other widgets
-                                              if (acceptedBy != null && acceptedBy.isNotEmpty)
-                                                Padding(
-                                                  padding: const EdgeInsets.all(4.0),
-                                                  child: Text(
-                                                    "Accepted by: $acceptedBy",
-                                                    style: const TextStyle(fontFamily: 'Poppins-Bold'),
+                                      ),
+                                    GestureDetector(
+                                      onTap: isEligibleToDonate && (bloodRequest['userId'] != currentUserId)
+                                          ? () async {
+                                        try {
+                                          // Fetch the latest appointment and blood request dates
+                                          DateTime? appointmentDate;
+                                          DateTime? bloodRequestDate;
+
+                                          final QuerySnapshot appointmentSnapshot = await FirebaseFirestore.instance
+                                              .collection('appointments')
+                                              .where('userId', isEqualTo: currentUserId)
+                                              .orderBy('appointmentDate', descending: true)
+                                              .limit(1)
+                                              .get();
+
+                                          if (appointmentSnapshot.docs.isNotEmpty) {
+                                            final appointmentDoc = appointmentSnapshot.docs.first;
+                                            appointmentDate = DateTime.parse(appointmentDoc['appointmentDate']);
+                                          }
+
+                                          final QuerySnapshot bloodRequestSnapshot = await FirebaseFirestore.instance
+                                              .collection('bloodRequests')
+                                              .where('acceptedById', isEqualTo: currentUserId)
+                                              .limit(1)
+                                              .get();
+
+                                          if (bloodRequestSnapshot.docs.isNotEmpty) {
+                                            final bloodRequestDoc = bloodRequestSnapshot.docs.first;
+                                            final neededDate = bloodRequestDoc['neededDate'];
+                                            bloodRequestDate = DateTime.parse(neededDate);
+                                          }
+
+                                          // Determine the latest relevant date
+                                          DateTime? latestDate;
+                                          if (appointmentDate != null && bloodRequestDate != null) {
+                                            latestDate = appointmentDate.isAfter(bloodRequestDate) ? appointmentDate : bloodRequestDate;
+                                          } else if (appointmentDate != null) {
+                                            latestDate = appointmentDate;
+                                          } else if (bloodRequestDate != null) {
+                                            latestDate = bloodRequestDate;
+                                          }
+
+                                          // Calculate next donation date
+                                          final nextDonationDate = latestDate?.add(const Duration(days: 85));
+
+                                          if (nextDonationDate != null && DateTime.now().isBefore(nextDonationDate)) {
+                                            final remainingDays = nextDonationDate.difference(DateTime.now()).inDays;
+
+                                            // Show dialog if not eligible
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: const Text(
+                                                    "Donation Not Allowed",
+                                                    style: TextStyle(
+                                                      fontFamily: "Poppins-Medium",
+                                                      fontSize: 20,
+                                                      color: Colors.redAccent,
+                                                    ),
                                                   ),
-                                                ),
-                                              // Other widgets
-                                            ],
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: isEligibleToDonate && (bloodRequest['userId'] != currentUserId)
-                                              ? () async {
-                                            try {
-                                              // Calculate next donation date dynamically
-                                              DateTime? appointmentDate;
-                                              DateTime? bloodRequestDate;
-
-                                              final QuerySnapshot appointmentSnapshot = await FirebaseFirestore.instance
-                                                  .collection('appointments')
-                                                  .where('userId', isEqualTo: currentUserId)
-                                                  .orderBy('appointmentDate', descending: true)
-                                                  .limit(1)
-                                                  .get();
-
-                                              if (appointmentSnapshot.docs.isNotEmpty) {
-                                                final appointmentDoc = appointmentSnapshot.docs.first;
-                                                appointmentDate = DateTime.parse(appointmentDoc['appointmentDate']);
-                                              }
-
-                                              final QuerySnapshot bloodRequestSnapshot = await FirebaseFirestore.instance
-                                                  .collection('bloodRequests')
-                                                  .where('acceptedById', isEqualTo: currentUserId)
-                                                  .limit(1)
-                                                  .get();
-
-                                              if (bloodRequestSnapshot.docs.isNotEmpty) {
-                                                final bloodRequestDoc = bloodRequestSnapshot.docs.first;
-                                                final neededDate = bloodRequestDoc['neededDate'];
-                                                bloodRequestDate = DateTime.parse(neededDate);
-                                              }
-
-                                              DateTime? latestDate;
-                                              if (appointmentDate != null && bloodRequestDate != null) {
-                                                latestDate = appointmentDate.isAfter(bloodRequestDate) ? appointmentDate : bloodRequestDate;
-                                              } else if (appointmentDate != null) {
-                                                latestDate = appointmentDate;
-                                              } else if (bloodRequestDate != null) {
-                                                latestDate = bloodRequestDate;
-                                              }
-
-                                              final nextDonationDate = latestDate?.add(const Duration(days: 85));
-
-                                              // Check eligibility
-                                              if (nextDonationDate != null && DateTime.now().isBefore(nextDonationDate)) {
-                                                final remainingDays = nextDonationDate.difference(DateTime.now()).inDays;
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (BuildContext context) {
-                                                    return AlertDialog(
-                                                      title: const Text(
-                                                        "Donation Not Allowed",
+                                                  content: Text(
+                                                    "You can donate again in $remainingDays day(s). Please wait until your next eligible donation date.",
+                                                    style: const TextStyle(
+                                                      fontFamily: "Poppins-Light",
+                                                      fontSize: 16,
+                                                      color: Colors.black87,
+                                                    ),
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                      child: const Text(
+                                                        "OK",
                                                         style: TextStyle(
                                                           fontFamily: "Poppins-Medium",
-                                                          fontSize: 20,
-                                                          color: Colors.redAccent,  // You can use a custom color
-                                                        ),
-                                                      ),
-                                                      content: Text(
-                                                        "You can donate again in $remainingDays day(s). Please wait until your next eligible donation date.",
-                                                        style: const TextStyle(
-                                                          fontFamily: "Poppins-Light",
                                                           fontSize: 16,
-                                                          color: Colors.black87,  // A darker color for readability
+                                                          color: Colors.blue,
                                                         ),
                                                       ),
-                                                      actions: [
-                                                        TextButton(
-                                                          onPressed: () {
-                                                            Navigator.of(context).pop();
-                                                          },
-                                                          child: const Text(
-                                                            "OK",
-                                                            style: TextStyle(
-                                                              fontFamily: "Poppins-Medium",
-                                                              fontSize: 16,
-                                                              color: Colors.blue,  // A different color for the button text
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    );
-                                                  },
+                                                    ),
+                                                  ],
                                                 );
-                                              } else {
-                                                // Proceed to accept the blood request
-                                                await acceptBloodRequest(bloodRequest.id, bloodRequest['userId'], context);
-                                              }
-                                            } catch (e) {
-                                              print('Error calculating next donation date: $e');
-                                            }
+                                              },
+                                            );
+                                          } else {
+                                            await acceptBloodRequest(bloodRequest.id, bloodRequest['userId'], context);
                                           }
-                                              : null,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(top: 5, bottom: 5),
-                                            child: Container(
-                                              height: 35,
-                                              width: 120,
-                                              decoration: BoxDecoration(
-                                                color: isEligibleToDonate && (bloodRequest['userId'] != currentUserId)
-                                                    ? Colors.green
-                                                    : Colors.grey.shade300,
-                                                borderRadius: BorderRadius.circular(20),
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  isAccepted
-                                                      ? "Accepted"
-                                                      : (isEligibleToDonate && (bloodRequest['userId'] != currentUserId)
-                                                      ? "Accept"
-                                                      : "Not Eligible"),
+                                        } catch (e) {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: const Text(
+                                                  "Error",
                                                   style: TextStyle(
-                                                    color: isEligibleToDonate &&
-                                                        (bloodRequest['userId'] != currentUserId)
-                                                        ? Colors.white
-                                                        : Colors.black54,
-                                                    fontFamily: 'Poppins-Medium',
+                                                    fontFamily: "Poppins-Medium",
+                                                    fontSize: 20,
+                                                    color: Colors.redAccent,
                                                   ),
                                                 ),
+                                                content: Text(
+                                                  "An error occurred: ${e.toString()}. Please try again later.",
+                                                  style: const TextStyle(
+                                                    fontFamily: "Poppins-Light",
+                                                    fontSize: 16,
+                                                    color: Colors.black87,
+                                                  ),
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop();
+                                                    },
+                                                    child: const Text(
+                                                      "OK",
+                                                      style: TextStyle(
+                                                        fontFamily: "Poppins-Medium",
+                                                        fontSize: 16,
+                                                        color: Colors.blue,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        }
+                                      }
+                                          : null,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(top: 5, bottom: 5),
+                                        child: Container(
+                                          height: 35,
+                                          width: 120,
+                                          decoration: BoxDecoration(
+                                            color: isEligibleToDonate && (bloodRequest['userId'] != currentUserId)
+                                                ? Colors.green
+                                                : Colors.grey.shade300,
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              isAccepted
+                                                  ? "Accepted"
+                                                  : (isEligibleToDonate && (bloodRequest['userId'] != currentUserId)
+                                                  ? "Accept"
+                                                  : "Not Eligible"),
+                                              style: TextStyle(
+                                                color: isEligibleToDonate && (bloodRequest['userId'] != currentUserId)
+                                                    ? Colors.white
+                                                    : Colors.black54,
+                                                fontFamily: 'Poppins-Medium',
                                               ),
                                             ),
                                           ),
                                         ),
-
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       ),
@@ -390,168 +438,247 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
-                        height: 260,
-                        width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.cyan.shade100,
+                          color: Colors.red.shade200,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Row(
+                        child: Column(
                           children: [
-                            const Padding(
-                              padding: EdgeInsets.only(left: 10),
-                              child: Icon(Icons.person),
-                            ),
-                            const SizedBox(width: 30),
-                            Expanded(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Basic Information
-                                  Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: Text(
-                                      "Additional Info: ${bloodRequest["additionalInfo"]}",
-                                      style: const TextStyle(fontFamily: 'Poppins-Light'),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: Text(
-                                      "Blood Type: ${bloodRequest["bloodType"]}",
-                                      style: const TextStyle(fontFamily: 'Poppins-Light'),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: Text(
-                                      "Contact Number: ${bloodRequest["contactNumber"]}",
-                                      style: const TextStyle(fontFamily: 'Poppins-Light'),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: Text(
-                                      "Location: ${bloodRequest["location"]}",
-                                      style: const TextStyle(fontFamily: 'Poppins-Light'),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: Text(
-                                      "Needed Date: ${bloodRequest["neededDate"]}",
-                                      style: const TextStyle(fontFamily: 'Poppins-Light'),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: Text(
-                                      "Name: ${bloodRequest["patientName"]}",
-                                      style: const TextStyle(fontFamily: 'Poppins-Light'),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 10),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        if (isAccepted) ...[
-                                          Text(
-                                            "Accepted by: $acceptedBy",
-                                            style: const TextStyle(
-                                              fontFamily: 'Poppins-Bold',
-                                              fontSize: 16,
-                                            ),
+                            Row(
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(left: 10),
+                                  child: Icon(Icons.bloodtype_rounded, size: 40, color: Colors.black54),
+                                ),
+                                const SizedBox(width: 20),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // Patient Name
+                                      Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Text(
+                                          "${bloodRequest["patientName"]}",
+                                          style: const TextStyle(
+                                            fontFamily: 'Poppins-Medium',
+                                            fontSize: 20,
                                           ),
-                                          FutureBuilder<String?>(
-                                            future: fetchUserContact(bloodRequest['acceptedById']),
-                                            builder: (context, contactSnapshot) {
-                                              if (contactSnapshot.connectionState == ConnectionState.waiting) {
-                                                return const Padding(
-                                                  padding: EdgeInsets.only(top: 4.0),
-                                                  child: CircularProgressIndicator(),
-                                                );
-                                              } else if (contactSnapshot.hasError) {
-                                                return const Text("Error fetching contact");
-                                              } else {
-                                                final contact = contactSnapshot.data ?? 'N/A';
-                                                return Padding(
-                                                  padding: const EdgeInsets.only(top: 4.0),
-                                                  child: Text(
-                                                    "Contact: $contact",
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          "Additional Info: ${bloodRequest["additionalInfo"]}",
+                                          style: const TextStyle(fontFamily: 'Poppins-Light', fontSize: 14),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                        child: Text(
+                                          "Blood Type: ${bloodRequest["bloodType"]}",
+                                          style: const TextStyle(fontFamily: 'Poppins-Light', fontSize: 14),
+                                        ),
+                                      ),
+                                      // Contact Number
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.phone, color: Colors.black54, size: 20),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              "${bloodRequest["contactNumber"]}",
+                                              style: const TextStyle(fontFamily: 'Poppins-Light', fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      // Location
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.location_on, color: Colors.black54, size: 20),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              "${bloodRequest["location"]}",
+                                              style: const TextStyle(fontFamily: 'Poppins-Light', fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      // Needed Date
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.date_range, color: Colors.black54, size: 20),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              "Needed Date: ${bloodRequest["neededDate"]}",
+                                              style: const TextStyle(fontFamily: 'Poppins-Light', fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      // Status and Action Buttons
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 10),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            if (isAccepted) ...[
+                                              Row(
+                                                children: [
+                                                  const Icon(Icons.verified, color: Colors.green, size: 20),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    "Accepted by: $acceptedBy",
                                                     style: const TextStyle(
                                                       fontFamily: 'Poppins-Bold',
-                                                      fontSize: 14,
+                                                      fontSize: 16,
                                                     ),
                                                   ),
-                                                );
-                                              }
-                                            },
-                                          ),
-                                        ] else ...[
-                                          Row(
-                                            children: [
-                                              Container(
-                                                height: 40,
-                                                width: 120,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.grey.shade200,
-                                                  borderRadius: BorderRadius.circular(20),
-                                                ),
-                                                child: const Center(
-                                                  child: Text(
-                                                    "Pending",
-                                                    style: TextStyle(
-                                                      fontFamily: 'Poppins-Light',
-                                                    ),
-                                                  ),
-                                                ),
+                                                ],
                                               ),
-                                              const SizedBox(width: 16),
-                                              GestureDetector(
-                                                onTap: () async {
-                                                  try {
-                                                    await FirebaseFirestore.instance
-                                                        .collection('bloodRequests')
-                                                        .doc(bloodRequest.id)
-                                                        .delete();
-                                                    Get.snackbar(
-                                                      "Delete",
-                                                      "Request successfully deleted",
-                                                      backgroundColor: Colors.green,
+                                              FutureBuilder<String?>(
+                                                future: fetchUserContact(bloodRequest['acceptedById']),
+                                                builder: (context, contactSnapshot) {
+                                                  if (contactSnapshot.connectionState == ConnectionState.waiting) {
+                                                    return const Padding(
+                                                      padding: EdgeInsets.only(top: 4.0),
+                                                      child: CircularProgressIndicator(),
                                                     );
-                                                  } catch (e) {
-                                                    Get.snackbar(
-                                                      "Error",
-                                                      "Something went wrong",
-                                                      backgroundColor: Colors.red,
+                                                  } else if (contactSnapshot.hasError) {
+                                                    return const Text("Error fetching contact");
+                                                  } else {
+                                                    final contact = contactSnapshot.data ?? 'N/A';
+                                                    return Padding(
+                                                      padding: const EdgeInsets.only(top: 4.0),
+                                                      child: Text(
+                                                        "Contact: $contact",
+                                                        style: const TextStyle(
+                                                          fontFamily: 'Poppins-Bold',
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
                                                     );
                                                   }
                                                 },
-                                                child: Container(
-                                                  height: 40,
-                                                  width: 120,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.red,
-                                                    borderRadius: BorderRadius.circular(20),
-                                                  ),
-                                                  child: const Center(
-                                                    child: Text(
-                                                      "Cancel",
-                                                      style: TextStyle(fontFamily: 'Poppins-Light'),
+                                              ),
+                                            ] else ...[
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    height: 40,
+                                                    width: 120,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey.shade200,
+                                                      borderRadius: BorderRadius.circular(20),
+                                                    ),
+                                                    child: const Center(
+                                                      child: Text(
+                                                        "Pending",
+                                                        style: TextStyle(
+                                                          fontFamily: 'Poppins-Light',
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
+                                                  const SizedBox(width: 16),
+                                                  GestureDetector(
+                                                    onTap: () async {
+                                                      // Show confirmation dialog before deleting
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (BuildContext context) {
+                                                          return AlertDialog(
+                                                            title: const Text(
+                                                              "Confirm Cancellation",
+                                                              style: TextStyle(
+                                                                fontFamily: 'Poppins-Medium',
+                                                                fontSize: 20,
+                                                              ),
+                                                            ),
+                                                            content: const Text(
+                                                              "Are you sure you want to cancel this blood request? This action cannot be undone.",
+                                                              style: TextStyle(fontFamily: 'Poppins-Light'),
+                                                            ),
+                                                            actions: [
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  Navigator.of(context).pop(); // Close the dialog
+                                                                },
+                                                                child: const Text(
+                                                                  "No",
+                                                                  style: TextStyle(
+                                                                    fontFamily: 'Poppins-Medium',
+                                                                    fontSize: 16,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              TextButton(
+                                                                onPressed: () async {
+                                                                  Navigator.of(context).pop(); // Close the dialog
+                                                                  try {
+                                                                    // Perform deletion
+                                                                    await FirebaseFirestore.instance
+                                                                        .collection('bloodRequests')
+                                                                        .doc(bloodRequest.id)
+                                                                        .delete();
+                                                                    Get.snackbar(
+                                                                      "Deleted",
+                                                                      "Request successfully deleted",
+                                                                      backgroundColor: Colors.green,
+                                                                    );
+                                                                  } catch (e) {
+                                                                    Get.snackbar(
+                                                                      "Error",
+                                                                      "Something went wrong",
+                                                                      backgroundColor: Colors.red,
+                                                                    );
+                                                                  }
+                                                                },
+                                                                child: const Text(
+                                                                  "Yes, Cancel",
+                                                                  style: TextStyle(
+                                                                    fontFamily: 'Poppins-Medium',
+                                                                    fontSize: 16,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                    child: Container(
+                                                      height: 40,
+                                                      width: 120,
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.red,
+                                                        borderRadius: BorderRadius.circular(20),
+                                                      ),
+                                                      child: const Center(
+                                                        child: Text(
+                                                          "Cancel",
+                                                          style: TextStyle(fontFamily: 'Poppins-Light'),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ],
-                                          ),
-                                        ],
-                                      ],
-                                    ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
