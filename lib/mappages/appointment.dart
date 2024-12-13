@@ -1,11 +1,8 @@
-import 'dart:io';
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 
 class BloodDonationForm extends StatefulWidget {
@@ -28,23 +25,18 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   late String _contactNumber;
   late String _bloodType;
   late DateTime _appointmentDate;
+  late DateTime _dob;
   String? _additionalInfo;
-  File? selectedMedicalFile;
-  String? _uploadedFileUrl;
+  late String _weight;
 
   bool isBookingAllowed = true;
-  String remainingTime =
-      ''; // Track the remaining time for the next appointment
+  String remainingTime = '';
 
   final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _dobController = TextEditingController();  // Controller for DOB
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _contactController = TextEditingController();
-
-  final cloudinary = CloudinaryPublic(
-    'dykgt0uth', // Cloud name
-    'bloodlife', // Upload preset
-    cache: false,
-  );
+  final TextEditingController _weightController = TextEditingController();  // Controller for weight
 
   Timer? _timer;
 
@@ -70,6 +62,14 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
           _nameController.text = userData['FullName'] ?? '';
           _contactController.text = userData['PhoneNumber'] ?? '';
           _bloodType = userData['BloodType'] ?? 'O+';
+          if (userData['DateOfBirth'] != null) {
+            _dob = DateTime.parse(userData['DateOfBirth']);
+            _dobController.text = "${_dob.toLocal()}".split(' ')[0];  // Format date
+          }
+          if (userData['Weight'] != null) {
+            _weight = userData['Weight'].toString();
+            _weightController.text = _weight;
+          }
         });
 
         _checkIfBookingAllowed();
@@ -79,7 +79,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
 
   Future<void> _checkIfBookingAllowed() async {
     final user = FirebaseAuth.instance.currentUser!;
-    await calculateNextDonationDate(user); // Calculate next donation date
+    await calculateNextDonationDate(user);
 
     if (!isBookingAllowed) {
       _startCountdownTimer();
@@ -91,7 +91,6 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
       DateTime? appointmentDate;
       DateTime? bloodRequestDate;
 
-      // Query appointments table for the most recent appointment
       final QuerySnapshot appointmentSnapshot = await FirebaseFirestore.instance
           .collection('appointments')
           .where('userId', isEqualTo: user.uid)
@@ -104,7 +103,6 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
         appointmentDate = DateTime.parse(appointmentDoc['appointmentDate']);
       }
 
-      // Query bloodRequests table for the accepted blood request
       final QuerySnapshot bloodRequestSnapshot = await FirebaseFirestore
           .instance
           .collection('bloodRequests')
@@ -133,10 +131,8 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
       // If a latest date was found, calculate the next donation date
       if (latestDate != null) {
         setState(() {
-          final nextDonationDate = latestDate?.add(
-              const Duration(days: 85)); // Adding 85 days for the next donation
-          isBookingAllowed = DateTime.now().isAfter(
-              nextDonationDate!); // Set if booking is allowed based on next donation date
+          final nextDonationDate = latestDate?.add(const Duration(days: 85));
+          isBookingAllowed = DateTime.now().isAfter(nextDonationDate!);
           remainingTime = isBookingAllowed
               ? 'You can book now!'
               : '${nextDonationDate.difference(DateTime.now()).inDays} days, ${nextDonationDate.difference(DateTime.now()).inHours % 24} hours';
@@ -147,7 +143,6 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
     }
   }
 
-  // Function to start the countdown timer
   void _startCountdownTimer() {
     _timer?.cancel();
     if (remainingTime != 'You can book now!') {
@@ -159,68 +154,45 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
     }
   }
 
-  Future<void> pickMedicalDocument() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf', 'jpg', 'png', 'jpeg'],
-      );
+  // Function to check if the user meets the requirements (age >= 18 and weight >= 50)
+  bool _isEligibleForDonation() {
+    final age = DateTime.now().difference(_dob).inDays / 365.25;
+    final weight = double.tryParse(_weightController.text) ?? 0;
 
-      if (result != null) {
-        File file = File(result.files.single.path!);
-
-        setState(() {
-          selectedMedicalFile = file;
-        });
-
-        String? uploadedUrl = await uploadToCloudinary(file);
-        if (uploadedUrl != null) {
-          setState(() {
-            _uploadedFileUrl = uploadedUrl;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Document uploaded successfully')),
-          );
-        }
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('File upload failed: $e')),
-      );
+    if (age < 18) {
+      return false;
     }
-  }
 
-  Future<String?> uploadToCloudinary(File file) async {
-    try {
-      final String fileExtension = file.path.split('.').last.toLowerCase();
-      final resourceType = (fileExtension == 'pdf')
-          ? CloudinaryResourceType.Raw
-          : CloudinaryResourceType.Image;
-
-      CloudinaryResponse response = await cloudinary.uploadFile(
-        CloudinaryFile.fromFile(
-          file.path,
-          folder: 'appointments',
-          resourceType: resourceType,
-        ),
-      );
-
-      return response.secureUrl;
-    } on CloudinaryException catch (e) {
-      debugPrint('Cloudinary error: ${e.message}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Cloudinary upload failed: ${e.message}')),
-      );
-      return null;
-    } catch (e) {
-      debugPrint('Unexpected error: $e');
-      return null;
+    if (weight < 50) {
+      return false;
     }
+
+    return true;
   }
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState?.save();
+
+      if (!_isEligibleForDonation()) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Eligibility Check",style: TextStyle(fontFamily: "Poppins-Medium", color: Colors.red),),
+            content: const Text(
+                "You must be at least 18 years old and weigh at least 50 kg to donate blood.",style: TextStyle(fontFamily: "Poppins-Light"),),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("OK",style: TextStyle(fontFamily: "Poppins-Medium",color: Colors.red),),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
 
       try {
         final user = FirebaseAuth.instance.currentUser!;
@@ -235,11 +207,12 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
           'contactNumber': _contactNumber,
           'hospitalName': widget.hospitalName,
           'hospitalAddress': widget.hospitalAddress,
-          'fileUrl': _uploadedFileUrl,
           'additionalInfo': _additionalInfo,
           'bloodType': _bloodType,
           'appointmentDate': _appointmentDate.toIso8601String(),
           'userId': user.uid,
+          'dateOfBirth': _dob.toIso8601String(), // Save DOB
+          'weight': _weight, // Save weight
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -287,7 +260,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
               TextFormField(
                 initialValue: widget.hospitalAddress,
                 decoration:
-                    const InputDecoration(labelText: "Hospital Address"),
+                const InputDecoration(labelText: "Hospital Address"),
                 readOnly: true,
               ),
               const SizedBox(height: 20),
@@ -295,10 +268,35 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: "Donor's Name"),
                 validator: (value) =>
-                    value!.isEmpty ? "Please enter your name" : null,
+                value!.isEmpty ? "Please enter your name" : null,
                 onSaved: (value) {
                   _donorName = value!;
                 },
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _dobController,
+                decoration: const InputDecoration(
+                  labelText: 'Date of Birth',
+                  suffixIcon: Icon(Icons.calendar_today),
+                ),
+                readOnly: true,
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime.now(),
+                  );
+                  if (pickedDate != null) {
+                    setState(() {
+                      _dob = pickedDate;
+                      _dobController.text = "${_dob.toLocal()}".split(' ')[0];
+                    });
+                  }
+                },
+                validator: (value) =>
+                value!.isEmpty ? "Please select your date of birth" : null,
               ),
               const SizedBox(height: 20),
               TextFormField(
@@ -306,7 +304,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                 decoration: const InputDecoration(labelText: 'Contact Number'),
                 keyboardType: TextInputType.phone,
                 validator: (value) =>
-                    value!.isEmpty ? "Please enter your contact number" : null,
+                value!.isEmpty ? "Please enter your contact number" : null,
                 onSaved: (value) {
                   _contactNumber = value!;
                 },
@@ -317,16 +315,34 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                 value: _bloodType,
                 items: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
                     .map((label) => DropdownMenuItem(
-                          value: label,
-                          child: Text(label),
-                        ))
+                  value: label,
+                  child: Text(label),
+                ))
                     .toList(),
                 validator: (value) =>
-                    value == null ? "Please select a blood type" : null,
+                value == null ? "Please select a blood type" : null,
                 onChanged: (value) {
                   setState(() {
                     _bloodType = value!;
                   });
+                },
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _weightController,
+                decoration: const InputDecoration(labelText: 'Weight (kg)'),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your weight';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Please enter a valid number';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _weight = value!;
                 },
               ),
               const SizedBox(height: 20),
@@ -348,12 +364,12 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                     setState(() {
                       _appointmentDate = pickedDate;
                       _dateController.text =
-                          "${_appointmentDate.toLocal()}".split(' ')[0];
+                      "${_appointmentDate.toLocal()}".split(' ')[0];
                     });
                   }
                 },
                 validator: (value) =>
-                    value!.isEmpty ? "Please select an appointment date" : null,
+                value!.isEmpty ? "Please select an appointment date" : null,
               ),
               const SizedBox(height: 20),
               TextFormField(
@@ -369,16 +385,6 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                     ? ''
                     : 'You can book your appointment in $remainingTime',
                 style: const TextStyle(fontSize: 16, color: Colors.red),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: pickMedicalDocument,
-                icon: const Icon(Icons.upload_file),
-                label: Text(
-                  _uploadedFileUrl == null
-                      ? 'Upload Medical Documents'
-                      : 'File Uploaded',
-                ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
