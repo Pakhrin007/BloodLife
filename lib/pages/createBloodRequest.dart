@@ -22,25 +22,15 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
   final TextEditingController contactController = TextEditingController();
   final TextEditingController neededDateController = TextEditingController();
   final TextEditingController additionalInfoController =
-      TextEditingController();
+  TextEditingController();
 
   // State Variables
   String? selectedBloodType;
   bool isUrgent = false;
   String _date = '';
 
-  // Cloudinary Configuration
-  final cloudinary = CloudinaryPublic(
-    'dykgt0uth', // Replace with your Cloudinary cloud name
-    'BloodLife', // Replace with your upload preset
-    cache: false,
-  );
-
   // Firestore Instance
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  // File Picker Method
-
 
   // Date Picker Method
   Future<void> _selectDate(BuildContext context) async {
@@ -91,7 +81,6 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
     }
   }
 
-  // Reset Form Method
   void _resetForm() {
     patientNameController.clear();
     locationController.clear();
@@ -119,7 +108,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
           'Create Blood Request',
           style: TextStyle(
             color: Colors.black,
-            fontFamily: 'Poppins-Medium', // Bold font for title
+            fontFamily: 'Poppins-Medium',
           ),
         ),
         centerTitle: true,
@@ -137,7 +126,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Patient Name',
                   labelStyle:
-                      TextStyle(fontFamily: 'Poppins-Light'), // Regular font
+                      TextStyle(fontFamily: 'Poppins-Light'),
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) =>
@@ -151,7 +140,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Location',
                   labelStyle:
-                      TextStyle(fontFamily: 'Poppins-Light'), // Regular font
+                      TextStyle(fontFamily: 'Poppins-Light'),
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) =>
@@ -166,20 +155,20 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Contact Number',
                   labelStyle:
-                      TextStyle(fontFamily: 'Poppins-Light'), // Regular font
+                      TextStyle(fontFamily: 'Poppins-Light'),
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter contact number' : null,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Blood Type Dropdown
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Blood Type',
                   labelStyle:
-                      TextStyle(fontFamily: 'Poppins-Light'), // Regular font
+                      TextStyle(fontFamily: 'Poppins-Light'),
                   border: OutlineInputBorder(),
                 ),
                 value: selectedBloodType,
@@ -195,13 +184,12 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Needed Date
               TextFormField(
                 controller: neededDateController,
                 decoration: InputDecoration(
                   labelText: 'Needed Date',
                   labelStyle: const TextStyle(
-                      fontFamily: 'Poppins-Light'), // Regular font
+                      fontFamily: 'Poppins-Light'),
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.calendar_today),
@@ -225,9 +213,9 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-             
+
 
               // Urgent Checkbox
               Row(
@@ -240,7 +228,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                   ),
                   const Text('Urgent Request',
                       style: TextStyle(
-                          fontFamily: 'Poppins-Light')), // Regular font
+                          fontFamily: 'Poppins-Light')),
                 ],
               ),
               SizedBox(height: 16),
@@ -255,7 +243,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                   'Submit Blood Request',
                   style: TextStyle(
                       fontFamily: 'Poppins-Medium',
-                      color: Colors.black), // Bold font for button
+                      color: Colors.black),
                 ),
               ),
             ],
