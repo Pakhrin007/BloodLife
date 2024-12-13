@@ -33,7 +33,8 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
   String? _uploadedFileUrl;
 
   bool isBookingAllowed = true;
-  String remainingTime = ''; // Track the remaining time for the next appointment
+  String remainingTime =
+      ''; // Track the remaining time for the next appointment
 
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
@@ -104,7 +105,8 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
       }
 
       // Query bloodRequests table for the accepted blood request
-      final QuerySnapshot bloodRequestSnapshot = await FirebaseFirestore.instance
+      final QuerySnapshot bloodRequestSnapshot = await FirebaseFirestore
+          .instance
           .collection('bloodRequests')
           .where('acceptedById', isEqualTo: user.uid)
           .limit(1)
@@ -119,7 +121,9 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
       // Determine the latest date between appointmentDate and bloodRequestDate
       DateTime? latestDate;
       if (appointmentDate != null && bloodRequestDate != null) {
-        latestDate = appointmentDate.isAfter(bloodRequestDate) ? appointmentDate : bloodRequestDate;
+        latestDate = appointmentDate.isAfter(bloodRequestDate)
+            ? appointmentDate
+            : bloodRequestDate;
       } else if (appointmentDate != null) {
         latestDate = appointmentDate;
       } else if (bloodRequestDate != null) {
@@ -129,8 +133,10 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
       // If a latest date was found, calculate the next donation date
       if (latestDate != null) {
         setState(() {
-          final nextDonationDate = latestDate?.add(const Duration(days: 85)); // Adding 85 days for the next donation
-          isBookingAllowed = DateTime.now().isAfter(nextDonationDate!); // Set if booking is allowed based on next donation date
+          final nextDonationDate = latestDate?.add(
+              const Duration(days: 85)); // Adding 85 days for the next donation
+          isBookingAllowed = DateTime.now().isAfter(
+              nextDonationDate!); // Set if booking is allowed based on next donation date
           remainingTime = isBookingAllowed
               ? 'You can book now!'
               : '${nextDonationDate.difference(DateTime.now()).inDays} days, ${nextDonationDate.difference(DateTime.now()).inHours % 24} hours';
@@ -280,7 +286,8 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
               ),
               TextFormField(
                 initialValue: widget.hospitalAddress,
-                decoration: const InputDecoration(labelText: "Hospital Address"),
+                decoration:
+                    const InputDecoration(labelText: "Hospital Address"),
                 readOnly: true,
               ),
               const SizedBox(height: 20),
@@ -288,7 +295,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: "Donor's Name"),
                 validator: (value) =>
-                value!.isEmpty ? "Please enter your name" : null,
+                    value!.isEmpty ? "Please enter your name" : null,
                 onSaved: (value) {
                   _donorName = value!;
                 },
@@ -299,7 +306,7 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                 decoration: const InputDecoration(labelText: 'Contact Number'),
                 keyboardType: TextInputType.phone,
                 validator: (value) =>
-                value!.isEmpty ? "Please enter your contact number" : null,
+                    value!.isEmpty ? "Please enter your contact number" : null,
                 onSaved: (value) {
                   _contactNumber = value!;
                 },
@@ -310,12 +317,12 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                 value: _bloodType,
                 items: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
                     .map((label) => DropdownMenuItem(
-                  value: label,
-                  child: Text(label),
-                ))
+                          value: label,
+                          child: Text(label),
+                        ))
                     .toList(),
                 validator: (value) =>
-                value == null ? "Please select a blood type" : null,
+                    value == null ? "Please select a blood type" : null,
                 onChanged: (value) {
                   setState(() {
                     _bloodType = value!;
@@ -341,12 +348,12 @@ class _BloodDonationFormState extends State<BloodDonationForm> {
                     setState(() {
                       _appointmentDate = pickedDate;
                       _dateController.text =
-                      "${_appointmentDate.toLocal()}".split(' ')[0];
+                          "${_appointmentDate.toLocal()}".split(' ')[0];
                     });
                   }
                 },
                 validator: (value) =>
-                value!.isEmpty ? "Please select an appointment date" : null,
+                    value!.isEmpty ? "Please select an appointment date" : null,
               ),
               const SizedBox(height: 20),
               TextFormField(

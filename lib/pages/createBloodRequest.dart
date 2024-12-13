@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bloodlife/splashscreen/notification.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -21,7 +22,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
   final TextEditingController contactController = TextEditingController();
   final TextEditingController neededDateController = TextEditingController();
   final TextEditingController additionalInfoController =
-  TextEditingController();
+      TextEditingController();
 
   // State Variables
   String? selectedBloodType;
@@ -66,6 +67,14 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
           );
         }
       }
+      Future.delayed(Duration(seconds: 5)).then((_) {
+        NotificationService().showNotification(
+          id: 1,
+          title: "New request Created",
+          body: "Your request has been added successfully.",
+          payload: "event_created",
+        );
+      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('File upload failed: $e')),
@@ -78,7 +87,8 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
       // Determine the resource type based on the file extension
       final String fileExtension = file.path.split('.').last.toLowerCase();
       final resourceType = (fileExtension == 'pdf')
-          ? CloudinaryResourceType.Raw // Use Raw for PDFs or other non-image files
+          ? CloudinaryResourceType
+              .Raw // Use Raw for PDFs or other non-image files
           : CloudinaryResourceType.Image; // Use Image for JPG/PNG
 
       // Upload the file to Cloudinary
@@ -90,7 +100,9 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
         ),
       );
 
-      return response.secureUrl; // Return the uploaded file's URL
+      return response.secureUrl;
+
+      // Return the uploaded file's URL
     } on CloudinaryException catch (e) {
       debugPrint('Cloudinary error: ${e.message}');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -102,7 +114,6 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
       return null;
     }
   }
-
 
   // Date Picker Method
   Future<void> _selectDate(BuildContext context) async {
@@ -201,11 +212,12 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                 controller: patientNameController,
                 decoration: const InputDecoration(
                   labelText: 'Patient Name',
-                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'), // Regular font
+                  labelStyle:
+                      TextStyle(fontFamily: 'Poppins-Light'), // Regular font
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) =>
-                value!.isEmpty ? 'Please enter patient name' : null,
+                    value!.isEmpty ? 'Please enter patient name' : null,
               ),
               SizedBox(height: 16),
 
@@ -214,11 +226,12 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                 controller: locationController,
                 decoration: const InputDecoration(
                   labelText: 'Location',
-                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'), // Regular font
+                  labelStyle:
+                      TextStyle(fontFamily: 'Poppins-Light'), // Regular font
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) =>
-                value!.isEmpty ? 'Please enter location' : null,
+                    value!.isEmpty ? 'Please enter location' : null,
               ),
               SizedBox(height: 16),
 
@@ -228,11 +241,12 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                 keyboardType: TextInputType.phone,
                 decoration: const InputDecoration(
                   labelText: 'Contact Number',
-                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'), // Regular font
+                  labelStyle:
+                      TextStyle(fontFamily: 'Poppins-Light'), // Regular font
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) =>
-                value!.isEmpty ? 'Please enter contact number' : null,
+                    value!.isEmpty ? 'Please enter contact number' : null,
               ),
               SizedBox(height: 16),
 
@@ -240,19 +254,20 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Blood Type',
-                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'), // Regular font
+                  labelStyle:
+                      TextStyle(fontFamily: 'Poppins-Light'), // Regular font
                   border: OutlineInputBorder(),
                 ),
                 value: selectedBloodType,
                 items: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']
                     .map((type) =>
-                    DropdownMenuItem(value: type, child: Text(type)))
+                        DropdownMenuItem(value: type, child: Text(type)))
                     .toList(),
                 onChanged: (value) => setState(() {
                   selectedBloodType = value;
                 }),
                 validator: (value) =>
-                value == null ? 'Please select blood type' : null,
+                    value == null ? 'Please select blood type' : null,
               ),
               const SizedBox(height: 16),
 
@@ -261,7 +276,8 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                 controller: neededDateController,
                 decoration: InputDecoration(
                   labelText: 'Needed Date',
-                  labelStyle: const TextStyle(fontFamily: 'Poppins-Light'), // Regular font
+                  labelStyle: const TextStyle(
+                      fontFamily: 'Poppins-Light'), // Regular font
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.calendar_today),
@@ -270,7 +286,7 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                 ),
                 onTap: () => _selectDate(context),
                 validator: (value) =>
-                value!.isEmpty ? 'Please select needed date' : null,
+                    value!.isEmpty ? 'Please select needed date' : null,
               ),
               const SizedBox(height: 16),
 
@@ -280,7 +296,8 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                 maxLines: 3,
                 decoration: const InputDecoration(
                   labelText: 'Additional Information (Optional)',
-                  labelStyle: TextStyle(fontFamily: 'Poppins-Light'), // Regular font
+                  labelStyle:
+                      TextStyle(fontFamily: 'Poppins-Light'), // Regular font
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -290,10 +307,12 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
               ElevatedButton.icon(
                 onPressed: pickMedicalDocument,
                 icon: const Icon(Icons.upload_file),
-                label: Text(selectedMedicalFile != null
-                    ? 'File Selected: ${selectedMedicalFile!.path.split('/').last}'
-                    : 'Upload Medical Document',
-                    style: const TextStyle(fontFamily: 'Poppins-Light')), // Regular font
+                label: Text(
+                    selectedMedicalFile != null
+                        ? 'File Selected: ${selectedMedicalFile!.path.split('/').last}'
+                        : 'Upload Medical Document',
+                    style: const TextStyle(
+                        fontFamily: 'Poppins-Light')), // Regular font
               ),
               const SizedBox(height: 16),
 
@@ -306,7 +325,9 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                       isUrgent = value!;
                     }),
                   ),
-                  const Text('Urgent Request', style: TextStyle(fontFamily: 'Poppins-Light')), // Regular font
+                  const Text('Urgent Request',
+                      style: TextStyle(
+                          fontFamily: 'Poppins-Light')), // Regular font
                 ],
               ),
               SizedBox(height: 16),
@@ -319,7 +340,9 @@ class _CreateBloodRequestScreenState extends State<CreateBloodRequestScreen> {
                 ),
                 child: const Text(
                   'Submit Blood Request',
-                  style: TextStyle(fontFamily: 'Poppins-Medium', color: Colors.black), // Bold font for button
+                  style: TextStyle(
+                      fontFamily: 'Poppins-Medium',
+                      color: Colors.black), // Bold font for button
                 ),
               ),
             ],
