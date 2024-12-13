@@ -348,7 +348,7 @@ class _EventsPageState extends State<EventsPage> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFFEF2A39), // Custom title color
+              color: Color(0xFFEF2A39),
               fontFamily: "Poppins-Medium", // Font style
             ),
           ),
@@ -357,7 +357,7 @@ class _EventsPageState extends State<EventsPage> {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.normal,
-              color: Colors.black87, // Custom content color
+              color: Colors.black87,
               fontFamily: "Poppins-Light", // Font style
             ),
           ),
