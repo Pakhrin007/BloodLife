@@ -84,8 +84,8 @@ class AppointmentHistory extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 10),
                             child: Icon(
                               Icons.person,
                               size: 40,
@@ -101,7 +101,37 @@ class AppointmentHistory extends StatelessWidget {
                                 Padding(
                                   padding: const EdgeInsets.all(4.0),
                                   child: Text(
-                                    "Donor Name: ${appointment["donorName"]}",
+                                    "${appointment["donorName"]}",
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins-Medium',
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.phone,
+                                        size: 16,
+                                        color: Colors.black,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        "${appointment["contactNumber"]}",
+                                        style: const TextStyle(
+                                          fontFamily: 'Poppins-Light',
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: Text(
+                                    "Hospital: ${appointment["hospitalName"]}",
                                     style: const TextStyle(
                                       fontFamily: 'Poppins-Light',
                                       fontSize: 14,
@@ -110,32 +140,22 @@ class AppointmentHistory extends StatelessWidget {
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(4.0),
-                                  child: Text(
-                                    "Contact Number: ${appointment["contactNumber"]}",
-                                    style: const TextStyle(
-                                      fontFamily: 'Poppins-Light',
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(4.0),
-                                  child: Text(
-                                    "Hospital Name: ${appointment["hospitalName"]}",
-                                    style: const TextStyle(
-                                      fontFamily: 'Poppins-Light',
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(4.0),
-                                  child: Text(
-                                    "Hospital Address: ${appointment["hospitalAddress"]}",
-                                    style: const TextStyle(
-                                      fontFamily: 'Poppins-Light',
-                                      fontSize: 14,
-                                    ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.location_on, // Replace with a relevant icon if needed
+                                        size: 16,
+                                        color: Colors.black,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        "${appointment["hospitalAddress"]}",
+                                        style: const TextStyle(
+                                          fontFamily: 'Poppins-Light',
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 Padding(
