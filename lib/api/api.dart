@@ -3,6 +3,7 @@ import 'package:bloodlife/view_models/news_view_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:intl/intl.dart';
 
 class Api extends StatefulWidget {
   const Api({super.key});
@@ -13,19 +14,17 @@ class Api extends StatefulWidget {
 
 class _ApiState extends State<Api> {
   NewsViewModel newsViewModel = NewsViewModel();
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.sizeOf(context).height * 1;
     final width = MediaQuery.sizeOf(context).width * 1;
     return Scaffold(
       appBar: AppBar(
-        // leading: const Icon(Icons.square),
-        title: const Padding(
-          padding: EdgeInsets.only(left: 100),
-          child: Text(
-            "Blogs",
-            style: TextStyle(fontSize: 20),
-          ),
+        centerTitle: true,
+        title: Text(
+          "Health Blogs",
+          style: TextStyle(fontSize: 22, fontFamily: 'Poppins-Medium'),
         ),
       ),
       body: ListView(
@@ -63,7 +62,15 @@ class _ApiState extends State<Api> {
                       return Padding(
                         padding: const EdgeInsets.all(6.0),
                         child: Container(
-                          color: Colors.grey.shade300,
+                          decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Colors.black,
+                                    spreadRadius: 0.5,
+                                    blurRadius: 0.4)
+                              ]),
+                          // color: Colors.white70,
                           height: height * .3,
                           child: Stack(
                             children: [
@@ -100,13 +107,11 @@ class _ApiState extends State<Api> {
                                       ),
                                     );
                                   },
-                                  child: Container(
-                                    child: CachedNetworkImage(
-                                      imageUrl: article.urlToImage.toString(),
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) => Container(
-                                        child: spinkit2,
-                                      ),
+                                  child: CachedNetworkImage(
+                                    imageUrl: article.urlToImage.toString(),
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => Container(
+                                      child: spinkit2,
                                     ),
                                   ),
                                 ),
@@ -116,30 +121,31 @@ class _ApiState extends State<Api> {
                                 child: Padding(
                                   padding:
                                       const EdgeInsets.only(left: 14, top: 12),
-                                  child: Container(
-                                    child: Text(
-                                      'Author: ${snapshot.data!.articles![index].author.toString()}',
-                                      style: const TextStyle(
-                                          fontSize: 14, color: Colors.black),
-                                    ),
+                                  child: Text(
+                                    'Author: ${snapshot.data!.articles![index].author.toString()}',
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                        fontFamily: 'Poppins-Light'),
                                   ),
                                 ),
                               ),
                               Positioned(
                                 top: 200,
-                                right: 50,
+                                // right: 50,
+                                left: 150,
                                 child: Padding(
                                   padding:
                                       const EdgeInsets.only(left: 14, top: 12),
-                                  child: Container(
-                                    child: Text(
-                                      'Author: ${snapshot.data!.articles![index].publishedAt.toString()}',
-                                      style: const TextStyle(
-                                          fontSize: 14, color: Colors.black),
-                                    ),
+                                  child: Text(
+                                    'Date: ${formatDate(snapshot.data!.articles![index].publishedAt.toString())}',
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                        fontFamily: 'Poppins-Light'),
                                   ),
                                 ),
-                              )
+                              ),
                             ],
                           ),
                         ),
@@ -164,3 +170,12 @@ const spinkit2 = SpinKitFadingCircle(
   color: Colors.blue,
   size: 30,
 );
+
+String formatDate(String publishedDate) {
+  try {
+    final dateTime = DateTime.parse(publishedDate);
+    return DateFormat('dd MMM yyyy, hh:mm a').format(dateTime);
+  } catch (e) {
+    return 'Invalid date';
+  }
+}

@@ -1,14 +1,15 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class ApiDetails extends StatefulWidget {
-  final String newsImage,
-      newsTitle,
-      newsDate,
-      author,
-      description,
-      content,
-      source;
+class ApiDetails extends StatelessWidget {
+  final String newsImage;
+  final String newsTitle;
+  final String newsDate;
+  final String author;
+  final String description;
+  final String content;
+  final String source;
+
   const ApiDetails({
     super.key,
     required this.newsImage,
@@ -21,73 +22,67 @@ class ApiDetails extends StatefulWidget {
   });
 
   @override
-  State<ApiDetails> createState() => _ApiDetailsState();
-}
-
-class _ApiDetailsState extends State<ApiDetails> {
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        title: const Text("Blog Details"),
       ),
-      body: Stack(
-        children: [
-          SizedBox(
-            height: 200,
-            width: 400,
-            child: CachedNetworkImage(imageUrl: widget.newsImage),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 220, top: 220),
-            child: SizedBox(
-              height: 200,
-              width: 400,
-              child: Text(
-                widget.author,
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            newsImage.isNotEmpty
+                ? Image.network(newsImage)
+                : const Placeholder(fallbackHeight: 200),
+            const SizedBox(height: 16),
+            Text(
+              newsTitle,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Published: ${formatDate(newsDate)}',
+              style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                  fontFamily: 'Poppins-Light'),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Author: $author',
+              style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                  fontFamily: 'Poppins-Light'),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              description.isNotEmpty
+                  ? description
+                  : 'No description available.',
+              style: const TextStyle(
+                fontSize: 16,
+                fontFamily: 'Poppins-Light',
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 180, top: 250),
-            child: SizedBox(
-              height: 200,
-              width: 400,
-              child: Text(
-                widget.newsDate,
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
+            const SizedBox(height: 16),
+            Text(
+              content.isNotEmpty ? content : 'No content available.',
+              style: const TextStyle(fontSize: 16, fontFamily: 'Poppins-Light'),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 10, top: 300),
-            child: SizedBox(
-              height: 200,
-              width: 400,
-              child: Text(
-                widget.newsTitle,
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 10, top: 390),
-            child: SizedBox(
-              height: 200,
-              width: 400,
-              child: Text(
-                widget.description,
-                style: const TextStyle(fontSize: 20),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  String formatDate(String publishedDate) {
+    try {
+      final dateTime = DateTime.parse(publishedDate);
+      return DateFormat('dd MMM yyyy, hh:mm a').format(dateTime);
+    } catch (e) {
+      return 'Invalid date';
+    }
   }
 }
