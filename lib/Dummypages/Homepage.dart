@@ -101,55 +101,18 @@ class _HomepageState extends State<Homepage> {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        GestureDetector(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: const Text(
-                                    "More Info",
-                                    style: TextStyle(
-                                      fontFamily: "Poppins-Medium",
-                                      fontSize: 20,
-                                      color: Colors.blue,
-                                    ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 140),
+                          child: Container(
+                            child: const Align(
+                              alignment: Alignment.bottomRight,
+                              child: Center(
+                                child: Text(
+                                  "More...",
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins-Medium',
+                                    fontSize: 18,
                                   ),
-                                  content: const Text(
-                                    "Here is some more information regarding the blood request.",
-                                    style: TextStyle(
-                                      fontFamily: "Poppins-Light",
-                                      fontSize: 16,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text(
-                                        "OK",
-                                        style: TextStyle(
-                                          fontFamily: "Poppins-Medium",
-                                          fontSize: 16,
-                                          color: Colors.blue,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                          child: const Align(
-                            alignment: Alignment.bottomRight,
-                            child: Center(
-                              child: Text(
-                                "More...",
-                                style: TextStyle(
-                                  fontFamily: 'Poppins-Medium',
-                                  fontSize: 18,
                                 ),
                               ),
                             ),
@@ -238,7 +201,7 @@ class _HomepageState extends State<Homepage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 280, top: 1),
+                        padding: const EdgeInsets.only(left: 255, top: 1),
                         child: Container(
                           child: Text(
                             "More...",
