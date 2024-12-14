@@ -170,10 +170,10 @@ class _MoreState extends State<More> {
           : Column(
         children: [
           const Padding(
-            padding: EdgeInsets.only(top: 40),
+            padding: EdgeInsets.only(top: 60),
             child: Text(
               "Personal Details",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 20, fontFamily: "Poppins-Medium"),
             ),
           ),
           buildUserDetails(),
@@ -183,7 +183,7 @@ class _MoreState extends State<More> {
           ),
           buildOptionRow("Blogs", const Api(), Icons.arrow_circle_right_outlined),
           const Divider(color: Colors.grey, thickness: 1, indent: 10),
-          buildOptionRow("Event History", Eventhistory(), Icons.arrow_circle_right_outlined),
+          buildOptionRow("Event History", const Eventhistory(), Icons.arrow_circle_right_outlined),
           const Divider(color: Colors.grey, thickness: 1, indent: 10),
           buildOptionRow("Donation History", DonationHistory(), Icons.arrow_circle_right_outlined),
           const Divider(color: Colors.grey, thickness: 1, indent: 10),
@@ -247,14 +247,14 @@ class _MoreState extends State<More> {
           padding: const EdgeInsets.only(left: 20, top: 13),
           child: Text(
             "$label:",
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 16, fontFamily: "Poppins-Medium"),
           ),
         ),
         Padding(
           padding: const EdgeInsets.only(left: 20, top: 13),
           child: Text(
             value,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+            style: const TextStyle(fontSize: 16, fontFamily: "Poppins-Light"),
           ),
         ),
       ],
@@ -266,16 +266,25 @@ class _MoreState extends State<More> {
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => page));
       },
-      child: Row(
-        children: [
-          const Padding(padding: EdgeInsets.all(10)),
-          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          const SizedBox(width: 10),
-          Icon(icon),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontFamily: "Poppins-Medium",
+              ),
+            ),
+            Icon(icon, color: Colors.black),
+          ],
+        ),
       ),
     );
   }
+
 
   Widget buildLogoutButton(BuildContext context) {
     return Align(
@@ -305,7 +314,7 @@ class _MoreState extends State<More> {
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Logout", style: TextStyle(fontSize: 18, letterSpacing: 1.2)),
+                Text("Logout", style: TextStyle(fontSize: 18, letterSpacing: 1.2, fontFamily: "Poppins-Medium")),
                 SizedBox(width: 9),
                 Icon(Icons.logout),
               ],
