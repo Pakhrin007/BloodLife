@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class DonationHistory extends StatefulWidget {
   const DonationHistory({super.key});
@@ -80,7 +79,7 @@ class AppointmentHistory extends StatelessWidget {
                       height: 240,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: Colors.cyan.shade100,
+                        color: Colors.red.shade200,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -90,7 +89,7 @@ class AppointmentHistory extends StatelessWidget {
                             child: Icon(
                               Icons.person,
                               size: 40,
-                              color: Colors.cyan.shade900,
+                              color: Colors.black,
                             ),
                           ),
                           const SizedBox(width: 30),
@@ -204,9 +203,9 @@ class RequestHistory extends StatelessWidget {
           itemBuilder: (context, index) {
             final bloodRequest = bloodRequests[index];
             final recipientBloodType = bloodRequest['bloodType'];
-            final acceptedById = bloodRequest['acceptedById'];
+            // final acceptedById = bloodRequest['acceptedById'];
             final acceptedBy = bloodRequest['acceptedBy'];
-            final isAccepted = bloodRequest['isAccepted'] ?? false;
+            // final isAccepted = bloodRequest['isAccepted'] ?? false;
 
             return Padding(
               padding: const EdgeInsets.all(8.0),
@@ -325,11 +324,4 @@ class RequestHistory extends StatelessWidget {
   }
 }
 
-String formatDate(String Date) {
-  try {
-    final dateTime = DateTime.parse(Date);
-    return DateFormat('dd MMM yyy').format(dateTime);
-  } catch (e) {
-    return 'invalid date';
-  }
-}
+
