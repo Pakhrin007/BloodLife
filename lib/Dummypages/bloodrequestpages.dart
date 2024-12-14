@@ -234,6 +234,21 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                         ],
                                       ),
                                     ),
+                                    if (bloodRequest["isUrgent"] == true)
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 4.0),
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.emergency, color: Colors.black54, size: 20),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              "Urgent",
+                                              style: TextStyle(fontFamily: 'Poppins-Light', fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    const SizedBox(height: 8),
                                     if (acceptedBy != null && acceptedBy.isNotEmpty)
                                       Padding(
                                         padding: const EdgeInsets.all(4.0),
@@ -246,7 +261,6 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                       onTap: isEligibleToDonate && (bloodRequest['userId'] != currentUserId)
                                           ? () async {
                                         try {
-                                          // Fetch the latest appointment and blood request dates
                                           DateTime? appointmentDate;
                                           DateTime? bloodRequestDate;
 
@@ -274,7 +288,6 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                             bloodRequestDate = DateTime.parse(neededDate);
                                           }
 
-                                          // Determine the latest relevant date
                                           DateTime? latestDate;
                                           if (appointmentDate != null && bloodRequestDate != null) {
                                             latestDate = appointmentDate.isAfter(bloodRequestDate) ? appointmentDate : bloodRequestDate;
@@ -284,13 +297,11 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                             latestDate = bloodRequestDate;
                                           }
 
-                                          // Calculate next donation date
                                           final nextDonationDate = latestDate?.add(const Duration(days: 85));
 
                                           if (nextDonationDate != null && DateTime.now().isBefore(nextDonationDate)) {
                                             final remainingDays = nextDonationDate.difference(DateTime.now()).inDays;
 
-                                            // Show dialog if not eligible
                                             showDialog(
                                               context: context,
                                               builder: (BuildContext context) {
@@ -522,6 +533,20 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                           ],
                                         ),
                                       ),
+                                      if (bloodRequest["isUrgent"] == true)
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(vertical: 4.0),
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.emergency, color: Colors.black54, size: 20),
+                                              SizedBox(width: 8),
+                                              Text(
+                                                "Urgent",
+                                                style: TextStyle(fontFamily: 'Poppins-Light', fontSize: 14),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       const SizedBox(height: 8),
                                       // Status and Action Buttons
                                       Padding(
@@ -571,18 +596,21 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                             ] else ...[
                                               Row(
                                                 children: [
-                                                  Container(
-                                                    height: 40,
-                                                    width: 120,
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.grey.shade200,
-                                                      borderRadius: BorderRadius.circular(20),
-                                                    ),
-                                                    child: const Center(
-                                                      child: Text(
-                                                        "Pending",
-                                                        style: TextStyle(
-                                                          fontFamily: 'Poppins-Light',
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                                    child: Container(
+                                                      height: 40,
+                                                      width: 120,
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.grey.shade200,
+                                                        borderRadius: BorderRadius.circular(20),
+                                                      ),
+                                                      child: const Center(
+                                                        child: Text(
+                                                          "Pending",
+                                                          style: TextStyle(
+                                                            fontFamily: 'Poppins-Light',
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
@@ -654,17 +682,20 @@ class _BloodrequestpageState extends State<Bloodrequestpage> {
                                                         },
                                                       );
                                                     },
-                                                    child: Container(
-                                                      height: 40,
-                                                      width: 120,
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.red,
-                                                        borderRadius: BorderRadius.circular(20),
-                                                      ),
-                                                      child: const Center(
-                                                        child: Text(
-                                                          "Cancel",
-                                                          style: TextStyle(fontFamily: 'Poppins-Light'),
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.only(bottom: 8.0),
+                                                      child: Container(
+                                                        height: 40,
+                                                        width: 120,
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.red,
+                                                          borderRadius: BorderRadius.circular(20),
+                                                        ),
+                                                        child: const Center(
+                                                          child: Text(
+                                                            "Cancel",
+                                                            style: TextStyle(fontFamily: 'Poppins-Light'),
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
