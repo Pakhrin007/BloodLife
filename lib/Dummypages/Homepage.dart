@@ -14,10 +14,16 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "HomePage",
-          style: TextStyle(fontSize: 18, fontFamily: 'Poppins-Medium'),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset(
+            'assets/Images/Logo/Logo.png',
+            height: 500,
+            width: 500,
+            fit: BoxFit.fill,
+          ),
         ),
+        title: const Text('BloodLife',style: TextStyle(fontFamily: "pacificio"),),
         centerTitle: true,
       ),
       body: Column(
@@ -26,7 +32,7 @@ class _HomepageState extends State<Homepage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Bloodrequestpage()),
+                MaterialPageRoute(builder: (context) => const Bloodrequestpage()),
               );
             },
             child: Container(
