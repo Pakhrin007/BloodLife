@@ -19,7 +19,7 @@ class _LoginpageState extends State<Loginpage> {
 
   SignIn() async {
     if (email.text.isEmpty || password.text.isEmpty) {
-      Get.snackbar("Error", "Please fill all the Text fields");
+      Get.snackbar("Error", "Please fill all the Text fields",backgroundColor: Colors.red);
       return;
     }
     try {
@@ -31,7 +31,7 @@ class _LoginpageState extends State<Loginpage> {
         MaterialPageRoute(builder: (context) => const Dashboard()),
       );
     } catch (e) {
-      Get.snackbar("Error", "Something went wrong: $e");
+      Get.snackbar("Error", "Something went wrong: $e",backgroundColor: Colors.red);
     }
   }
 

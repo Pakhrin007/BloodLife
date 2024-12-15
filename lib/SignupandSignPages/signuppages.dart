@@ -32,12 +32,12 @@ class _SignuppagesState extends State<Signuppages> {
         dobController.text.isEmpty ||
         phonenumber.text.isEmpty ||
         selectedBloodType == null) {
-      Get.snackbar("Error", "Please fill all the fields");
+      Get.snackbar("Error", "Please fill all the fields",backgroundColor: Colors.red);
       return;
     }
 
     if (password.text != confirmpassword.text) {
-      Get.snackbar("Error", "Passwords do not match");
+      Get.snackbar("Error", "Passwords do not match",backgroundColor: Colors.red);
       return;
     }
 
@@ -53,7 +53,7 @@ class _SignuppagesState extends State<Signuppages> {
         MaterialPageRoute(builder: (context) => const Dashboard()),
       );
     } catch (e) {
-      Get.snackbar("Error", "Something went wrong: $e");
+      Get.snackbar("Error", "Something went wrong: $e",backgroundColor: Colors.red);
     }
   }
 
@@ -68,7 +68,7 @@ class _SignuppagesState extends State<Signuppages> {
         'BloodType': bloodType,
       });
     } catch (e) {
-      Get.snackbar("Error", "Failed to add user details: $e");
+      Get.snackbar("Error", "Failed to add user details: $e",backgroundColor: Colors.red);
     }
   }
 

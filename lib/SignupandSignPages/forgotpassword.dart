@@ -15,7 +15,7 @@ class _ForgotpasswordState extends State<Forgotpassword> {
   TextEditingController email = TextEditingController();
   sendlink() async {
     if (email.text.isEmpty) {
-      Get.snackbar("Error", "Please fill the textfeid");
+      Get.snackbar("Error", "Please fill the textfeid",backgroundColor: Colors.red);
       return;
     }
     try {
@@ -24,7 +24,7 @@ class _ForgotpasswordState extends State<Forgotpassword> {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => Loginpage()));
     } catch (e) {
-      Get.snackbar("Error", "Something wrong $e");
+      Get.snackbar("Error", "Something wrong $e",backgroundColor: Colors.red);
     }
   }
 
